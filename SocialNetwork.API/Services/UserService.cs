@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using SocialNetwork.API.Authorization;
-using SocialNetwork.API.Entities;
+using SocialNetwork.API.Entities.User;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Models.User;
 

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using SocialNetwork.API.Entities;
+using SocialNetwork.API.Entities.User;
 using SocialNetwork.API.Models.User;
 
 namespace SocialNetwork.API.Helpers;

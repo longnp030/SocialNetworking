@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SocialNetwork.API.Entities;
+namespace SocialNetwork.API.Entities.User;
 
 /// <summary>
 /// User class

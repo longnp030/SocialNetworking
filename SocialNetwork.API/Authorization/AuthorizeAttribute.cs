@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SocialNetwork.API.Entities;
+using SocialNetwork.API.Entities.User;
 
 namespace SocialNetwork.API.Authorization;
 

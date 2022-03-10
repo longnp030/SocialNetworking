@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SocialNetwork.API.Entities;
+using SocialNetwork.API.Entities.User;
 
 namespace SocialNetwork.API.Helpers;
 
