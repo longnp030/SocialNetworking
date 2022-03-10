@@ -8,15 +8,11 @@ namespace SocialNetwork.API.Services;
 
 /// <summary>
 /// Interface provides methods to UserService class
-/// <para>Author: longnp</para>
-/// <para>Created: 10/03/2022</para>
 /// </summary>
 public interface IUserService
 {
     /// <summary>
     /// Log user in
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="model">Auth model</param>
     /// <returns>User's credentials and jwt token</returns>
@@ -24,16 +20,12 @@ public interface IUserService
 
     /// <summary>
     /// Get all users in DB
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <returns>All users in DB</returns>
     IEnumerable<User> GetAll();
 
     /// <summary>
     /// Get a user by his/her id
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="id">User's unique identifier</param>
     /// <returns>One user</returns>
@@ -41,16 +33,12 @@ public interface IUserService
 
     /// <summary>
     /// Register a user into system
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="model">Register model</param>
     void Register(RegisterRequest model);
 
     /// <summary>
     /// Update a user's credentials information
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="id">User's unique identifier</param>
     /// <param name="model">Update credentials model</param>
@@ -58,8 +46,6 @@ public interface IUserService
 
     /// <summary>
     /// Delete a user from the system
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="id">User's unique identifier</param>
     void Delete(Guid id);
@@ -79,8 +65,6 @@ public class UserService : IUserService
     #region Constructor
     /// <summary>
     /// Constructors
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="context"></param>
     /// <param name="jwtUtils"></param>

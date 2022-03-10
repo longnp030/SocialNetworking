@@ -7,8 +7,6 @@ namespace SocialNetwork.API.Controllers;
 
 /// <summary>
 /// Provides API related to User
-/// <para>Author: longnp</para>
-/// <para>Created: 10/03/2022</para>
 /// </summary>
 [Authorize]
 [ApiController]
@@ -25,8 +23,6 @@ public class UsersController : ControllerBase
     #region Constructor
     /// <summary>
     /// Constructor
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="userService"></param>
     public UsersController(
@@ -39,8 +35,6 @@ public class UsersController : ControllerBase
     #region Methods
     /// <summary>
     /// Log user in
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="model">Auth model</param>
     /// <returns>
@@ -59,8 +53,6 @@ public class UsersController : ControllerBase
 
     /// <summary>
     /// Register new user account
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="model">Register model</param>
     /// <returns>
@@ -78,8 +70,6 @@ public class UsersController : ControllerBase
 
     /// <summary>
     /// Get all users
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <returns>
     /// Status code:
@@ -95,8 +85,6 @@ public class UsersController : ControllerBase
 
     /// <summary>
     /// Get a user by id
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="id">User's unique identifier</param>
     /// <returns>Status code:
@@ -129,8 +117,6 @@ public class UsersController : ControllerBase
 
     /// <summary>
     /// Delete a user by his/her id
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="id">User's unique identifier</param>
     /// <returns>Status code:

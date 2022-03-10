@@ -10,8 +10,6 @@ namespace SocialNetwork.API.Authorization;
 
 /// <summary>
 /// Interface provides methods to JwtUtils class
-/// <para>Author: longnp</para>
-/// <para>Created: 10/03/2022</para>
 /// </summary>
 public interface IJwtUtils
 {
@@ -21,16 +19,12 @@ public interface IJwtUtils
 
 /// <summary>
 /// Provide jwt auth helper functions
-/// <para>Author: longnp</para>
-/// <para>Created: 10/03/2022</para>
 /// </summary>
 public class JwtUtils : IJwtUtils
 {
     #region Properties
     /// <summary>
     /// Provide app secret saved in appsettings.json
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     private readonly AppSettings _appSettings;
     #endregion Properties
@@ -38,8 +32,6 @@ public class JwtUtils : IJwtUtils
     #region Constructor
     /// <summary>
     /// Constructor
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="appSettings">Provide app secret saved in appsettings.json</param>
     public JwtUtils(IOptions<AppSettings> appSettings)
@@ -51,8 +43,6 @@ public class JwtUtils : IJwtUtils
     #region Methods
     /// <summary>
     /// Generate token that is valid for 7 days
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="user">Auth user</param>
     /// <returns>Token</returns>
@@ -72,8 +62,6 @@ public class JwtUtils : IJwtUtils
 
     /// <summary>
     /// Check if token is valid 
-    /// <para>Author: longnp</para>
-    /// <para>Created: 10/03/2022</para>
     /// </summary>
     /// <param name="token">Jwt token</param>
     /// <returns>

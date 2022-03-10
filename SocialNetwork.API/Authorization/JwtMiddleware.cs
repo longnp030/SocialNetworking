@@ -5,8 +5,6 @@ namespace SocialNetwork.API.Authorization;
 /// <summary>
 /// Handling authentication by jwt token
 /// <para>Called each time an API marked with [Authorize] is called</para>
-/// <para>Author: longnp</para>
-/// <para>Created: 10/03/2022</para>
 /// </summary>
 public class JwtMiddleware
 {

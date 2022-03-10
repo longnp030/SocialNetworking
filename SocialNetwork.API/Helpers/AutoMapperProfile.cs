@@ -6,8 +6,6 @@ namespace SocialNetwork.API.Helpers;
 
 /// <summary>
 /// Handle models to be update into DB
-/// <para>Author: longnp</para>
-/// <para>Created: 10/03/2022</para>
 /// </summary>
 public class AutoMapperProfile : Profile
 {

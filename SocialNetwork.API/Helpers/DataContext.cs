@@ -6,8 +6,6 @@ namespace SocialNetwork.API.Helpers;
 /// <summary>
 /// Connects to DB services
 /// <para>Provides entities calls to DB</para>
-/// <para>Author: longnp</para>
-/// <para>Created: 10/03/2022</para>
 /// </summary>
 public class DataContext : DbContext
 {

@@ -6,8 +6,6 @@ namespace SocialNetwork.API.Helpers;
 
 /// <summary>
 /// Universal error handler for app
-/// <para>Author: longnp</para>
-/// <para>Created: 10/03/2022</para>
 /// </summary>
 public class ErrorHandlerMiddleware
 {
