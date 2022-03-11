@@ -6,7 +6,7 @@
 /// <para>Boolean value for all bool attributes:</para>
 /// <para>0 - show; 1 - hide</para>
 /// </summary>
-public class UserSetting
+public class UserSetting : Entity
 {
     /// <summary>
     /// User's unique identifier

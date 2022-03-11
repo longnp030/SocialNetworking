@@ -4,7 +4,7 @@
 /// User's profile, not credentials
 /// <para>User - 1 : 1 - UserProfile</para>
 /// </summary>
-public class UserProfile
+public class UserProfile : Entity
 {
     /// <summary>
     /// User's unique identifier

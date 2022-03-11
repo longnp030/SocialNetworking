@@ -6,7 +6,7 @@
 /// <para>Author: longnp</para>
 /// <para>Created: 10/03/2022</para>
 /// </summary>
-public class Save
+public class Save : Entity
 {
     /// <summary>
     /// Saved entity's unique identifier

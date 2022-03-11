@@ -4,7 +4,7 @@
 /// Who shared which entity
 /// <para>User - n : n : Entity -> Share</para>
 /// </summary>
-public class Share
+public class Share : Entity
 {
     /// <summary>
     /// Entity's unique identifier
@@ -23,9 +23,4 @@ public class Share
     /// <para>Reference to User.Id / Group.Id</para>
     /// </summary>
     public Guid ToId { get; set; }
-
-    /// <summary>
-    /// Timestamp when entity is shared
-    /// </summary>
-    public DateTime Timestamp { get; set; }
 }

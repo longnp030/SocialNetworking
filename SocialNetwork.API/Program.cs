@@ -16,6 +16,10 @@ var builder = WebApplication.CreateBuilder(args);
 
     services.AddCors();
     services.AddControllers();
+    services.AddControllers().AddJsonOptions(jsonOptions =>
+    {
+        jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
     services.AddSignalR();
 
     // configure automapper with all automapper profiles from this assembly
@@ -53,6 +57,7 @@ using (var scope = app.Services.CreateScope())
     // custom jwt auth middleware
     app.UseMiddleware<JwtMiddleware>();
 
+    app.UseRouting();
     app.UseEndpoints(endpoints =>
     {
         endpoints.MapHub<CommentHub>("/commentsocket");
@@ -61,4 +66,4 @@ using (var scope = app.Services.CreateScope())
     app.MapControllers();
 }
 
-app.Run();
+app.Run("https://localhost:6868");
