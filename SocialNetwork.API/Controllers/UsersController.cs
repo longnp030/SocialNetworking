@@ -129,5 +129,62 @@ public class UsersController : ControllerBase
         _userService.Delete(id);
         return Ok(new { message = "User deleted successfully" });
     }
+    
+    /// <summary>
+    /// Update user profile
+    /// </summary>
+    /// <param name="id">User's unque identifier</param>
+    /// <param name="model">Update profile model</param>
+    /// <returns>
+    /// Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
+    [HttpPatch("{id}/profile")]
+    public IActionResult UpdateProfile(Guid id, UpdateProfileRequest model)
+    {
+        _userService.UpdateProfile(id, model);
+        return Ok(new { message = "Profile updated successfully!" });
+    }
+
+    /// <summary>
+    /// Update user settings
+    /// </summary>
+    /// <param name="id">User's unque identifier</param>
+    /// <param name="model">Update setting model</param>
+    /// <returns>
+    /// Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
+    [HttpPatch("{id}/setting")]
+    public IActionResult UpdateSetting(Guid id, UpdateSettingRequest model)
+    {
+        _userService.UpdateSetting(id, model);
+        return Ok(new { message = "Settings updated successfully!" });
+    }
+
+    /// <summary>
+    /// Get all posts posted/shared by this user
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of all posts posted/shared by this user</returns>
+    [HttpGet("{id}/posts")]
+    public IActionResult GetAllPostsByUserId(Guid id)
+    {
+        var posts = _userService.GetAllPostsByUserId(id);
+        return Ok(posts);
+    }
+
+    /// <summary>
+    /// Get all posts saved by this user
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of all posts saved by this user</returns>
+    [HttpGet("{id}/posts/saved")]
+    public IActionResult GetAllSavedPostsByUserId(Guid id)
+    {
+        var savedPosts = _userService.GetAllSavedPostsByUserId(id);
+        return Ok(savedPosts);
+    }
+
     #endregion Methods
 }

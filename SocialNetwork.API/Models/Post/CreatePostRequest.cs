@@ -1,9 +1,9 @@
-﻿namespace SocialNetwork.API.Entities.Post;
+﻿namespace SocialNetwork.API.Models.Post;
 
 /// <summary>
-/// Post class
+/// Create new post, equivalent to post form in frontend
 /// </summary>
-public class Post : Entity
+public class CreatePostRequest
 {
     /// <summary>
     /// Post's author's unique identifier
@@ -18,6 +18,11 @@ public class Post : Entity
     public Guid GroupId { get; set; }
 
     /// <summary>
+    /// Post's content
+    /// </summary>
+    public String Text { get; set; }
+
+    /// <summary>
     /// Post's privacy
     /// <para>0 - public / public group</para>
     /// <para>1 - private / only me</para>
@@ -26,12 +31,9 @@ public class Post : Entity
     public int Privacy { get; set; }
 
     /// <summary>
-    /// Post's text content
-    /// </summary>
-    public String Text { get; set; }
-
-    /// <summary>
     /// Post's check in location
     /// </summary>
     public String Location { get; set; }
+
+    public IEnumerable<String> MediaPaths { get; set; }
 }

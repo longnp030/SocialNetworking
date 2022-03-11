@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SocialNetwork.API.Authorization;
+using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Entities.User;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Models.User;
@@ -49,6 +50,34 @@ public interface IUserService
     /// </summary>
     /// <param name="id">User's unique identifier</param>
     void Delete(Guid id);
+    
+    /// <summary>
+    /// Update user profile
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <param name="model">Update Profile model</param>
+    void UpdateProfile(Guid id, UpdateProfileRequest model);
+
+    /// <summary>
+    /// Update user setting
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <param name="model">Update Setting model</param>
+    void UpdateSetting(Guid id, UpdateSettingRequest model);
+
+    /// <summary>
+    /// Get all posts by user whose unique identifier equals to id
+    /// </summary>
+    /// <param id="">User's unique identifier</param>
+    /// <returns>All posts by this user</returns>
+    IEnumerable<Post> GetAllPostsByUserId(Guid id);
+
+    /// <summary>
+    /// Get all posts saved by this user
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of posts saved by this user</returns>
+    IEnumerable<Post> GetAllSavedPostsByUserId(Guid id);
 }
 
 /// <summary>
@@ -102,7 +131,9 @@ public class UserService : IUserService
 
     public User GetById(Guid id)
     {
-        return getUser(id);
+        var user = _context.User.Find(id);
+        if (user == null) throw new KeyNotFoundException("User not found");
+        return user;
     }
 
     public void Register(RegisterRequest model)
@@ -124,7 +155,7 @@ public class UserService : IUserService
 
     public void UpdateCredentials(Guid id, UpdateCredentialsRequest model)
     {
-        var user = getUser(id);
+        var user = GetById(id);
 
         // validate
         if (model.Email != user.Email && _context.User.Any(x => x.Email == model.Email))
@@ -142,19 +173,61 @@ public class UserService : IUserService
 
     public void Delete(Guid id)
     {
-        var user = getUser(id);
+        var user = GetById(id);
         _context.User.Remove(user);
         _context.SaveChanges();
     }
-    #endregion Methods
-
-    #region Helper methods
-
-    private User getUser(Guid id)
+    
+    public void UpdateProfile(Guid id, UpdateProfileRequest model)
     {
-        var user = _context.User.Find(id);
-        if (user == null) throw new KeyNotFoundException("User not found");
-        return user;
+        var userProfile = _context.UserProfile.SingleOrDefault(up => up.UserId == id);
+        _mapper.Map(model, userProfile);
+        _context.Update(userProfile);
+        _context.SaveChanges();
     }
-    #endregion Helper methods
+
+    public void UpdateSetting(Guid id, UpdateSettingRequest model)
+    {
+        var userSetting = _context.UserSetting.SingleOrDefault(up => up.UserId == id);
+        _mapper.Map(model, userSetting);
+        _context.Update(userSetting);
+        _context.SaveChanges();
+    }
+
+    public IEnumerable<Post> GetAllPostsByUserId(Guid id)
+    {
+        var ownPosts = _context.Post                // get all posts
+            .Where(p => p.UserId == id)             // by this user
+            .Where(p => p.GroupId == Guid.Empty)    // but not in any group
+            .ToList();   
+
+        var sharedEntitiesIds= _context.Share    // get all shared entities
+            .Where(s => s.FromId == id)          // shared by this user
+            .Where(s => s.ToId == id)            // to his/her own (not shared to others)
+            .Select(s => s.EntityId);            // get col EntityId
+
+        var sharedPosts = _context.Post                     // get all posts
+            //.Where(p => p.UserId != id)                     // whose author is not this user
+            //.Where(p => p.GroupId == Guid.Empty)            // not in any group
+            //.Where(p => p.Privacy == 0)                     // public
+            .Where(p => sharedEntitiesIds.Contains(p.Id))   // shared by this user
+            .ToList();
+
+        return ownPosts.Concat(sharedPosts);
+    }
+
+    public IEnumerable<Post> GetAllSavedPostsByUserId(Guid id)
+    {
+        var savedEntitiesIds = _context.Save    // Get all saved entities
+            .Where(s => s.UserId == id)         // saved by this user
+            .Select(s => s.EntityId);           // get col EntityId
+
+        var savedPosts = _context.Post                      // Get all posts
+            .Where(p => savedEntitiesIds.Contains(p.Id))    // appear in saved list
+            .ToList();
+
+        return savedPosts;
+    }
+
+    #endregion Methods
 }

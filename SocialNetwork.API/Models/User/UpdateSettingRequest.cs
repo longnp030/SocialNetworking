@@ -1,19 +1,10 @@
-﻿namespace SocialNetwork.API.Entities.User;
+﻿namespace SocialNetwork.API.Models.User;
 
 /// <summary>
-/// Universal setting for user
-/// <para>User - 1 : 1 - UserSetting</para>
-/// <para>Boolean value for all bool attributes:</para>
-/// <para>0 - show; 1 - hide</para>
+/// Update user universal setting in application, equivalent to user setting form in frontend
 /// </summary>
-public class UserSetting
+public class UpdateSettingRequest
 {
-    /// <summary>
-    /// User's unique identifier
-    /// <para>Reference to User.Id</para>
-    /// </summary>
-    public Guid UserId { get; set; }
-
     /// <summary>
     /// User's user interface display language
     /// </summary>
