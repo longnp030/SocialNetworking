@@ -1,11 +1,9 @@
-﻿namespace SocialNetwork.API.Entities.Post;
+﻿namespace SocialNetwork.API.Models.Post;
 
 /// <summary>
-/// Comment class
-/// <para>Post - 1 : n - Comment</para>
-/// <para>Comment - 1 : n - Comment</para>
+/// Create new comment, equivalent to comment form in frontend
 /// </summary>
-public class Comment : Entity
+public class CreateCommentRequest
 {
     /// <summary>
     /// Comment's author's unique identifier
@@ -20,6 +18,8 @@ public class Comment : Entity
     public Guid PostId { get; set; }
 
     /// <summary>
+    /// If root comment -> Parent = Post
+    /// <para>Reference to Post.Id</para>
     /// If node / leaf comment -> Parent = Comment
     /// <para>Reference to Comment.Id</para>
     /// </summary>
@@ -29,4 +29,9 @@ public class Comment : Entity
     /// Comment's content
     /// </summary>
     public String Text { get; set; }
+
+    /// <summary>
+    /// Media
+    /// </summary>
+    public IEnumerable<String> MediaPaths { get; set; }
 }

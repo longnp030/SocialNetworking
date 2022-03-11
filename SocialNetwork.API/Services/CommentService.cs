@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
 using SocialNetwork.API.Authorization;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Helpers;
+using SocialNetwork.API.Hubs;
+using SocialNetwork.API.Models.Post;
 
 namespace SocialNetwork.API.Services;
 
@@ -37,6 +40,24 @@ public interface ICommentService
     /// <param name="id">Comment's unique identifier</param>
     /// <returns>List all shares for this comment</returns>
     IEnumerable<Share> GetAllSharesByCommentId(Guid id);
+
+    /// <summary>
+    /// Create new comment
+    /// </summary>
+    /// <param name="model">Required fields to create new comment form</param>
+    void Create(CreateCommentRequest model);
+
+    /// <summary>
+    /// Edit a comment
+    /// </summary>
+    /// <param name="model">Required fields to edit a comment form</param>
+    void Edit(Guid id, CreateCommentRequest model);
+
+    /// <summary>
+    /// Delete a comment by its id
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    void Delete(Guid id);
 }
 
 /// <summary>
@@ -46,8 +67,8 @@ public class CommentService : ICommentService
 {
     #region Properties
     private DataContext _context;
-    private IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
+    private readonly IHubContext<CommentHub, ICommentHub> _hubContext;
     #endregion Properties
 
     #region Constructor
@@ -55,16 +76,15 @@ public class CommentService : ICommentService
     /// Constructors
     /// </summary>
     /// <param name="context"></param>
-    /// <param name="jwtUtils"></param>
     /// <param name="mapper"></param>
     public CommentService(
         DataContext context,
-        IJwtUtils jwtUtils,
-        IMapper mapper)
+        IMapper mapper,
+        IHubContext<CommentHub, ICommentHub> hubContext)
     {
         _context = context;
-        _jwtUtils = jwtUtils;
         _mapper = mapper;
+        _hubContext = hubContext;
     }
     #endregion Constructor
 
@@ -94,6 +114,46 @@ public class CommentService : ICommentService
         var shares = _context.Share
             .Where(s => s.EntityId == id).ToList();
         return shares;
+    }
+
+    public async void Create(CreateCommentRequest model)
+    {
+        var comment = _mapper.Map<Comment>(model);
+        comment.Id = Guid.NewGuid();
+        _context.Comment.Add(comment);
+        _context.SaveChanges();
+
+        foreach (var mediaPath in model.MediaPaths)
+        {
+            var commentMedia = new Media
+            {
+                Id = Guid.NewGuid(),
+                ParentId = comment.Id,
+                Path = mediaPath
+            };
+            _context.Media.Add(commentMedia);
+            _context.SaveChanges();
+        }
+
+        await _hubContext.Clients.Group(model.PostId.ToString()).AddComment(model);
+    }
+
+    public void Edit(Guid id, CreateCommentRequest model)
+    {
+        var comment = _context.Comment.Find(id);
+        _mapper.Map(model, comment);
+        _context.Comment.Update(comment);
+        _context.SaveChanges();
+    }
+
+    public void Delete(Guid id)
+    {
+        var comment = _context.Comment.Find(id);
+        _context.Comment.Remove(comment);
+        _context.SaveChanges();
+
+        _context.Media.RemoveRange(_context.Media.Where(m => m.ParentId == id).ToList());
+        _context.SaveChanges();
     }
 
     #endregion Methods

@@ -35,5 +35,8 @@ public class CreatePostRequest
     /// </summary>
     public String Location { get; set; }
 
+    /// <summary>
+    /// Media
+    /// </summary>
     public IEnumerable<String> MediaPaths { get; set; }
 }

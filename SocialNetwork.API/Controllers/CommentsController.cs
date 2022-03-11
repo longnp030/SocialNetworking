@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.API.Authorization;
+using SocialNetwork.API.Models.Post;
 using SocialNetwork.API.Services;
 
 namespace SocialNetwork.API.Controllers;
@@ -17,6 +18,7 @@ public class CommentsController : ControllerBase
     /// Provide queries of Comment table to DB
     /// </summary>
     private readonly ICommentService _commentService;
+    
     #endregion Properties
 
     #region Constructor
@@ -79,6 +81,45 @@ public class CommentsController : ControllerBase
     {
         var shares = _commentService.GetAllSharesByCommentId(id);
         return Ok(shares);
+    }
+
+    /// <summary>
+    /// Create new comment
+    /// </summary>
+    /// <param name="model">Fields to create a comment</param>
+    /// <returns>Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
+    [HttpPost]
+    public IActionResult Create(CreateCommentRequest model)
+    {
+        _commentService.Create(model);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Edit a comment
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <param name="model">Comment's new information</param>
+    /// <returns></returns>
+    [HttpPatch("{id}/edit")]
+    public IActionResult Edit(Guid id, CreateCommentRequest model)
+    {
+        _commentService.Edit(id, model);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Delete a comment by its id
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <returns></returns>
+    [HttpDelete("{id}")]
+    public IActionResult Delete(Guid id)
+    {
+        _commentService.Delete(id);
+        return Ok();
     }
 
     #endregion Methods

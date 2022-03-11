@@ -96,9 +96,28 @@ public class PostsController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Edit a post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="model">Post's new information</param>
+    /// <returns></returns>
+    [HttpPatch("{id}/edit")]
     public IActionResult Edit(Guid id, CreatePostRequest model)
     {
         _postService.Edit(id, model);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Delete a post by its id
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <returns></returns>
+    [HttpDelete("{id}")]
+    public IActionResult Delete(Guid id)
+    {
+        _postService.Delete(id);
         return Ok();
     }
 

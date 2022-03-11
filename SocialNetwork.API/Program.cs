@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SocialNetwork.API.Authorization;
 using SocialNetwork.API.Helpers;
+using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 
     services.AddCors();
     services.AddControllers();
+    services.AddSignalR();
 
     // configure automapper with all automapper profiles from this assembly
     services.AddAutoMapper(typeof(Program));
@@ -50,6 +52,11 @@ using (var scope = app.Services.CreateScope())
 
     // custom jwt auth middleware
     app.UseMiddleware<JwtMiddleware>();
+
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapHub<CommentHub>("/commentsocket");
+    });
 
     app.MapControllers();
 }

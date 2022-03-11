@@ -50,6 +50,12 @@ public interface IPostService
     /// </summary>
     /// <param name="model">Required fields to edit a post form</param>
     void Edit(Guid id, CreatePostRequest model);
+
+    /// <summary>
+    /// Delete a post by its id
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    void Delete(Guid id);
 }
 
 /// <summary>
@@ -133,6 +139,18 @@ public class PostService : IPostService
     {
         var post = _context.Post.Find(id);
         _mapper.Map(model, post);
+        _context.Post.Update(post);
+        _context.SaveChanges();
+    }
+
+    public void Delete(Guid id)
+    {
+        var post = _context.Post.Find(id);
+        _context.Post.Remove(post);
+        _context.SaveChanges();
+
+        _context.Media.RemoveRange(_context.Media.Where(m => m.ParentId == id).ToList());
+        _context.SaveChanges();
     }
 
     #endregion Methods
