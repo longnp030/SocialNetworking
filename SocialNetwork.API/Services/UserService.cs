@@ -50,7 +50,14 @@ public interface IUserService
     /// </summary>
     /// <param name="id">User's unique identifier</param>
     void Delete(Guid id);
-    
+
+    /// <summary>
+    /// Get user profile
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>User profile</returns>
+    UserProfile GetProfile(Guid id);
+
     /// <summary>
     /// Update user profile
     /// </summary>
@@ -78,6 +85,13 @@ public interface IUserService
     /// <param name="id">User's unique identifier</param>
     /// <returns>List of posts saved by this user</returns>
     IEnumerable<Post> GetAllSavedPostsByUserId(Guid id);
+
+    /// <summary>
+    /// Populate user's newsfeed
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of posts to display in user's newsfeed</returns>
+    IEnumerable<Post> GetFeed(Guid id);
 }
 
 /// <summary>
@@ -144,12 +158,20 @@ public class UserService : IUserService
 
         // map model to new user object
         var user = _mapper.Map<User>(model);
+        user.Id = Guid.NewGuid();
 
         // hash password
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
         // save user
         _context.User.Add(user);
+        _context.SaveChanges();
+
+        var userProfile = new UserProfile
+        {
+            UserId = user.Id
+        };
+        _context.UserProfile.Add(userProfile);
         _context.SaveChanges();
     }
 
@@ -177,6 +199,11 @@ public class UserService : IUserService
         _context.User.Remove(user);
         _context.SaveChanges();
     }
+
+    public UserProfile GetProfile(Guid id)
+    {
+        return _context.UserProfile.SingleOrDefault(x => x.UserId == id);
+    }
     
     public void UpdateProfile(Guid id, UpdateProfileRequest model)
     {
@@ -197,7 +224,7 @@ public class UserService : IUserService
     public IEnumerable<Post> GetAllPostsByUserId(Guid id)
     {
         var ownPosts = _context.Post                // get all posts
-            .Where(p => p.UserId == id)             // by this user
+            .Where(p => p.AuthorId == id)             // by this user
             .Where(p => p.GroupId == Guid.Empty)    // but not in any group
             .ToList();   
 
@@ -227,6 +254,11 @@ public class UserService : IUserService
             .ToList();
 
         return savedPosts;
+    }
+
+    public IEnumerable<Post> GetFeed(Guid id)
+    {
+        return new List<Post>();
     }
 
     #endregion Methods

@@ -119,20 +119,25 @@ public class PostService : IPostService
     {
         var post = _mapper.Map<Post>(model);
         post.Id = Guid.NewGuid();
+        post.Timestamp = DateTime.Now;
         _context.Post.Add(post);
         _context.SaveChanges();
 
-        foreach (var mediaPath in model.MediaPaths)
+        if (model.MediaPaths.Any())
         {
-            var postMedia = new Media
+            foreach (var mediaPath in model.MediaPaths)
             {
-                Id = Guid.NewGuid(),
-                ParentId = post.Id,
-                Path = mediaPath
-            };
-            _context.Media.Add(postMedia);
-            _context.SaveChanges();
+                var postMedia = new Media
+                {
+                    Id = Guid.NewGuid(),
+                    ParentId = post.Id,
+                    Path = mediaPath
+                };
+                _context.Media.Add(postMedia);
+                _context.SaveChanges();
+            }
         }
+        
     }
 
     public void Edit(Guid id, CreatePostRequest model)

@@ -90,10 +90,10 @@ public class PostsController : ControllerBase
     /// <para>200 if success, otherwise failed</para>
     /// </returns>
     [HttpPost]
-    public IActionResult Create(CreatePostRequest model)
+    public IActionResult Create([FromBody] CreatePostRequest model)
     {
         _postService.Create(model);
-        return Ok();
+        return Ok(new { Message = "Posted successfully" });
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public class PostsController : ControllerBase
     /// <param name="model">Post's new information</param>
     /// <returns></returns>
     [HttpPatch("{id}/edit")]
-    public IActionResult Edit(Guid id, CreatePostRequest model)
+    public IActionResult Edit(Guid id, [FromBody] CreatePostRequest model)
     {
         _postService.Edit(id, model);
         return Ok();

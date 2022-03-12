@@ -23,7 +23,12 @@ public class UpdateProfileRequest
     /// <summary>
     /// User's date of birth
     /// </summary>
-    public String DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+
+    /// <summary>
+    /// User's address
+    /// </summary>
+    public String CurrentLocation { get; set; }
 
     /// <summary>
     /// User's self introduction
@@ -33,5 +38,10 @@ public class UpdateProfileRequest
     /// <summary>
     /// User's gender
     /// </summary>
-    public bool Gender { get; set; }
+    public int? Gender { get; set; }
+
+    /// <summary>
+    /// Check last time profile is updated
+    /// </summary>
+    public DateTime? Timestamp { get; set; }
 }

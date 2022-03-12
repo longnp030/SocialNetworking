@@ -31,7 +31,7 @@ public class UserProfile : Entity
     /// <summary>
     /// User's date of birth
     /// </summary>
-    public String DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 
     /// <summary>
     /// User's current location
@@ -46,5 +46,5 @@ public class UserProfile : Entity
     /// <summary>
     /// User's gender
     /// </summary>
-    public bool Gender { get; set; }
+    public int? Gender { get; set; }
 }

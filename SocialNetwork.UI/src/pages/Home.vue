@@ -1,16 +1,31 @@
 <template>
-    <div></div>
+    <b-container fluid>
+        <b-row cols="3">
+            <b-col cols="3">Column</b-col>
+            <b-col cols="6">
+                <Feed 
+                    v-if="userId"
+                    :userId="userId"
+                    :jwtToken="jwtToken"/>
+            </b-col>
+            <b-col cols="3">Column</b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>
     import axios from "axios";
+    import Feed from "@/Layouts/Feed.vue";
+
     export default {
         name: 'Home',
         components: {
+            Feed,
         },
         data() {
             return {
                 getUserUrl: "https://localhost:6868/Users/",
+                getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 jwtToken: "",
                 userId: "",
             };
@@ -29,6 +44,7 @@
         },
         async mounted() {
             await this.getUser();
+            await this.getUserProfile();
         },
         methods: {
             logout() {
@@ -57,6 +73,30 @@
                         console.log(res);
                     });
                 }
+            },
+            async getUserProfile() {
+                var self = this;
+                await axios.get(
+                    this.getUserProfileUrl.replace("userId", this.userId),
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.jwtToken}`
+                        }
+                    }
+                ).then((res) => {
+                    if (!res.data.Timestamp) {
+                        this.$router.push({
+                            name: 'updateprofile',
+                            params: {
+                                userProfile: res.data,
+                                userId: self.userId,
+                                jwtToken: self.jwtToken
+                            }
+                        });
+                    }
+                }).catch((res) => {
+                    console.log(res.response);
+                });
             },
         },
         watch: {

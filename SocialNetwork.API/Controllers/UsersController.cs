@@ -129,7 +129,19 @@ public class UsersController : ControllerBase
         _userService.Delete(id);
         return Ok(new { message = "User deleted successfully" });
     }
-    
+
+    /// <summary>
+    /// Get user profile
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>User profile</returns>
+    [HttpGet("{id}/profile")]
+    public IActionResult GetProfile(Guid id)
+    {
+        var profile = _userService.GetProfile(id);
+        return Ok(profile);
+    }
+
     /// <summary>
     /// Update user profile
     /// </summary>
@@ -140,7 +152,7 @@ public class UsersController : ControllerBase
     /// <para>200 if success, otherwise failed</para>
     /// </returns>
     [HttpPatch("{id}/profile")]
-    public IActionResult UpdateProfile(Guid id, UpdateProfileRequest model)
+    public IActionResult UpdateProfile(Guid id, [FromBody] UpdateProfileRequest model)
     {
         _userService.UpdateProfile(id, model);
         return Ok(new { message = "Profile updated successfully!" });
@@ -186,5 +198,18 @@ public class UsersController : ControllerBase
         return Ok(savedPosts);
     }
 
+    /// <summary>
+    /// Populate user's newsfeed
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of posts to display in user's newsfeed</returns>
+    [HttpGet("{id}/feed")]
+    public IActionResult GetFeed(Guid id)
+    {
+        var feed = _userService.GetFeed(id);
+        return Ok(feed);
+    }
+
+    
     #endregion Methods
 }

@@ -19,5 +19,5 @@ public class Entity
     /// <para>Author: longnp</para>
     /// <para>Created: 10/03/2022</para>
     /// </summary>
-    public DateTime Timestamp { get; set; }
+    public DateTime? Timestamp { get; set; }
 }

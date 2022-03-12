@@ -32,9 +32,17 @@
     <Content Include="public\favicon.ico" />
     <Content Include="public\index.html" />
     <Content Include="src\App.vue" />
-    <Content Include="src\components\Home.vue" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="src\components\PostCard.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\components\PostForm.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\Layouts\Feed.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\pages\Home.vue">
       <SubType>Code</SubType>
     </Content>
@@ -42,6 +50,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\pages\Register.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\pages\UpdateProfile.vue">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\plugins\router\index.js">
@@ -54,6 +65,7 @@
     <Folder Include="src\" />
     <Folder Include="src\assets\" />
     <Folder Include="src\components\" />
+    <Folder Include="src\Layouts\" />
     <Folder Include="src\pages\" />
     <Folder Include="src\plugins\" />
     <Folder Include="src\plugins\router\" />

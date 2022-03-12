@@ -9,7 +9,7 @@ public class Post : Entity
     /// Post's author's unique identifier
     /// <para>Reference to User.Id</para>
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid AuthorId { get; set; }
 
     /// <summary>
     /// Group's unique identifier if post is posted in a group
