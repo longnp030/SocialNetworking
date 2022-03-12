@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SocialNetwork.API.Entities.Comment;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Entities.User;
 
@@ -31,10 +32,12 @@ public class DataContext : DbContext
 
     #region Post
     public DbSet<Post> Post { get; set; }
-    public DbSet<Share> Share { get; set; }
-    public DbSet<Save> Save { get; set; }
+    public DbSet<PostShare> PostShare { get; set; }
+    public DbSet<PostSave> PostSave { get; set; }
     public DbSet<Comment> Comment { get; set; }
-    public DbSet<Like> Like { get; set; }
-    public DbSet<Media> Media { get; set; }
+    public DbSet<PostLike> PostLike { get; set; }
+    public DbSet<CommentLike> CommentLike { get; set; }
+    public DbSet<PostMedia> PostMedia { get; set; }
+    public DbSet<CommentMedia> CommentMedia { get; set; }
     #endregion Post
 }

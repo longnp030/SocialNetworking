@@ -3,10 +3,12 @@
         <b-row cols="3">
             <b-col cols="3">Column</b-col>
             <b-col cols="6">
-                <Feed 
+                <component v-if="userId" v-bind:is="currentLayout" @swapLayout="swapLayout"></component>
+                <!--<Feed 
                     v-if="userId"
                     :userId="userId"
-                    :jwtToken="jwtToken"/>
+                    :jwtToken="jwtToken"
+                    @swapLayout="swapLayout"/>-->
             </b-col>
             <b-col cols="3">Column</b-col>
         </b-row>
@@ -16,11 +18,12 @@
 <script>
     import axios from "axios";
     import Feed from "@/Layouts/Feed.vue";
+    import PostLayout from "@/Layouts/PostLayout.vue";
 
     export default {
         name: 'Home',
         components: {
-            Feed,
+            Feed, PostLayout
         },
         data() {
             return {
@@ -28,6 +31,9 @@
                 getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 jwtToken: "",
                 userId: "",
+
+                currentLayout: null,
+                layouts: [Feed, PostLayout],
             };
         },
         props: {
@@ -45,6 +51,7 @@
         async mounted() {
             await this.getUser();
             await this.getUserProfile();
+            await this.swapLayout();
         },
         methods: {
             logout() {
@@ -93,11 +100,59 @@
                                 jwtToken: self.jwtToken
                             }
                         });
+                    } else {
+                        console.log(res.data);
                     }
                 }).catch((res) => {
                     console.log(res.response);
                 });
             },
+            async swapLayout(layout) {
+                var self = this;
+                var defaultLayout = {
+                    render(l) {
+                        return l(Feed, {
+                            props: {
+                                is: Feed,
+                                userId: self.userId,
+                                jwtToken: self.jwtToken
+                            },
+                            on: {
+                                swapLayout: self.swapLayout
+                            }
+                        })
+                    }
+                }
+
+                if (layout) {
+                    switch (layout.Name) {
+                        case 'Feed':
+                            this.currentLayout = defaultLayout;
+                            break;
+                        case 'PostLayout':
+                            console.log(layout.Post)
+                            this.currentLayout = {
+                                render(l) {
+                                    return l(PostLayout, {
+                                        props: {
+                                            is: PostLayout,
+                                            userId: self.userId,
+                                            jwtToken: self.jwtToken,
+                                            post: layout.Post
+                                        },
+                                        on: {
+                                            swapLayout: self.swapLayout
+                                        }
+                                    })
+                                }
+                            };
+                            break;
+                        default:
+                    }
+                } else {
+                    this.currentLayout = defaultLayout;
+                }
+            }
         },
         watch: {
         },

@@ -2,9 +2,9 @@
 
 /// <summary>
 /// Post's images, videos, ...
-/// <para>Post - 1 : n - Media</para>
+/// <para>Post - 1 : n - PostMedia</para>
 /// </summary>
-public class Media
+public class PostMedia
 {
     /// <summary>
     /// Media's unique identifier
@@ -12,10 +12,10 @@ public class Media
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Media's (post/comment)'s unique identifier
+    /// Media's post's unique identifier
     /// <para>Reference to Post.Id</para>
     /// </summary>
-    public Guid ParentId { get; set; }
+    public Guid PostId { get; set; }
 
     /// <summary>
     /// Media path

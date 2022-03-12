@@ -43,6 +43,9 @@
     <Content Include="src\Layouts\Feed.vue">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\Layouts\PostLayout.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\pages\Home.vue">
       <SubType>Code</SubType>
     </Content>

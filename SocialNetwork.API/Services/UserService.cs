@@ -223,21 +223,21 @@ public class UserService : IUserService
 
     public IEnumerable<Post> GetAllPostsByUserId(Guid id)
     {
-        var ownPosts = _context.Post                // get all posts
+        var ownPosts = _context.Post                  // get all posts
             .Where(p => p.AuthorId == id)             // by this user
-            .Where(p => p.GroupId == Guid.Empty)    // but not in any group
+            .Where(p => p.GroupId == Guid.Empty)      // but not in any group
             .ToList();   
 
-        var sharedEntitiesIds= _context.Share    // get all shared entities
+        var sharedPostsIds = _context.PostShare    // get all shared entities
             .Where(s => s.FromId == id)          // shared by this user
             .Where(s => s.ToId == id)            // to his/her own (not shared to others)
-            .Select(s => s.EntityId);            // get col EntityId
+            .Select(s => s.PostId);              // get col PostId
 
         var sharedPosts = _context.Post                     // get all posts
             //.Where(p => p.UserId != id)                     // whose author is not this user
             //.Where(p => p.GroupId == Guid.Empty)            // not in any group
             //.Where(p => p.Privacy == 0)                     // public
-            .Where(p => sharedEntitiesIds.Contains(p.Id))   // shared by this user
+            .Where(p => sharedPostsIds.Contains(p.Id))      // which ids are in the id list "sharedPostsIds" we got above
             .ToList();
 
         return ownPosts.Concat(sharedPosts);
@@ -245,12 +245,12 @@ public class UserService : IUserService
 
     public IEnumerable<Post> GetAllSavedPostsByUserId(Guid id)
     {
-        var savedEntitiesIds = _context.Save    // Get all saved entities
+        var savedPostsIds = _context.PostSave    // Get all saved entities
             .Where(s => s.UserId == id)         // saved by this user
-            .Select(s => s.EntityId);           // get col EntityId
+            .Select(s => s.PostId);           // get col PostId
 
         var savedPosts = _context.Post                      // Get all posts
-            .Where(p => savedEntitiesIds.Contains(p.Id))    // appear in saved list
+            .Where(p => savedPostsIds.Contains(p.Id))    // appear in saved list
             .ToList();
 
         return savedPosts;

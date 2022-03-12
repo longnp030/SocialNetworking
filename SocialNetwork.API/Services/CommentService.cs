@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
-using SocialNetwork.API.Authorization;
+using SocialNetwork.API.Entities.Comment;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Hubs;
@@ -32,14 +32,7 @@ public interface ICommentService
     /// </summary>
     /// <param name="id">Comment's unique identifier</param>
     /// <returns>List of likes for this comment</returns>
-    IEnumerable<Like> GetAllLikesByCommentId(Guid id);
-
-    /// <summary>
-    /// Get all shares for this comment
-    /// </summary>
-    /// <param name="id">Comment's unique identifier</param>
-    /// <returns>List all shares for this comment</returns>
-    IEnumerable<Share> GetAllSharesByCommentId(Guid id);
+    IEnumerable<CommentLike> GetAllLikesByCommentId(Guid id);
 
     /// <summary>
     /// Create new comment
@@ -102,18 +95,11 @@ public class CommentService : ICommentService
         return comments;
     }
 
-    public IEnumerable<Like> GetAllLikesByCommentId(Guid id)
+    public IEnumerable<CommentLike> GetAllLikesByCommentId(Guid id)
     {
-        var likes = _context.Like
-            .Where(l => l.EntityId == id).ToList();
+        var likes = _context.CommentLike
+            .Where(l => l.CommentId == id).ToList();
         return likes;
-    }
-
-    public IEnumerable<Share> GetAllSharesByCommentId(Guid id)
-    {
-        var shares = _context.Share
-            .Where(s => s.EntityId == id).ToList();
-        return shares;
     }
 
     public async void Create(CreateCommentRequest model)
@@ -125,13 +111,13 @@ public class CommentService : ICommentService
 
         foreach (var mediaPath in model.MediaPaths)
         {
-            var commentMedia = new Media
+            var commentMedia = new CommentMedia
             {
                 Id = Guid.NewGuid(),
-                ParentId = comment.Id,
+                CommentId = comment.Id,
                 Path = mediaPath
             };
-            _context.Media.Add(commentMedia);
+            _context.CommentMedia.Add(commentMedia);
             _context.SaveChanges();
         }
 
@@ -152,7 +138,7 @@ public class CommentService : ICommentService
         _context.Comment.Remove(comment);
         _context.SaveChanges();
 
-        _context.Media.RemoveRange(_context.Media.Where(m => m.ParentId == id).ToList());
+        _context.CommentMedia.RemoveRange(_context.CommentMedia.Where(m => m.CommentId == id).ToList());
         _context.SaveChanges();
     }
 

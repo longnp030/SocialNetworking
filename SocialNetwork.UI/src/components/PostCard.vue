@@ -1,5 +1,5 @@
 <template>
-    <b-card v-if="author">
+    <b-card v-if="author" @click="postCardOnClick">
         <b-media>
             <template #aside>
               <b-img blank blank-color="#ccc" width="64" alt="placeholder"></b-img>
@@ -46,6 +46,12 @@
                     console.log(this.author);
                 }).catch((res) => {
                     console.log(res);
+                });
+            },
+            postCardOnClick() {
+                this.$emit('swapLayout', {
+                    Name: 'PostLayout',
+                    Post: this.post
                 });
             },
         },

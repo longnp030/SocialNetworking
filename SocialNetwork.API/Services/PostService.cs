@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SocialNetwork.API.Authorization;
+using SocialNetwork.API.Entities.Comment;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Models.Post;
@@ -30,14 +31,14 @@ public interface IPostService
     /// </summary>
     /// <param name="id">Post's unique identifier</param>
     /// <returns>List of likes for this post</returns>
-    IEnumerable<Like> GetAllLikesByPostId(Guid id);
+    IEnumerable<PostLike> GetAllLikesByPostId(Guid id);
 
     /// <summary>
     /// Get all shares for this post
     /// </summary>
     /// <param name="id">Post's unique identifier</param>
     /// <returns>List all shares for this post</returns>
-    IEnumerable<Share> GetAllSharesByPostId(Guid id);
+    IEnumerable<PostShare> GetAllSharesByPostId(Guid id);
 
     /// <summary>
     /// Create new post
@@ -97,21 +98,21 @@ public class PostService : IPostService
     public IEnumerable<Comment> GetAllCommentsByPostId(Guid id)
     {
         var comments = _context.Comment
-            .Where(c => c.ParentId == id).ToList();
+            .Where(c => c.PostId == id).ToList();
         return comments;
     }
 
-    public IEnumerable<Like> GetAllLikesByPostId(Guid id)
+    public IEnumerable<PostLike> GetAllLikesByPostId(Guid id)
     {
-        var likes = _context.Like
-            .Where(l => l.EntityId == id).ToList();
+        var likes = _context.PostLike
+            .Where(l => l.PostId == id).ToList();
         return likes;
     }
 
-    public IEnumerable<Share> GetAllSharesByPostId(Guid id)
+    public IEnumerable<PostShare> GetAllSharesByPostId(Guid id)
     {
-        var shares = _context.Share
-            .Where(s => s.EntityId == id).ToList();
+        var shares = _context.PostShare
+            .Where(s => s.PostId == id).ToList();
         return shares;
     }
 
@@ -127,17 +128,16 @@ public class PostService : IPostService
         {
             foreach (var mediaPath in model.MediaPaths)
             {
-                var postMedia = new Media
+                var postMedia = new PostMedia
                 {
                     Id = Guid.NewGuid(),
-                    ParentId = post.Id,
+                    PostId = post.Id,
                     Path = mediaPath
                 };
-                _context.Media.Add(postMedia);
+                _context.PostMedia.Add(postMedia);
                 _context.SaveChanges();
             }
         }
-        
     }
 
     public void Edit(Guid id, CreatePostRequest model)
@@ -154,7 +154,7 @@ public class PostService : IPostService
         _context.Post.Remove(post);
         _context.SaveChanges();
 
-        _context.Media.RemoveRange(_context.Media.Where(m => m.ParentId == id).ToList());
+        _context.PostMedia.RemoveRange(_context.PostMedia.Where(m => m.PostId == id).ToList());
         _context.SaveChanges();
     }
 

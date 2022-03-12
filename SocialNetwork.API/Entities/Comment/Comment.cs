@@ -1,4 +1,4 @@
-﻿namespace SocialNetwork.API.Entities.Post;
+﻿namespace SocialNetwork.API.Entities.Comment;
 
 /// <summary>
 /// Comment class

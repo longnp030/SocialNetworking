@@ -1,16 +1,16 @@
 ﻿namespace SocialNetwork.API.Entities.Post;
 
 /// <summary>
-/// Who shared which entity
-/// <para>User - n : n : Entity -> Share</para>
+/// Who shared which post
+/// <para>User - n : n : Post -> PostShare</para>
 /// </summary>
-public class Share : Entity
+public class PostShare : Entity
 {
     /// <summary>
-    /// Entity's unique identifier
-    /// <para>Reference to Entity.Id</para>
+    /// Post's unique identifier
+    /// <para>Reference to Post.Id</para>
     /// </summary>
-    public Guid EntityId { get; set; }
+    public Guid PostId { get; set; }
 
     /// <summary>
     /// Who shared the entity
@@ -19,7 +19,7 @@ public class Share : Entity
     public Guid FromId { get; set; }
 
     /// <summary>
-    /// Who (User) / Which (Group) received the shared entity
+    /// Who (User) / Which (Group) received the shared post
     /// <para>Reference to User.Id / Group.Id</para>
     /// </summary>
     public Guid ToId { get; set; }

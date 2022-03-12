@@ -5,7 +5,8 @@
             :userId="userId" :jwtToken="jwtToken"
             v-for="post in posts"
             :key="post.Id"
-            :post="post"/>
+            :post="post"
+            v-on="$listeners" />
     </div>
 </template>
 
@@ -29,6 +30,7 @@
         },
         async mounted() {
             console.log("Into Feed...");
+            console.log(this.userId);
             if (this.userId) {
                 console.log("Found userId: ", this.userId);
                 await this.getPost();
@@ -49,7 +51,7 @@
                 }).catch((res) => {
                     console.log(res);
                 });
-            },
+            }
         },
         watch: {
             userId() {

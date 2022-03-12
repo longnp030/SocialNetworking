@@ -2,15 +2,15 @@
 
 /// <summary>
 /// Who liked which post
-/// <para>User - n : n : Entity -> Like</para>
+/// <para>User - n : n : Post -> PostLike</para>
 /// </summary>
-public class Like : Entity
+public class PostLike : Entity
 {
     /// <summary>
-    /// Entity's unique identifier
-    /// <para>Reference to Entity.Id</para>
+    /// Post's unique identifier
+    /// <para>Reference to Post.Id</para>
     /// </summary>
-    public Guid EntityId { get; set; }
+    public Guid PostId { get; set; }
 
     /// <summary>
     /// User's unique identifier

@@ -72,18 +72,6 @@ public class CommentsController : ControllerBase
     }
 
     /// <summary>
-    /// Get all shares for this comment
-    /// </summary>
-    /// <param name="id">Comment's unique identifier</param>
-    /// <returns>List all shares for this comment</returns>
-    [HttpGet("{id}/shares")]
-    public IActionResult GetAllSharesByCommentId(Guid id)
-    {
-        var shares = _commentService.GetAllSharesByCommentId(id);
-        return Ok(shares);
-    }
-
-    /// <summary>
     /// Create new comment
     /// </summary>
     /// <param name="model">Fields to create a comment</param>
