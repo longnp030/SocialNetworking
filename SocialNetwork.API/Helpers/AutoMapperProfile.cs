@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SocialNetwork.API.Entities.Comment;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Entities.User;
 using SocialNetwork.API.Models.Post;
@@ -64,6 +65,11 @@ public class AutoMapperProfile : Profile
         // CreatePostRequest -> Post
         CreateMap<CreatePostRequest, Post>()
             .ForSourceMember(x => x.MediaPaths, y => y.DoNotValidate());
+        
+        // CreateCommentRequest -> Comment
+        CreateMap<CreateCommentRequest, Comment>()
+            .ForSourceMember(x => x.MediaPaths, y => y.DoNotValidate());
+
         #endregion Post
     }
 }

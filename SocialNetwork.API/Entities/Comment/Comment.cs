@@ -11,7 +11,7 @@ public class Comment : Entity
     /// Comment's author's unique identifier
     /// <para>Reference to User.Id</para>
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid AuthorId { get; set; }
 
     /// <summary>
     /// Post contains this comment

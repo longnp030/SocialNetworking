@@ -3,6 +3,11 @@ import App from './App.vue';
 
 Vue.config.productionTip = true;
 
+/** Chat Socket **/
+import PostSocket from './plugins/hubs/postHub';
+Vue.use(PostSocket);
+/** End Chat Socket **/
+
 /** Vue router **/
 import router from './plugins/router';
 import VueRouter from 'vue-router';

@@ -5,11 +5,7 @@
                 <b-img blank blank-color="#ccc" width="64" alt="placeholder"></b-img>
             </template>
 
-            <b-form @submit="onSubmit">
-                <b-form-group>
-                    <b-form-select v-model="form.Privacy" :options="privacyOptions" size="sm" class="mt-3"></b-form-select>
-                </b-form-group>
-
+            <b-form @submit="onSubmit" ref="form">
                 <b-form-group>
                     <b-form-textarea
                         id="textarea"
@@ -37,28 +33,25 @@
     import axios from 'axios';
 
     export default {
-        name: 'PostForm',
-        props: ["userId", "jwtToken"],
+        name: 'CommentForm',
+        props: ["postId", "userId", "jwtToken"],
         data() {
             return {
-                postUrl: "https://localhost:6868/Posts/",
+                commentUrl: "https://localhost:6868/Comments/",
                 form: {
                     MediaPaths: [],
                 },
                 media: null,
-                privacyOptions: [
-                    { value: 0, text: 'Public' },
-                    { value: 1, text: 'Private' }
-                ]
             }
         },
         methods: {
-            onSubmit(event) {
+            async onSubmit(event) {
                 event.preventDefault();
                 this.form.AuthorId = this.userId;
+                this.form.PostId = this.postId,
 
-                axios.post(
-                    this.postUrl,
+                await axios.post(
+                    this.commentUrl,
                     JSON.parse(JSON.stringify(this.form)),
                     {
                         headers: {
@@ -67,8 +60,9 @@
                     }
                 ).then((res) => {
                     console.log(res);
+                    this.$refs.form.reset();
                 }).catch((res) => {
-                    console.log(res)
+                    console.log(res.response);
                 });
             }
         },
