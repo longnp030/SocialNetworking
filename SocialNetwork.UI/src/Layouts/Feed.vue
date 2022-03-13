@@ -3,10 +3,9 @@
         <PostForm :userId="userId" :jwtToken="jwtToken"/>
         <PostCard 
             :userId="userId" :jwtToken="jwtToken"
-            v-for="post in posts"
-            :key="post.Id"
-            :post="post"
-            v-on="$listeners" />
+            v-for="postId in postIds"
+            :key="postId"
+            :postId="postId"/>
     </div>
 </template>
 
@@ -24,8 +23,8 @@
         props: ["userId", "jwtToken"],
         data() {
             return {
-                getFeedUrl: "https://localhost:6868/Users/userId/posts",
-                posts: [],
+                getFeedUrl: "https://localhost:6868/Users/userId/feed",
+                postIds: [],
             }
         },
         async mounted() {
@@ -33,11 +32,11 @@
             console.log(this.userId);
             if (this.userId) {
                 console.log("Found userId: ", this.userId);
-                await this.getPost();
+                await this.getFeed();
             }
         },
         methods: {
-            async getPost() {
+            async getFeed() {
                 await axios.get(
                     this.getFeedUrl.replace("userId", this.userId),
                     {
@@ -46,21 +45,21 @@
                         }
                     }
                 ).then((res) => {
-                    this.posts = res.data;
-                    console.log(this.posts);
+                    this.postIds = res.data;
+                    //console.log(this.postIds);
                 }).catch((res) => {
                     console.log(res);
                 });
             }
         },
-        watch: {
-            userId() {
-                console.log("Feed: ", this.userId);
-            },
-            jwtToken() {
-                console.log("Feed: ", this.jwtToken);
-            }
-        }
+        //watch: {
+        //    userId() {
+        //        console.log("Feed: ", this.userId);
+        //    },
+        //    jwtToken() {
+        //        console.log("Feed: ", this.jwtToken);
+        //    }
+        //}
     }
 </script>
 

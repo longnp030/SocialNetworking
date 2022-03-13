@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h1>Update profile</h1>
         <b-form @submit="onSubmit" v-if="show">
             <!--<b-form-group>
                 <b-form-file

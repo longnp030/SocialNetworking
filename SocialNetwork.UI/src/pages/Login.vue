@@ -1,5 +1,7 @@
 <template>
     <div>
+        <h1>Login</h1>
+
         <b-form @submit="onSubmit" @reset="onReset" v-if="show">
             <b-form-group
                 id="input-group-1"
@@ -36,6 +38,8 @@
             <b-button type="submit" variant="primary">Submit</b-button>
             <b-button type="reset" variant="danger">Reset</b-button>
         </b-form>
+
+        <b-button @click="onRegister" variant="warning">Register</b-button>
     </div>
 </template>
 
@@ -101,6 +105,12 @@
                 this.$nextTick(() => {
                     this.show = true
                 })
+            },
+
+            onRegister() {
+                this.$router.push({
+                    name: 'register'
+                });
             }
         }
     }

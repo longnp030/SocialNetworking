@@ -7,11 +7,14 @@
 <script>
     export default {
         name: 'app',
-        components: {
-
-        },
         created() {
-            this.$router.push('home', () => { });
+            // If user go to 'home' -> route.name == null -> redirect to 'home'
+            // Else means they jump into a complex url or refresh the page -> don't redirect to 'home'
+            if (this.$route.name === null) {
+                this.$router.push({
+                    name: 'home'
+                });
+            }
         }
     };
 </script>

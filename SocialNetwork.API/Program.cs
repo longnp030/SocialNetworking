@@ -4,6 +4,8 @@ using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Services;
 
+string MyAllowSpecificOrigins = "Policy"; // !TODO
+
 var builder = WebApplication.CreateBuilder(args);
 
 // add services to DI container
@@ -14,7 +16,17 @@ var builder = WebApplication.CreateBuilder(args);
     // use sql server db in production and sqlite db in development
     services.AddDbContext<DataContext>();
 
-    services.AddCors();
+    services.AddCors(options =>
+    {
+        options.AddPolicy(name: MyAllowSpecificOrigins,
+                          builder =>
+                          {
+                              builder.WithOrigins("http://localhost:8080")
+                                     .AllowAnyMethod()
+                                     .AllowAnyHeader()
+                                     .AllowCredentials();
+                          });
+    });
     services.AddControllers();
     services.AddControllers().AddJsonOptions(jsonOptions =>
     {
@@ -32,6 +44,7 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IJwtUtils, JwtUtils>();
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<IPostService, PostService>();
+    services.AddScoped<ICommentService, CommentService>();
 }
 
 var app = builder.Build();
@@ -46,10 +59,7 @@ using (var scope = app.Services.CreateScope())
 // configure HTTP request pipeline
 {
     // global cors policy
-    app.UseCors(x => x
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader());
+    app.UseCors(MyAllowSpecificOrigins);
 
     // global error handler
     app.UseMiddleware<ErrorHandlerMiddleware>();
@@ -61,6 +71,7 @@ using (var scope = app.Services.CreateScope())
     app.UseEndpoints(endpoints =>
     {
         endpoints.MapHub<CommentHub>("/commentsocket");
+        endpoints.MapHub<PostHub>("/postsocket");
     });
 
     app.MapControllers();

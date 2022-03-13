@@ -34,7 +34,7 @@ public class CommentHub : Hub<ICommentHub>
 
     public async Task AddComment(CreateCommentRequest model)
     {
-        await JoinPostGroup(model.UserId, model.PostId);
+        await JoinPostGroup(model.AuthorId, model.PostId);
         await Clients.Group(model.PostId.ToString()).AddComment(model);
     }
 }

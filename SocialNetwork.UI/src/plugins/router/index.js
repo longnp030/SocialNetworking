@@ -6,6 +6,7 @@ import Login from '@/pages/Login.vue';
 import Register from '@/pages/Register.vue';
 import Home from '@/pages/Home.vue';
 import UpdateProfile from '@/pages/UpdateProfile.vue';
+import PostLayout from '@/layouts/PostLayout.vue';
 
 const routes = [
     {
@@ -28,6 +29,11 @@ const routes = [
         name: 'updateprofile',
         component: UpdateProfile,
     },
+    {
+        path: '/post/:postId',
+        name: 'post',
+        component: PostLayout,
+    }
 ]
 const router = new VueRouter({
     mode: 'history',

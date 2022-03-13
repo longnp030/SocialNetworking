@@ -91,7 +91,7 @@ public interface IUserService
     /// </summary>
     /// <param name="id">User's unique identifier</param>
     /// <returns>List of posts to display in user's newsfeed</returns>
-    IEnumerable<Post> GetFeed(Guid id);
+    IEnumerable<Guid> GetFeed(Guid id);
 }
 
 /// <summary>
@@ -159,6 +159,7 @@ public class UserService : IUserService
         // map model to new user object
         var user = _mapper.Map<User>(model);
         user.Id = Guid.NewGuid();
+        user.Timestamp = DateTime.Now;
 
         // hash password
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
@@ -256,9 +257,12 @@ public class UserService : IUserService
         return savedPosts;
     }
 
-    public IEnumerable<Post> GetFeed(Guid id)
+    public IEnumerable<Guid> GetFeed(Guid id)
     {
-        return new List<Post>();
+        return _context.Post                          // get all posts
+            .Where(p => p.AuthorId == id)             // by this user
+            .Select(p => p.Id)
+            .ToList();
     }
 
     #endregion Methods

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
 using SocialNetwork.API.Authorization;
 using SocialNetwork.API.Entities.Comment;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Helpers;
+using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Models.Post;
 
 namespace SocialNetwork.API.Services;
@@ -24,7 +26,7 @@ public interface IPostService
     /// </summary>
     /// <param name="id">Post's unique identifier</param>
     /// <returns>List of comments of this post</returns>
-    IEnumerable<Comment> GetAllCommentsByPostId(Guid id);
+    IEnumerable<Guid> GetAllCommentsByPostId(Guid id);
 
     /// <summary>
     /// Get all likes for this post
@@ -88,8 +90,8 @@ public class PostService : IPostService
 {
     #region Properties
     private DataContext _context;
-    private IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
+    private readonly IHubContext<PostHub, IPostHub> _hubContext;
     #endregion Properties
 
     #region Constructor
@@ -97,16 +99,15 @@ public class PostService : IPostService
     /// Constructors
     /// </summary>
     /// <param name="context"></param>
-    /// <param name="jwtUtils"></param>
     /// <param name="mapper"></param>
     public PostService(
         DataContext context,
-        IJwtUtils jwtUtils,
-        IMapper mapper)
+        IMapper mapper,
+        IHubContext<PostHub, IPostHub> hubContext)
     {
         _context = context;
-        _jwtUtils = jwtUtils;
         _mapper = mapper;
+        _hubContext = hubContext;
     }
     #endregion Constructor
 
@@ -117,10 +118,11 @@ public class PostService : IPostService
         return post;
     }
 
-    public IEnumerable<Comment> GetAllCommentsByPostId(Guid id)
+    public IEnumerable<Guid> GetAllCommentsByPostId(Guid id)
     {
         var comments = _context.Comment
-            .Where(c => c.PostId == id).ToList();
+            .Where(c => c.PostId == id)
+            .Select(c => c.Id).ToList();
         return comments;
     }
 
@@ -155,6 +157,8 @@ public class PostService : IPostService
         };
         _context.PostLike.Add(like);
         _context.SaveChanges();
+
+        _hubContext.Clients.All.Reaction(id, userId, true);
     }
 
     public void Unlike(Guid id, Guid userId)
@@ -164,6 +168,8 @@ public class PostService : IPostService
             .Single(l => l.UserId == userId);
         _context.PostLike.Remove(like);
         _context.SaveChanges();
+
+        _hubContext.Clients.All.Reaction(id, userId, false);
     }
 
     public void Create(CreatePostRequest model)

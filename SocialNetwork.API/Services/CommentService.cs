@@ -61,7 +61,7 @@ public class CommentService : ICommentService
     #region Properties
     private DataContext _context;
     private readonly IMapper _mapper;
-    private readonly IHubContext<CommentHub, ICommentHub> _hubContext;
+    private readonly IHubContext<PostHub, IPostHub> _hubContext;
     #endregion Properties
 
     #region Constructor
@@ -73,7 +73,7 @@ public class CommentService : ICommentService
     public CommentService(
         DataContext context,
         IMapper mapper,
-        IHubContext<CommentHub, ICommentHub> hubContext)
+        IHubContext<PostHub, IPostHub> hubContext)
     {
         _context = context;
         _mapper = mapper;
@@ -102,26 +102,30 @@ public class CommentService : ICommentService
         return likes;
     }
 
-    public async void Create(CreateCommentRequest model)
+    public void Create(CreateCommentRequest model)
     {
         var comment = _mapper.Map<Comment>(model);
         comment.Id = Guid.NewGuid();
+        comment.Timestamp = DateTime.Now;
         _context.Comment.Add(comment);
         _context.SaveChanges();
 
-        foreach (var mediaPath in model.MediaPaths)
+        if (model.MediaPaths.Any())
         {
-            var commentMedia = new CommentMedia
+            foreach (var mediaPath in model.MediaPaths)
             {
-                Id = Guid.NewGuid(),
-                CommentId = comment.Id,
-                Path = mediaPath
-            };
-            _context.CommentMedia.Add(commentMedia);
-            _context.SaveChanges();
+                var commentMedia = new CommentMedia
+                {
+                    Id = Guid.NewGuid(),
+                    CommentId = comment.Id,
+                    Path = mediaPath
+                };
+                _context.CommentMedia.Add(commentMedia);
+                _context.SaveChanges();
+            }
         }
 
-        await _hubContext.Clients.Group(model.PostId.ToString()).AddComment(model);
+        _hubContext.Clients.Group(model.PostId.ToString()).Comment(comment);
     }
 
     public void Edit(Guid id, CreateCommentRequest model)
