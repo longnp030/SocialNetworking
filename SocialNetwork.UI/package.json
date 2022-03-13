@@ -12,6 +12,7 @@
     "name": ""
   },
   "dependencies": {
+    "@microsoft/signalr": "^6.0.3",
     "axios": "^0.26.1",
     "bootstrap": "^4.5.3",
     "bootstrap-vue": "^2.21.2",

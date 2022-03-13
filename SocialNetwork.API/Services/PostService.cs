@@ -34,6 +34,28 @@ public interface IPostService
     IEnumerable<PostLike> GetAllLikesByPostId(Guid id);
 
     /// <summary>
+    /// Check if this auth user liked this post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns>True if liked otherwise false</returns>
+    bool IsAuthUserLiked(Guid id, Guid userId);
+
+    /// <summary>
+    /// Auth user likes this post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    void Like(Guid id, Guid userId);
+
+    /// <summary>
+    /// Auth user unliked this post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    void Unlike(Guid id, Guid userId);
+
+    /// <summary>
     /// Get all shares for this post
     /// </summary>
     /// <param name="id">Post's unique identifier</param>
@@ -114,6 +136,34 @@ public class PostService : IPostService
         var shares = _context.PostShare
             .Where(s => s.PostId == id).ToList();
         return shares;
+    }
+
+    public bool IsAuthUserLiked(Guid id, Guid userId)
+    {
+        return _context.PostLike
+            .Where(l => l.PostId == id)
+            .Any(l => l.UserId == userId);
+    }
+
+    public void Like(Guid id, Guid userId)
+    {
+        var like = new PostLike
+        {
+            PostId = id,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+        };
+        _context.PostLike.Add(like);
+        _context.SaveChanges();
+    }
+
+    public void Unlike(Guid id, Guid userId)
+    {
+        var like = _context.PostLike
+            .Where(l => l.PostId == id)
+            .Single(l => l.UserId == userId);
+        _context.PostLike.Remove(like);
+        _context.SaveChanges();
     }
 
     public void Create(CreatePostRequest model)

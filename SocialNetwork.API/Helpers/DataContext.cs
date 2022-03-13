@@ -32,12 +32,12 @@ public class DataContext : DbContext
 
     #region Post
     public DbSet<Post> Post { get; set; }
+    public DbSet<PostLike> PostLike { get; set; }
     public DbSet<PostShare> PostShare { get; set; }
+    public DbSet<PostMedia> PostMedia { get; set; }
     public DbSet<PostSave> PostSave { get; set; }
     public DbSet<Comment> Comment { get; set; }
-    public DbSet<PostLike> PostLike { get; set; }
     public DbSet<CommentLike> CommentLike { get; set; }
-    public DbSet<PostMedia> PostMedia { get; set; }
     public DbSet<CommentMedia> CommentMedia { get; set; }
     #endregion Post
 }

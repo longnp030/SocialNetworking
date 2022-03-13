@@ -3,12 +3,7 @@
         <b-row cols="3">
             <b-col cols="3">Column</b-col>
             <b-col cols="6">
-                <component v-if="userId" v-bind:is="currentLayout" @swapLayout="swapLayout"></component>
-                <!--<Feed 
-                    v-if="userId"
-                    :userId="userId"
-                    :jwtToken="jwtToken"
-                    @swapLayout="swapLayout"/>-->
+                <component v-if="userId" v-bind:is="currentLayout"></component>
             </b-col>
             <b-col cols="3">Column</b-col>
         </b-row>
@@ -108,8 +103,9 @@
                 });
             },
             async swapLayout(layout) {
+                console.log(layout);
                 var self = this;
-                var defaultLayout = {
+                var feedLayout = {
                     render(l) {
                         return l(Feed, {
                             props: {
@@ -124,33 +120,34 @@
                     }
                 }
 
+                var postLayout = {
+                    render(l) {
+                        return l(PostLayout, {
+                            props: {
+                                is: PostLayout,
+                                userId: self.userId,
+                                jwtToken: self.jwtToken,
+                                post: layout.Post
+                            },
+                            on: {
+                                swapLayout: self.swapLayout
+                            }
+                        })
+                    }
+                };
+
                 if (layout) {
                     switch (layout.Name) {
                         case 'Feed':
-                            this.currentLayout = defaultLayout;
+                            this.currentLayout = feedLayout;
                             break;
                         case 'PostLayout':
-                            console.log(layout.Post)
-                            this.currentLayout = {
-                                render(l) {
-                                    return l(PostLayout, {
-                                        props: {
-                                            is: PostLayout,
-                                            userId: self.userId,
-                                            jwtToken: self.jwtToken,
-                                            post: layout.Post
-                                        },
-                                        on: {
-                                            swapLayout: self.swapLayout
-                                        }
-                                    })
-                                }
-                            };
+                            this.currentLayout = postLayout;
                             break;
                         default:
                     }
                 } else {
-                    this.currentLayout = defaultLayout;
+                    this.currentLayout = feedLayout;
                 }
             }
         },

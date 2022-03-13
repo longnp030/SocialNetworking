@@ -71,6 +71,45 @@ public class PostsController : ControllerBase
     }
 
     /// <summary>
+    /// Check if this auth user liked this post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns>True if liked otherwise false</returns>
+    [HttpGet("{id}/likes/{userId}")]
+    public IActionResult IsAuthUserLiked(Guid id, Guid userId)
+    {
+        var liked = _postService.IsAuthUserLiked(id, userId);
+        return Ok(liked);
+    }
+
+    /// <summary>
+    /// Auth user likes this post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns>True if liked otherwise false</returns>
+    [HttpPost("{id}/likes/{userId}/like")]
+    public IActionResult Like(Guid id, Guid userId)
+    {
+        _postService.Like(id, userId);
+        return Ok(new { Message = "Liked" });
+    }
+
+    /// <summary>
+    /// Auth user unliked this post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns>True if liked otherwise false</returns>
+    [HttpPost("{id}/likes/{userId}/unlike")]
+    public IActionResult Unlike(Guid id, Guid userId)
+    {
+        _postService.Unlike(id, userId);
+        return Ok(new { Message = "Liked" });
+    }
+
+    /// <summary>
     /// Get all shares for this post
     /// </summary>
     /// <param name="id">Post's unique identifier</param>
