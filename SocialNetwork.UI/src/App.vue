@@ -22,15 +22,19 @@
 <style>
     body, html {
         margin: 0px;
+        background-color: #000000;
     }
 
     #app {
         height: 100vh;
         width: 100%;
+        background-color: #000000;
+        color: var(--white);
     }
 
-    a, u {
+    #app a, u {
         text-decoration: none;
+        color: var(--white);
     }
 </style>
 

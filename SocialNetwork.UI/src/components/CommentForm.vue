@@ -16,14 +16,20 @@
                     ></b-form-textarea>
                 </b-form-group>
 
-                <b-form-group>
-                      <b-form-file
-                            v-model="media"
-                            placeholder="Add an image..."
-                      ></b-form-file>
-                </b-form-group>
+                <div id="media-submit">
+                    <b-form-file
+                        v-model="media"
+                        placeholder="Add an image..."
+                        @change="addImg"
+                        multiple
+                    ></b-form-file>
 
-                <b-button type="submit" variant="primary">Submit</b-button>
+                    <b-button type="submit" variant="primary">Submit</b-button>
+                </div>
+
+                <div id="preview">
+                    <img v-for="url in imgUrls" :key="url" :src="url" @contextmenu="removeImg"/>
+                </div>
             </b-form>
         </b-media>
     </b-card>
@@ -41,6 +47,7 @@
                 form: {
                     MediaPaths: [],
                 },
+                imgUrls: [],
                 media: null,
             }
         },
@@ -64,6 +71,15 @@
                 }).catch((res) => {
                     console.log(res.response);
                 });
+            },
+
+            addImg(e) {
+                const file = e.target.files[0];
+                this.imgUrls.push(URL.createObjectURL(file));
+            },
+            removeImg(e) {
+                this.imgUrls.splice(this.imgUrls.indexOf(e.target.src), 1);
+                e.preventDefault();
             }
         },
         watch: {
@@ -81,4 +97,43 @@
 </script>
 
 <style scoped>
+    .card, .card-body {
+        background-color: #111;
+        border-radius: 10px;
+    }
+
+    .card-body .media .media-aside img {
+        border-radius: 64px;
+    }
+
+    #textarea {
+        background-color: #111;
+        border: none;
+        color: var(--white);
+        overflow: hidden;
+    }
+    #textarea::-webkit-scrollbar {
+        display: none;
+    }
+
+    #media-submit {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        gap: 20px;
+        margin: 5px 0;
+    }
+
+    #preview {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 500px;
+        overflow-x: auto;
+    }
+    #preview img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+    }
 </style>

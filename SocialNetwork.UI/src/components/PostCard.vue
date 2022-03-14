@@ -18,16 +18,16 @@
 
         <b-button-group class="d-flex like-cmt-share">
             <div class="share">
-                <b-button variant="outline"><b-icon icon="share"></b-icon></b-button>
+                <b-button variant="outline"><b-icon icon="share" variant="light"></b-icon></b-button>
                 <div class="count">{{shares}}</div>
             </div>
             <div class="cmt">
-                <b-button variant="outline"><b-icon icon="chat"></b-icon></b-button>
+                <b-button variant="outline"><b-icon icon="chat" variant="light"></b-icon></b-button>
                 <div class="count">{{comments}}</div>
             </div>
             <div class="like">
                 <b-button variant="outline" v-if="iLiked" @click="unlikePost"><b-icon icon="heart-fill" variant="danger"></b-icon></b-button>
-                <b-button variant="outline" v-else @click="likePost"><b-icon icon="heart"></b-icon></b-button>
+                <b-button variant="outline" v-else @click="likePost"><b-icon icon="heart" variant="light"></b-icon></b-button>
                 <div class="count" :class="{'liked': iLiked}">{{likes}}</div>
             </div>
         </b-button-group>
@@ -331,12 +331,9 @@
 </script>
 
 <style scoped>
-    a, u {
-        text-decoration: none !important;
-    }
-
-    .card-body {
-        padding: 10px;
+    .card, .card-body {
+        background-color: #111;
+        border-radius: 10px;
     }
 
     .card-body .media .media-aside img {
@@ -371,6 +368,6 @@
     }
 
     .count.liked {
-        color: #dc3545;
+        color: var(--red);
     }
 </style>

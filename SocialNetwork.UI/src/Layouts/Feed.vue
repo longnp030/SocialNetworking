@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="feed">
         <PostForm :userId="userId" :jwtToken="jwtToken"/>
         <PostCard 
             :userId="userId" :jwtToken="jwtToken"
@@ -64,4 +64,9 @@
 </script>
 
 <style scoped>
+    #feed {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }    
 </style>
