@@ -60,15 +60,66 @@ public class CommentsController : ControllerBase
     }
 
     /// <summary>
-    /// Get all comments for this comment
+    /// Check if this auth user liked this comment
     /// </summary>
     /// <param name="id">Comment's unique identifier</param>
-    /// <returns>List all comments for this comment</returns>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns>True if liked otherwise false</returns>
+    [HttpGet("{id}/likes/{userId}")]
+    public IActionResult IsAuthUserLiked(Guid id, Guid userId)
+    {
+        var liked = _commentService.IsAuthUserLiked(id, userId);
+        return Ok(liked);
+    }
+
+    /// <summary>
+    /// Auth user likes this comment
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns>True if liked otherwise false</returns>
+    [HttpPost("{id}/likes/{userId}/like")]
+    public IActionResult Like(Guid id, Guid userId)
+    {
+        _commentService.Like(id, userId);
+        return Ok(new { Message = "Liked" });
+    }
+
+    /// <summary>
+    /// Auth user unliked this comment
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns>True if liked otherwise false</returns>
+    [HttpPost("{id}/likes/{userId}/unlike")]
+    public IActionResult Unlike(Guid id, Guid userId)
+    {
+        _commentService.Unlike(id, userId);
+        return Ok(new { Message = "Unliked" });
+    }
+
+    /// <summary>
+    /// Get all children for this comment
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <returns>List all chidren for this comment</returns>
     [HttpGet("{id}/comments")]
     public IActionResult GetAllChildrenByCommentId(Guid id)
     {
         var comments = _commentService.GetAllChildrenByCommentId(id);
         return Ok(comments);
+    }
+
+    /// <summary>
+    /// Get number of children for this comment
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <returns>List number of children for this comment</returns>
+    [HttpGet("{id}/comments/count")]
+    public IActionResult GetChildCountByCommentId(Guid id)
+    {
+        var numberOfComments = _commentService.GetAllChildrenByCommentId(id).Count();
+        return Ok(numberOfComments);
     }
 
     /// <summary>
@@ -90,7 +141,9 @@ public class CommentsController : ControllerBase
     /// </summary>
     /// <param name="id">Comment's unique identifier</param>
     /// <param name="model">Comment's new information</param>
-    /// <returns></returns>
+    /// <returns>Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
     [HttpPatch("{id}/edit")]
     public IActionResult Edit(Guid id, CreateCommentRequest model)
     {
@@ -102,7 +155,9 @@ public class CommentsController : ControllerBase
     /// Delete a comment by its id
     /// </summary>
     /// <param name="id">Comment's unique identifier</param>
-    /// <returns></returns>
+    /// <returns>Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
     [HttpDelete("{id}")]
     public IActionResult Delete(Guid id)
     {

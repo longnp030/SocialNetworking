@@ -3,12 +3,6 @@
         <h1>Post</h1>
         <PostCard :userId="userId" :jwtToken="jwtToken" :postId="postId"/>
         
-        <div>
-            <b-button variant="danger" v-if="iLiked" @click="unlikePost">Unlike</b-button>
-            <b-button variant="primary" v-else @click="likePost">Like</b-button>
-            {{likes}}
-        </div>
-        
         <b-container fluid id="comments">
             <h2>Comments</h2>
             <CommentForm 
@@ -43,13 +37,6 @@
                 userId: '',
                 jwtToken: '',
                 postId: '',
-                getLikesUrl: "https://localhost:6868/Posts/postId/likes",
-                checkLikedUrl: "https://localhost:6868/Posts/postId/likes/userId",
-                likePostUrl: "https://localhost:6868/Posts/postId/likes/userId/like",
-                unlikePostUrl: "https://localhost:6868/Posts/postId/likes/userId/unlike",
-                iLiked: false,
-                whoLiked: [],
-                likes: 0,
 
                 getCommentsForPostUrl: "https://localhost:6868/Posts/postId/comments",
                 commentIds: [],
@@ -66,99 +53,33 @@
             }
             this.postId = this.$route.params.postId;
 
-            await this.$postHub.$on('post-react', this.postReacted);
+            /**
+             * Hub listener
+             * whenever an event named "post-commented-on" triggered
+             * run the method named "postCommentedOn"
+             */
             await this.$postHub.$on('post-commented-on', this.postCommentedOn);
         },
         async beforeDestroy() {
-            console.log("B4 destroy...");
+            /**
+             * Destroy hub when user is not viewing the post anymore
+             * */
             this.$postHub.postClosed(this.postId);
         },
         async mounted() {
+            /**
+             * What to do when component is mounted:
+             * 1. notify the hub that user has clicked to view the post
+             *
+             * 2. get how many comments there are
+             */
             await this.$postHub.postOpened(this.postId);
-            await this.haveILiked();
-            await this.getWhoLiked();
             await this.getComments();
         },
         methods: {
-            async getWhoLiked() {
-                axios.get(
-                    this.getLikesUrl.replace("postId", this.postId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
-                ).then((res) => {
-                    this.likes = res.data.length;
-                }).catch((res) => {
-                    console.log(res.response);
-                });
-            },
-
-            async haveILiked() {
-                axios.get(
-                    this.checkLikedUrl.replace("postId", this.postId).replace("userId", this.userId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
-                ).then((res) => {
-                    this.iLiked = res.data;
-                    //console.log(this.liked);
-                }).catch((res) => {
-                    console.log(res.response);
-                });
-            },
-
-            async likePost() {
-                await axios.post(
-                    this.likePostUrl.replace("postId", this.postId).replace("userId", this.userId),
-                    null,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
-                ).then((res) => {
-                    console.log(res);
-                }).catch((res) => {
-                    console.log(res.response);
-                });
-            },
-
-            async unlikePost() {
-                await axios.post(
-                    this.unlikePostUrl.replace("postId", this.postId).replace("userId", this.userId),
-                    null,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
-                ).then((res) => {
-                    console.log(res);
-                }).catch((res) => {
-                    console.log(res.response);
-                });
-            },
-
-            async postReacted(params) {
-                console.log(params);
-                if (this.postId !== params.postId) return;
-                if (params.like) {
-                    this.likes += 1;
-                    if (this.userId === params.userId) {
-                        this.iLiked = true;
-                    }
-                } else {
-                    this.likes -= 1;
-                    if (this.userId === params.userId) {
-                        this.iLiked = false;
-                    }
-                }
-            },
-
+            /**
+             * get how many comments there are
+             * */
             async getComments() {
                 axios.get(
                     this.getCommentsForPostUrl.replace("postId", this.postId),
@@ -174,6 +95,13 @@
                     console.log(res.response);
                 })
             },
+
+            /**
+             * Hub listener
+             * whenever an event named "post-commented-on" triggered
+             * run this
+             * @param params equivalent to parameter named "comment" sent from Backend in Class PostHub, Task Comment()
+             */
             async postCommentedOn(comment) {
                 console.log(comment);
                 this.commentIds.unshift(comment.id);

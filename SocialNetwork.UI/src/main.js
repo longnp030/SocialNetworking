@@ -3,10 +3,15 @@ import App from './App.vue';
 
 Vue.config.productionTip = true;
 
-/** Chat Socket **/
+/** Post Socket **/
 import PostSocket from './plugins/hubs/postHub';
 Vue.use(PostSocket);
-/** End Chat Socket **/
+/** End Post Socket **/
+
+/** Comment Socket **/
+import CommentSocket from './plugins/hubs/commentHub';
+Vue.use(CommentSocket);
+/** End Comment Socket **/
 
 /** Vue router **/
 import router from './plugins/router';

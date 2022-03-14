@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using SocialNetwork.API.Entities.Comment;
-using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Models.Post;
@@ -35,6 +34,28 @@ public interface ICommentService
     IEnumerable<CommentLike> GetAllLikesByCommentId(Guid id);
 
     /// <summary>
+    /// Check if this auth user liked this comment
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns>True if liked otherwise false</returns>
+    bool IsAuthUserLiked(Guid id, Guid userId);
+
+    /// <summary>
+    /// Auth user likes this comment
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    void Like(Guid id, Guid userId);
+
+    /// <summary>
+    /// Auth user unliked this comment
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    void Unlike(Guid id, Guid userId);
+
+    /// <summary>
     /// Create new comment
     /// </summary>
     /// <param name="model">Required fields to create new comment form</param>
@@ -61,7 +82,8 @@ public class CommentService : ICommentService
     #region Properties
     private DataContext _context;
     private readonly IMapper _mapper;
-    private readonly IHubContext<PostHub, IPostHub> _hubContext;
+    private readonly IHubContext<PostHub, IPostHub> _postHubContext;
+    private readonly IHubContext<CommentHub, ICommentHub> _commentHubContext;
     #endregion Properties
 
     #region Constructor
@@ -73,11 +95,13 @@ public class CommentService : ICommentService
     public CommentService(
         DataContext context,
         IMapper mapper,
-        IHubContext<PostHub, IPostHub> hubContext)
+        IHubContext<PostHub, IPostHub> postHubContext,
+        IHubContext<CommentHub, ICommentHub> commentHubContext)
     {
         _context = context;
         _mapper = mapper;
-        _hubContext = hubContext;
+        _postHubContext = postHubContext;
+        _commentHubContext = commentHubContext;
     }
     #endregion Constructor
 
@@ -100,6 +124,38 @@ public class CommentService : ICommentService
         var likes = _context.CommentLike
             .Where(l => l.CommentId == id).ToList();
         return likes;
+    }
+
+    public bool IsAuthUserLiked(Guid id, Guid userId)
+    {
+        return _context.CommentLike
+            .Where(l => l.CommentId == id)
+            .Any(l => l.UserId == userId);
+    }
+
+    public void Like(Guid id, Guid userId)
+    {
+        var like = new CommentLike
+        {
+            CommentId = id,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+        };
+        _context.CommentLike.Add(like);
+        _context.SaveChanges();
+
+        _commentHubContext.Clients.All.Reaction(id, userId, true);
+    }
+
+    public void Unlike(Guid id, Guid userId)
+    {
+        var like = _context.CommentLike
+            .Where(l => l.CommentId == id)
+            .Single(l => l.UserId == userId);
+        _context.CommentLike.Remove(like);
+        _context.SaveChanges();
+
+        _commentHubContext.Clients.All.Reaction(id, userId, false);
     }
 
     public void Create(CreateCommentRequest model)
@@ -125,7 +181,7 @@ public class CommentService : ICommentService
             }
         }
 
-        _hubContext.Clients.Group(model.PostId.ToString()).Comment(comment);
+        _postHubContext.Clients.Group(model.PostId.ToString()).Comment(comment);
     }
 
     public void Edit(Guid id, CreateCommentRequest model)

@@ -28,5 +28,9 @@
         height: 100vh;
         width: 100%;
     }
+
+    a, u {
+        text-decoration: none;
+    }
 </style>
 
