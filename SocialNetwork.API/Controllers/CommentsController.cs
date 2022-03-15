@@ -123,6 +123,18 @@ public class CommentsController : ControllerBase
     }
 
     /// <summary>
+    /// Get comment's media
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <returns>List of media attached to this comment</returns>
+    [HttpGet("{id}/media")]
+    public IActionResult GetMedia(Guid id)
+    {
+        var media = _commentService.GetMedia(id);
+        return Ok(media);
+    }
+
+    /// <summary>
     /// Create new comment
     /// </summary>
     /// <param name="model">Fields to create a comment</param>

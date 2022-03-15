@@ -65,6 +65,13 @@ public interface IPostService
     IEnumerable<PostShare> GetAllSharesByPostId(Guid id);
 
     /// <summary>
+    /// Get post's media
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <returns>List of media attached to this post</returns>
+    IEnumerable<String> GetMedia(Guid id);
+
+    /// <summary>
     /// Create new post
     /// </summary>
     /// <param name="model">Required fields to create new post form</param>
@@ -172,13 +179,20 @@ public class PostService : IPostService
         _hubContext.Clients.All.Reaction(id, userId, false);
     }
 
+    public IEnumerable<String> GetMedia(Guid id)
+    {
+        var mediaPaths = _context.PostMedia
+            .Where(pm => pm.PostId == id)
+            .Select(pm => pm.Path);
+        return mediaPaths;
+    }
+
     public void Create(CreatePostRequest model)
     {
         var post = _mapper.Map<Post>(model);
         post.Id = Guid.NewGuid();
         post.Timestamp = DateTime.Now;
         _context.Post.Add(post);
-        _context.SaveChanges();
 
         if (model.MediaPaths.Any())
         {
@@ -191,9 +205,11 @@ public class PostService : IPostService
                     Path = mediaPath
                 };
                 _context.PostMedia.Add(postMedia);
-                _context.SaveChanges();
+                
             }
         }
+
+        _context.SaveChanges();
     }
 
     public void Edit(Guid id, CreatePostRequest model)

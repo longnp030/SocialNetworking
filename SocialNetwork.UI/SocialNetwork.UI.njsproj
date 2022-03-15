@@ -64,6 +64,9 @@
     <Content Include="src\pages\UpdateProfile.vue">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\pages\UserProfile.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\plugins\hubs\commentHub\index.js">
       <SubType>Code</SubType>
     </Content>

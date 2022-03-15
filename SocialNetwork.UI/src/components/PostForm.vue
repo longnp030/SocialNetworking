@@ -32,9 +32,6 @@
                 </div>
             </b-form>
         </b-media>
-                <b-card class="mt-3" header="Form Data Result">
-                <pre class="m-0">{{ form }}</pre>
-                </b-card>
     </b-card>
 </template>
 
@@ -47,6 +44,8 @@
         data() {
             return {
                 postUrl: "https://localhost:6868/Posts/",
+                uploadUrl: "https://localhost:6868/Posts/upload",
+                unuploadUrl: "https://localhost:6868/Posts/unupload",
                 form: {
                     MediaPaths: [],
                 },
@@ -65,7 +64,6 @@
 
                 axios.post(
                     this.postUrl,
-                    //JSON.parse(JSON.stringify(this.form)),
                     this.form,
                     {
                         headers: {
@@ -74,6 +72,7 @@
                     }
                 ).then((res) => {
                     console.log(res);
+                    this.$router.go();
                 }).catch((res) => {
                     console.log(res.response)
                 });
@@ -83,30 +82,54 @@
                 const file = e.target.files[0];
                 this.imgUrls.push(URL.createObjectURL(file));
 
-                this.form.MediaPaths.push(file);
+                var imgForm = new FormData();
+                imgForm.append('image', file);
+                axios.post(
+                    this.uploadUrl,
+                    imgForm,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.jwtToken}`,
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                ).then(res => {
+                    console.log(res.data);
+                    this.form.MediaPaths.push(res.data);
+                }).catch(res => {
+                    console.log(res.response);
+                })
             },
+
             removeImg(e) {
-                this.imgUrls.splice(this.imgUrls.indexOf(e.target.src), 1);
+                console.log(e.target.src);
+                var unloadForm = new FormData();
+                unloadForm.append(e.target.src.replace("blob:http://localhost:8080/", ""), "id");
+                axios.post(
+                    this.unuploadUrl,
+                    unloadForm,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.jwtToken}`,
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                ).then(res => {
+                    console.log(res);
+                    this.imgUrls.splice(this.imgUrls.indexOf(e.target.src), 1);
+                }).catch(res => {
+                    console.log(res.response);
+                });
                 e.preventDefault();
             }
         },
-        watch: {
-            //media() {
-            //    if (this.media !== null) {
-            //        console.log(this.media);
-            //        this.form.MediaPaths.push({ Media: this.media, Name: this.media.name });
-            //        this.$nextTick(() => {
-            //            this.media = null;
-            //        });
-            //    }
-            //}
-        }
     }
 </script>
 
 <style scoped>
     .card, .card-body {
         background-color: #111;
+        color: var(--white);
         border-radius: 10px;
     }
 

@@ -14,6 +14,22 @@
             <p class="mb-0 text">
               {{ comment.Text }}
             </p>
+
+            <b-carousel
+                id="carousel-comment"
+                :interval="4000"
+                controls
+                indicators
+                img-width="1024"
+                img-height="480"
+                v-if="commentMedia.length > 0"
+            >
+                <b-carousel-slide 
+                    v-for="media in commentMedia"
+                    :key="media"
+                    :img-src="media">
+                </b-carousel-slide>
+            </b-carousel>
         </b-media>
 
         <b-button-group class="d-flex like-cmt-share">
@@ -39,9 +55,11 @@
         data() {
             return {
                 getCommentUrl: "https://localhost:6868/Comments/commentId",
+                getMediaUrl: "https://localhost:6868/Comments/commentId/media",
                 getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 userProfileUrl: `http://localhost:8080/user/${this.userId}/profile`,
                 comment: {},
+                commentMedia: [],
                 author: null,
 
                 getLikesUrl: "https://localhost:6868/Comments/commentId/likes",
@@ -70,14 +88,16 @@
             /**
              * What to do when component is mounted:
              * 1. get the comment to display (text, time, id, ...)
-             * 2. get author to display (name, avatar, ...)
+             * 2. get comment's media
+             * 3. get author to display (name, avatar, ...)
              * 
-             * 3. check if viewing user has liked the comment ?
-             * 4. list all who liked the comment
+             * 4. check if viewing user has liked the comment ?
+             * 5. list all who liked the comment
              * 
-             * 5. get how many children comment there are
+             * 6. get how many children comment there are
              */
             await this.getComment();
+            await this.getMedia();
             await this.getAuthorProfile();
 
             await this.haveILiked();
@@ -102,6 +122,28 @@
                     //console.log(this.comment);
                 }).catch((res) => {
                     console.log(res);
+                });
+            },
+
+            /**
+             * get post's media
+             * */
+            async getMedia() {
+                axios.get(
+                    this.getMediaUrl.replace("commentId", this.commentId),
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.jwtToken}`
+                        }
+                    }
+                ).then(res => {
+                    res.data.forEach((val, idx) => {
+                        console.log(idx);
+                        var media = require(`@/assets/${val}`);
+                        this.commentMedia.push(media);
+                    });
+                }).catch(res => {
+                    console.log(res.response);
                 });
             },
 

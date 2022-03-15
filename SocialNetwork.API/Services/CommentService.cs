@@ -56,6 +56,13 @@ public interface ICommentService
     void Unlike(Guid id, Guid userId);
 
     /// <summary>
+    /// Get comment's media
+    /// </summary>
+    /// <param name="id">Comment's unique identifier</param>
+    /// <returns>List of media attached to this comment</returns>
+    IEnumerable<String> GetMedia(Guid id);
+
+    /// <summary>
     /// Create new comment
     /// </summary>
     /// <param name="model">Required fields to create new comment form</param>
@@ -156,6 +163,14 @@ public class CommentService : ICommentService
         _context.SaveChanges();
 
         _commentHubContext.Clients.All.Reaction(id, userId, false);
+    }
+
+    public IEnumerable<String> GetMedia(Guid id)
+    {
+        var mediaPaths = _context.CommentMedia
+            .Where(pm => pm.CommentId == id)
+            .Select(pm => pm.Path);
+        return mediaPaths;
     }
 
     public void Create(CreateCommentRequest model)

@@ -44,11 +44,13 @@
         data() {
             return {
                 commentUrl: "https://localhost:6868/Comments/",
+                uploadUrl: "https://localhost:6868/Posts/upload",
+                unuploadUrl: "https://localhost:6868/Posts/unupload",
                 form: {
                     MediaPaths: [],
                 },
-                imgUrls: [],
                 media: null,
+                imgUrls: [],
             }
         },
         methods: {
@@ -76,23 +78,30 @@
             addImg(e) {
                 const file = e.target.files[0];
                 this.imgUrls.push(URL.createObjectURL(file));
+
+                var imgForm = new FormData();
+                imgForm.append('image', file);
+                axios.post(
+                    this.uploadUrl,
+                    imgForm,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.jwtToken}`,
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                ).then(res => {
+                    console.log(res.data);
+                    this.form.MediaPaths.push(res.data);
+                }).catch(res => {
+                    console.log(res.response);
+                })
             },
             removeImg(e) {
                 this.imgUrls.splice(this.imgUrls.indexOf(e.target.src), 1);
                 e.preventDefault();
             }
         },
-        watch: {
-            media() {
-                if (this.media !== null) {
-                    console.log(this.media);
-                    this.form.MediaPaths.push(this.media);
-                    this.$nextTick(() => {
-                        this.media = null;
-                    });
-                }
-            }
-        }
     }
 </script>
 

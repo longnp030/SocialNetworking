@@ -5,6 +5,7 @@ Vue.use(VueRouter);
 import Login from '@/pages/Login.vue';
 import Register from '@/pages/Register.vue';
 import Home from '@/pages/Home.vue';
+import UserProfile from '@/pages/UserProfile.vue';
 import UpdateProfile from '@/pages/UpdateProfile.vue';
 import PostLayout from '@/layouts/PostLayout.vue';
 
@@ -28,6 +29,11 @@ const routes = [
         path: '/update-profile',
         name: 'updateprofile',
         component: UpdateProfile,
+    },
+    {
+        path: '/user/:userId/profile',
+        name: 'profile',
+        component: UserProfile
     },
     {
         path: '/post/:postId',

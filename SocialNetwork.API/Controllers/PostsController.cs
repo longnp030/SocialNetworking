@@ -138,6 +138,18 @@ public class PostsController : ControllerBase
     }
 
     /// <summary>
+    /// Get post's media
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <returns>List of media attached to this post</returns>
+    [HttpGet("{id}/media")]
+    public IActionResult GetMedia(Guid id)
+    {
+        var media = _postService.GetMedia(id);
+        return Ok(media);
+    }
+
+    /// <summary>
     /// Create new post
     /// </summary>
     /// <param name="model">Fields to create a post</param>
@@ -177,6 +189,38 @@ public class PostsController : ControllerBase
     public IActionResult Delete(Guid id)
     {
         _postService.Delete(id);
+        return Ok();
+    }
+
+    [HttpPost("upload")]
+    public async Task<IActionResult> Upload()
+    {
+
+        //var path = _postService.Upload(HttpContext.Request.Form.Files[0]);
+
+        IFormFile file = HttpContext.Request.Form.Files[0];
+        var path = "E:\\Code\\Web\\Backend\\SocialNetwork\\SocialNetwork.UI\\src\\assets\\";
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+        var destPath = path + (Guid.NewGuid().ToString() + ".jpg");
+
+        using (var stream = System.IO.File.Create(destPath))
+        {
+            await file.CopyToAsync(stream);
+        }
+        destPath = destPath.Replace(path, "");
+
+        return Ok(destPath);
+    }
+
+    [HttpPost("unupload")]
+    public IActionResult Unupload()
+    {
+        var src = HttpContext.Request.Form.Keys.First().ToString().Replace("blob:http://localhost:8080/", "") + ".jpg";
+        var path = "E:\\Code\\Web\\Backend\\SocialNetwork\\SocialNetwork.UI\\src\\assets\\" + src;
+        System.IO.File.Delete(path);
         return Ok();
     }
 

@@ -14,6 +14,21 @@
             <p class="mb-0 text">
               {{ post.Text }}
             </p>
+
+            <b-carousel
+                id="carousel"
+                controls
+                indicators
+                img-width="370"
+                img-height="200"
+                v-if="postMedia.length > 0"
+            >
+                <b-carousel-slide 
+                    v-for="media in postMedia"
+                    :key="media"
+                    :img-src="media">
+                </b-carousel-slide>
+            </b-carousel>
         </b-media>
 
         <b-button-group class="d-flex like-cmt-share">
@@ -43,9 +58,11 @@
         data() {
             return {
                 getPostUrl: "https://localhost:6868/Posts/postId",
+                getMediaUrl: "https://localhost:6868/Posts/postId/media",
                 getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 userProfileUrl: `http://localhost:8080/user/${this.userId}/profile`,
                 post: {},
+                postMedia: [],
                 author: null,
 
                 getLikesUrl: "https://localhost:6868/Posts/postId/likes",
@@ -74,14 +91,16 @@
             /**
              * What to do when component is mounted:
              * 1. get the post to display (text, time, id, ...)
-             * 2. get author to display (name, avatar, ...)
+             * 2. get post's media
+             * 3. get author to display (name, avatar, ...)
              *
-             * 3. check if viewing user has liked the post ?
-             * 4. list all who liked the post
+             * 4. check if viewing user has liked the post ?
+             * 5. list all who liked the post
              *
-             * 5. get how many comments there are
+             * 6. get how many comments there are
              */
             await this.getPost();
+            await this.getMedia();
             await this.getAuthorProfile();
 
             await this.haveILiked();
@@ -106,6 +125,28 @@
                     //console.log(this.post);
                 }).catch((res) => {
                     console.log(res);
+                });
+            },
+
+            /**
+             * get post's media
+             * */
+            async getMedia() {
+                axios.get(
+                    this.getMediaUrl.replace("postId", this.postId),
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.jwtToken}`
+                        }
+                    }
+                ).then(res => {
+                    res.data.forEach((val, idx) => {
+                        console.log(idx);
+                        var media = require(`@/assets/${val}`);
+                        this.postMedia.push(media);
+                    });
+                }).catch(res => {
+                    console.log(res.response);
                 });
             },
 
@@ -369,5 +410,12 @@
 
     .count.liked {
         color: var(--red);
+    }
+
+    .carousel-inner img {
+        width: 100% !important;
+        max-height: 200px !important;
+        min-height: 200px !important;
+        background-size: cover;
     }
 </style>
