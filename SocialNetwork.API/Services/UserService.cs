@@ -92,6 +92,20 @@ public interface IUserService
     /// <param name="id">User's unique identifier</param>
     /// <returns>List of posts to display in user's newsfeed</returns>
     IEnumerable<Guid> GetFeed(Guid id);
+
+    /// <summary>
+    /// fromId follows toId
+    /// </summary>
+    /// <param name="fromId">Id of who follows</param>
+    /// <param name="toId">Id of who being followed</param>
+    void Follow(Guid fromId, Guid toId);
+
+    /// <summary>
+    /// fromId unfollows toId
+    /// </summary>
+    /// <param name="fromId">Id of who unfollows</param>
+    /// <param name="toId">Id of who being unfollowed</param>
+    void Unfollow(Guid fromId, Guid toId);
 }
 
 /// <summary>
@@ -229,7 +243,7 @@ public class UserService : IUserService
             .Where(p => p.GroupId == Guid.Empty)      // but not in any group
             .ToList();   
 
-        var sharedPostsIds = _context.PostShare    // get all shared entities
+        var sharedPostsIds = _context.PostShare    // get all shared posts
             .Where(s => s.FromId == id)          // shared by this user
             .Where(s => s.ToId == id)            // to his/her own (not shared to others)
             .Select(s => s.PostId);              // get col PostId
@@ -246,7 +260,7 @@ public class UserService : IUserService
 
     public IEnumerable<Post> GetAllSavedPostsByUserId(Guid id)
     {
-        var savedPostsIds = _context.PostSave    // Get all saved entities
+        var savedPostsIds = _context.PostSave    // Get all saved posts
             .Where(s => s.UserId == id)         // saved by this user
             .Select(s => s.PostId);           // get col PostId
 
@@ -263,6 +277,27 @@ public class UserService : IUserService
             .Where(p => p.AuthorId == id)             // by this user
             .Select(p => p.Id)
             .ToList();
+    }
+
+    public void Follow(Guid fromId, Guid toId)
+    {
+        var follow = new Follow
+        {
+            FromId = fromId,
+            ToId = toId,
+            Timestamp = DateTime.Now
+        };
+        _context.Follow.Add(follow);
+        _context.SaveChanges(); 
+    }
+
+    public void Unfollow(Guid fromId, Guid toId)
+    {
+        var follow = _context.Follow
+            .Where(f => f.FromId == fromId)
+            .SingleOrDefault(f => f.ToId == toId);
+        _context.Follow.Remove(follow);
+        _context.SaveChanges();
     }
 
     #endregion Methods

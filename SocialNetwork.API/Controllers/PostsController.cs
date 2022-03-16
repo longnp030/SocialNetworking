@@ -122,7 +122,7 @@ public class PostsController : ControllerBase
     public IActionResult Unlike(Guid id, Guid userId)
     {
         _postService.Unlike(id, userId);
-        return Ok(new { Message = "Liked" });
+        return Ok(new { Message = "Unliked" });
     }
 
     /// <summary>

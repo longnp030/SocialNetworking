@@ -40,6 +40,9 @@
     <Content Include="src\components\CommentForm.vue">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\components\NotificationCard.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\components\PostCard.vue">
       <SubType>Code</SubType>
     </Content>
@@ -70,6 +73,9 @@
     <Content Include="src\plugins\hubs\commentHub\index.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\plugins\hubs\notificationHub\index.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\plugins\hubs\postHub\index.js">
       <SubType>Code</SubType>
     </Content>
@@ -88,6 +94,7 @@
     <Folder Include="src\plugins\" />
     <Folder Include="src\plugins\hubs\" />
     <Folder Include="src\plugins\hubs\commentHub\" />
+    <Folder Include="src\plugins\hubs\notificationHub\" />
     <Folder Include="src\plugins\hubs\postHub\" />
     <Folder Include="src\plugins\router\" />
   </ItemGroup>

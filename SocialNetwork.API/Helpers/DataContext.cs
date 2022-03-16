@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialNetwork.API.Entities.Comment;
+using SocialNetwork.API.Entities.Notification;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Entities.User;
 
@@ -28,6 +29,7 @@ public class DataContext : DbContext
     public DbSet<User> User { get; set; }
     public DbSet<UserProfile> UserProfile { get; set; }
     public DbSet<UserSetting> UserSetting { get; set; }
+    public DbSet<Follow> Follow { get; set; } 
     #endregion User
 
     #region Post
@@ -40,4 +42,8 @@ public class DataContext : DbContext
     public DbSet<CommentLike> CommentLike { get; set; }
     public DbSet<CommentMedia> CommentMedia { get; set; }
     #endregion Post
+
+    #region Notification
+    public DbSet<Notification> Notification { get; set; }
+    #endregion Notification
 }

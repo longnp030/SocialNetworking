@@ -72,6 +72,7 @@ using (var scope = app.Services.CreateScope())
     {
         endpoints.MapHub<CommentHub>("/commentsocket");
         endpoints.MapHub<PostHub>("/postsocket");
+        endpoints.MapHub<NotificationHub>("/notificationsocket");
     });
 
     app.MapControllers();

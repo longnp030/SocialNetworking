@@ -210,6 +210,36 @@ public class UsersController : ControllerBase
         return Ok(feed);
     }
 
+    /// <summary>
+    /// fromId follows toId
+    /// </summary>
+    /// <param name="fromId">Id of who follows</param>
+    /// <param name="toId">Id of who being followed</param>
+    /// <returns>Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
+    [HttpPost("{fromId}/follow/{toId}")]
+    public IActionResult Follow(Guid fromId, Guid toId)
+    {
+        _userService.Follow(fromId, toId);
+        return Ok(new { Message = "Followed" });
+    }
+    
+    /// <summary>
+    /// fromId unfollows toId
+    /// </summary>
+    /// <param name="fromId">Id of who unfollows</param>
+    /// <param name="toId">Id of who being unfollowed</param>
+    /// <returns>Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
+    [HttpPost("{fromId}/unfollow/{toId}")]
+    public IActionResult Unfollow(Guid fromId, Guid toId)
+    {
+        _userService.Unfollow(fromId, toId);
+        return Ok(new { Message = "Unfollowed" });
+    }
+
     
     #endregion Methods
 }

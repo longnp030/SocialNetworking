@@ -28,10 +28,10 @@
             }
         },
         async mounted() {
-            console.log("Into Feed...");
-            console.log(this.userId);
+            //console.log("Into Feed...");
+            //console.log(this.userId);
             if (this.userId) {
-                console.log("Found userId: ", this.userId);
+                //console.log("Found userId: ", this.userId);
                 await this.getFeed();
             }
         },

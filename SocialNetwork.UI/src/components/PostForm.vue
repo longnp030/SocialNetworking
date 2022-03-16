@@ -2,7 +2,7 @@
     <b-card>
         <b-media>
             <template #aside>
-                <b-img blank blank-color="#ccc" width="64" alt="placeholder"></b-img>
+                <b-avatar variant="info" src="https://placekitten.com/300/300" size="4rem"></b-avatar>
             </template>
 
             <b-form @submit="onSubmit">
@@ -131,10 +131,6 @@
         background-color: #111;
         color: var(--white);
         border-radius: 10px;
-    }
-
-    .card-body .media .media-aside img {
-        border-radius: 64px;
     }
 
     #textarea {

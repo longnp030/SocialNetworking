@@ -1,18 +1,23 @@
 <template>
-    <b-card v-if="author" @click="postCardOnClick">
+    <b-card v-if="authorProfile" @click="postCardOnClick">
         <b-media>
             <template #aside>
-              <b-img blank blank-color="#ccc" width="64" alt="placeholder"></b-img>
+                <b-avatar 
+                    variant="info"
+                    src="https://placekitten.com/300/300" 
+                    size="4rem"
+                    @click="openUserProfile"
+                ></b-avatar>
             </template>
 
             <div class="d-inline-flex author-date">
-                <b class="mt-0 author"><a :href="userProfileUrl" @click="$(this).stopPropagation();">{{ author.Name }}</a></b>
+                <b class="mt-0 author"><a @click="openUserProfile">{{ authorProfile.Name }}</a></b>
                 <div>・</div>
                 <div class="date" :title="toReadableTime(post.Timestamp)">{{ calcTimeTillNow(post.Timestamp) }}</div>
             </div>
             
             <p class="mb-0 text">
-              {{ post.Text }}
+                {{ post.Text }}
             </p>
 
             <b-carousel
@@ -60,10 +65,9 @@
                 getPostUrl: "https://localhost:6868/Posts/postId",
                 getMediaUrl: "https://localhost:6868/Posts/postId/media",
                 getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
-                userProfileUrl: `http://localhost:8080/user/${this.userId}/profile`,
                 post: {},
                 postMedia: [],
-                author: null,
+                authorProfile: null,
 
                 getLikesUrl: "https://localhost:6868/Posts/postId/likes",
                 checkLikedUrl: "https://localhost:6868/Posts/postId/likes/userId",
@@ -140,13 +144,12 @@
                         }
                     }
                 ).then(res => {
-                    res.data.forEach((val, idx) => {
-                        console.log(idx);
+                    res.data.forEach((val, _) => {
                         var media = require(`@/assets/${val}`);
                         this.postMedia.push(media);
                     });
                 }).catch(res => {
-                    console.log(res.response);
+                    console.log(res);
                 });
             },
 
@@ -162,11 +165,23 @@
                         }
                     }
                 ).then((res) => {
-                    this.author = res.data;
+                    this.authorProfile = res.data;
                     //console.log(this.author);
                 }).catch((res) => {
                     console.log(res);
                 });
+            },
+
+            openUserProfile(e) {
+                this.$router.push({
+                    name: 'profile',
+                    params: {
+                        userId: this.post.AuthorId,
+                        myId: this.userId,
+                        jwtToken: this.jwtToken
+                    }
+                });
+                e.stopPropagation();
             },
 
             /**
@@ -221,7 +236,7 @@
                         }
                     }
                 ).then((res) => {
-                    console.log(res);
+                    console.log(res.data);
                 }).catch((res) => {
                     console.log(res.response);
                 });
@@ -242,7 +257,7 @@
                         }
                     }
                 ).then((res) => {
-                    console.log(res);
+                    console.log(res.data);
                 }).catch((res) => {
                     console.log(res.response);
                 });
@@ -255,7 +270,6 @@
              * @param params equivalent to parameters {postId, userId, like} sent from Backend in Class PostHub, Task Reaction()
              */
             async postReacted(params) {
-                console.log(params);
                 if (this.postId !== params.postId) return;
                 if (params.like) {
                     this.likes += 1;
@@ -377,10 +391,6 @@
         border-radius: 10px;
     }
 
-    .card-body .media .media-aside img {
-        border-radius: 64px;
-    }
-
     .author-date {
         gap: 10px;
     }
@@ -412,6 +422,9 @@
         color: var(--red);
     }
 
+    .carousel {
+        margin-top: 10px;
+    }
     .carousel-inner img {
         width: 100% !important;
         max-height: 200px !important;

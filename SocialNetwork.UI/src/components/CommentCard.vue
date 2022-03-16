@@ -2,7 +2,7 @@
     <b-card v-if="author">
         <b-media>
             <template #aside>
-              <b-img blank blank-color="#ccc" width="64" alt="placeholder"></b-img>
+                <b-avatar variant="info" src="https://placekitten.com/300/300" size="4rem"></b-avatar>
             </template>
 
             <div class="d-inline-flex author-date">
@@ -359,10 +359,6 @@
         border-radius: 10px;
     }
 
-    .card-body .media .media-aside img {
-        border-radius: 64px;
-    }
-
     .author-date {
         gap: 10px;
     }
@@ -392,5 +388,9 @@
 
     .count.liked {
         color: #dc3545;
+    }
+
+    .carousel {
+        margin-top: 10px;
     }
 </style>

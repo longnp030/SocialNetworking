@@ -8,7 +8,7 @@
     export default {
         name: 'app',
         created() {
-            // If user go to 'home' -> route.name == null -> redirect to 'home'
+            // If user goes to 'home' -> route.name == null -> redirect to 'home'
             // Else means they jump into a complex url or refresh the page -> don't redirect to 'home'
             if (this.$route.name === null) {
                 this.$router.push({

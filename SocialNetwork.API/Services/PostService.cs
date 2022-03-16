@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using SocialNetwork.API.Authorization;
 using SocialNetwork.API.Entities.Comment;
+using SocialNetwork.API.Entities.Notification;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Hubs;
@@ -98,7 +99,8 @@ public class PostService : IPostService
     #region Properties
     private DataContext _context;
     private readonly IMapper _mapper;
-    private readonly IHubContext<PostHub, IPostHub> _hubContext;
+    private readonly IHubContext<PostHub, IPostHub> _postHubContext;
+    private readonly IHubContext<NotificationHub, INotificationHub> _notificationHubContext;
     #endregion Properties
 
     #region Constructor
@@ -110,11 +112,13 @@ public class PostService : IPostService
     public PostService(
         DataContext context,
         IMapper mapper,
-        IHubContext<PostHub, IPostHub> hubContext)
+        IHubContext<PostHub, IPostHub> postHubContext,
+        IHubContext<NotificationHub, INotificationHub> notificationHubContext)
     {
         _context = context;
         _mapper = mapper;
-        _hubContext = hubContext;
+        _postHubContext = postHubContext;
+        _notificationHubContext = notificationHubContext;
     }
     #endregion Constructor
 
@@ -163,9 +167,22 @@ public class PostService : IPostService
             Timestamp = DateTime.Now,
         };
         _context.PostLike.Add(like);
+
+        var notifyToId = _context.Post.Find(id).AuthorId;
+        var likeNotification = new Notification
+        {
+            FromId = userId,
+            ToId = notifyToId,
+            Verb = "liked",
+            EntityId = id,
+            Read = false,
+            Timestamp = DateTime.Now
+        };
+        //_context.Notification.Add(likeNotification);
         _context.SaveChanges();
 
-        _hubContext.Clients.All.Reaction(id, userId, true);
+        _notificationHubContext.Clients.All.Notify(likeNotification);
+        _postHubContext.Clients.All.Reaction(id, userId, true);
     }
 
     public void Unlike(Guid id, Guid userId)
@@ -176,7 +193,7 @@ public class PostService : IPostService
         _context.PostLike.Remove(like);
         _context.SaveChanges();
 
-        _hubContext.Clients.All.Reaction(id, userId, false);
+        _postHubContext.Clients.All.Reaction(id, userId, false);
     }
 
     public IEnumerable<String> GetMedia(Guid id)

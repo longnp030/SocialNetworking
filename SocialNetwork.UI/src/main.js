@@ -13,6 +13,11 @@ import CommentSocket from './plugins/hubs/commentHub';
 Vue.use(CommentSocket);
 /** End Comment Socket **/
 
+/** Notification Socket **/
+import NotificationSocket from './plugins/hubs/notificationHub';
+Vue.use(NotificationSocket);
+/** End Notification Socket **/
+
 /** Vue router **/
 import router from './plugins/router';
 import VueRouter from 'vue-router';

@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Media\**" />
+    <Content Remove="Media\**" />
+    <EmbeddedResource Remove="Media\**" />
+    <None Remove="Media\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Helpers\ektmlvs4.ewj~" />
   </ItemGroup>
 
@@ -16,10 +23,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Media\Posts\" />
   </ItemGroup>
 
 </Project>

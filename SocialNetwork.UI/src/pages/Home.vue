@@ -49,29 +49,43 @@
             </b-col>
             <b-col cols="3">Column</b-col>
         </b-row>
+
+        <b-alert
+            v-if="notification"
+            :show="dismissNotificationAlert"
+            dismissible
+            variant="dark"
+            class="position-fixed fixed-bottom"
+            @dismissed="dismissCountDown=0"
+        >
+            <NotificationCard :notification="notification" :jwtToken="jwtToken"/>
+        </b-alert>
     </b-container>
 </template>
 
 <script>
     import axios from "axios";
     import Feed from "@/layouts/Feed.vue";
+    import NotificationCard from "@/components/NotificationCard.vue"
 
     export default {
         name: 'Home',
         components: {
-            Feed
+            Feed, NotificationCard
         },
         data() {
             return {
-                getUserUrl: "https://localhost:6868/Users/",
+                getUserUrl: "https://localhost:6868/Users/userId",
                 getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 jwtToken: "",
                 userId: "",
+                notification: null,
+                dismissNotificationAlert: false,
             };
         },
         props: {
         },
-        created() {
+        async created() {
             this.jwtToken = this.$route.params.authToken;
             if (this.jwtToken === undefined) {
                 this.jwtToken = this.$cookies.get('sn-auth-token');
@@ -80,10 +94,12 @@
                     this.$router.push('login');
                 }
             }
+            await this.$notificationHub.$on("notify", this.notify);
         },
         async mounted() {
             await this.getUser();
             await this.getUserProfile();
+            await this.$notificationHub.online(this.userId);
         },
         methods: {
             logout() {
@@ -95,11 +111,12 @@
                     this.$router.push('login');
                 });
             },
+
             async getUser() {
                 this.userId = this.$cookies.get('sn-user-id');
                 if (this.userId !== null) {
                     await axios.get(
-                        this.getUserUrl + this.userId,
+                        this.getUserUrl.replace("userId", this.userId),
                         {
                             headers: {
                                 Authorization: `Bearer ${this.jwtToken}`
@@ -113,6 +130,7 @@
                     });
                 }
             },
+
             async getUserProfile() {
                 var self = this;
                 await axios.get(
@@ -139,6 +157,12 @@
                     console.log(res.response);
                 });
             },
+
+            async notify(notification) {
+                //console.log(notification);
+                this.notification = notification;
+                this.dismissNotificationAlert = 1000;
+            },
         },
         watch: {
         },
@@ -146,4 +170,11 @@
 </script>
 
 <style scoped>
+    .alert {
+        color: var(--white);
+        background-color: #111;
+        border: 1px solid var(--white);
+        max-width: 30%;
+        margin-left: 20px;
+    }
 </style>
