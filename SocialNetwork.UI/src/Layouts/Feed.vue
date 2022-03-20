@@ -1,7 +1,7 @@
 <template>
     <div id="feed">
-        <PostForm :userId="userId" :jwtToken="jwtToken"/>
-        <PostCard 
+        <post-form :userId="userId" :jwtToken="jwtToken"/>
+        <post-card 
             :userId="userId" :jwtToken="jwtToken"
             v-for="postId in postIds"
             :key="postId"
@@ -10,22 +10,17 @@
 </template>
 
 <script>
-    import axios from 'axios';
-    import PostForm from "@/components/PostForm.vue";
-    import PostCard from "@/components/PostCard.vue";
-
     export default {
         name: 'Feed',
-        components: {
-            PostForm,
-            PostCard,
-        },
-        props: ["userId", "jwtToken"],
+        props: ["userId", "jwtToken", "feedType"],
         data() {
             return {
-                getFeedUrl: "https://localhost:6868/Users/userId/feed",
+                getFeedUrl: "https://localhost:6868/Users/userId/feedType",
                 postIds: [],
             }
+        },
+        async created() {
+            this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
         },
         async mounted() {
             //console.log("Into Feed...");
@@ -37,13 +32,8 @@
         },
         methods: {
             async getFeed() {
-                await axios.get(
-                    this.getFeedUrl.replace("userId", this.userId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getFeedUrl.replace("userId", this.userId).replace("feedType", this.feedType)
                 ).then((res) => {
                     this.postIds = res.data;
                     //console.log(this.postIds);
@@ -51,15 +41,7 @@
                     console.log(res);
                 });
             }
-        },
-        //watch: {
-        //    userId() {
-        //        console.log("Feed: ", this.userId);
-        //    },
-        //    jwtToken() {
-        //        console.log("Feed: ", this.jwtToken);
-        //    }
-        //}
+        }
     }
 </script>
 

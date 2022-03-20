@@ -47,8 +47,6 @@
 </template>
 
 <script>
-    import axios from 'axios';
-
     export default {
         name: 'CommentCard',
         props: ["commentId", "userId", "jwtToken"],
@@ -83,6 +81,10 @@
              * run the method named "commentReacted"
              */
             await this.$commentHub.$on('comment-react', this.commentReacted);
+            //console.log(this.$commentHub);
+        },
+        beforeDestroy() {
+            this.$commentHub.$off('comment-react', this.commentReacted);
         },
         async mounted() {
             /**
@@ -110,13 +112,8 @@
              * get the comment to display (text, time, id, ...)
              * */
             async getComment() {
-                await axios.get(
-                    this.getCommentUrl.replace("commentId", this.commentId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getCommentUrl.replace("commentId", this.commentId)
                 ).then((res) => {
                     this.comment = res.data;
                     //console.log(this.comment);
@@ -129,16 +126,11 @@
              * get post's media
              * */
             async getMedia() {
-                axios.get(
-                    this.getMediaUrl.replace("commentId", this.commentId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getMediaUrl.replace("commentId", this.commentId)
                 ).then(res => {
                     res.data.forEach((val, idx) => {
-                        console.log(idx);
+                        //console.log(idx);
                         var media = require(`@/assets/${val}`);
                         this.commentMedia.push(media);
                     });
@@ -151,13 +143,8 @@
              * get author to display (name, avatar, ...)
              * */
             async getAuthorProfile() {
-                await axios.get(
-                    this.getUserProfileUrl.replace("userId", this.comment.AuthorId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getUserProfileUrl.replace("userId", this.comment.AuthorId)
                 ).then((res) => {
                     this.author = res.data;
                     //console.log(this.author);
@@ -170,13 +157,8 @@
              * list all who liked the comment
              * */
             async getWhoLiked() {
-                axios.get(
-                    this.getLikesUrl.replace("commentId", this.commentId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getLikesUrl.replace("commentId", this.commentId)
                 ).then((res) => {
                     this.likes = res.data.length;
                 }).catch((res) => {
@@ -188,13 +170,8 @@
              * check if viewing user has liked the comment ?
              * */
             async haveILiked() {
-                axios.get(
-                    this.checkLikedUrl.replace("commentId", this.commentId).replace("userId", this.userId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.checkLikedUrl.replace("commentId", this.commentId).replace("userId", this.userId)
                 ).then((res) => {
                     this.iLiked = res.data;
                     //console.log(this.liked);
@@ -208,21 +185,16 @@
              * @param e like event
              */
             async likeComment(e) {
-                console.log("Like...");
-                e.stopPropagation();
-                await axios.post(
+                //console.log("Like...");
+                await this.$http.post(
                     this.likeCommentUrl.replace("commentId", this.commentId).replace("userId", this.userId),
-                    null,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                    null
                 ).then((res) => {
                     console.log(res);
                 }).catch((res) => {
                     console.log(res.response);
                 });
+                e.stopPropagation();
             },
 
             /**
@@ -230,20 +202,15 @@
              * @param e unlike event
              */
             async unlikeComment(e) {
-                e.stopPropagation();
-                await axios.post(
+                await this.$http.post(
                     this.unlikeCommentUrl.replace("commentId", this.commentId).replace("userId", this.userId),
-                    null,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                    null
                 ).then((res) => {
                     console.log(res);
                 }).catch((res) => {
                     console.log(res.response);
                 });
+                e.stopPropagation();
             },
 
             /**
@@ -253,7 +220,7 @@
              * @param params equivalent to parameter named "comment" sent from Backend in Class CommentHub, Task Reaction()
              */
             async commentReacted(params) {
-                console.log(params);
+                //console.log(params);
                 if (this.commentId !== params.commentId) return;
                 if (params.like) {
                     this.likes += 1;
@@ -272,74 +239,15 @@
              * Count how many replies this comment has
              * */
             async getChildCount() {
-                axios.get(
-                    this.getChildCountUrl.replace("commentId", this.commentId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getChildCountUrl.replace("commentId", this.commentId)
                 ).then(res => {
                     this.comments = res.data;
                 }).catch(res => {
                     console.log(res.response);
                 });
-            },  
-
-            /** 
-             * Display how much time from when the comment is posted till now
-             * Still ugly coded
-             * @param time somment's timestamp
-             */
-            calcTimeTillNow(time) {
-                time = Date.now() - Date.parse(time);
-                var years = Math.floor(time / 31556952000);
-                if (years > 0) {
-                    return years + " years ago";
-                } else {
-                    var months = Math.floor(time / 2629746000);
-                    if (months > 0) {
-                        return months + " months ago";
-                    } else {
-                        var weeks = Math.floor(time / 604800000);
-                        if (weeks > 0) {
-                            return weeks + " weeks ago";
-                        } else {
-                            var days = Math.floor(time / 86400000);
-                            if (days > 0) {
-                                return days + " days ago";
-                            } else {
-                                var hours = Math.floor(time / 3600000);
-                                if (hours > 0) {
-                                    return hours + " hours ago";
-                                } else {
-                                    var minutes = Math.floor(time / 60000);
-                                    if (minutes > 0) {
-                                        return minutes + " minutes ago";
-                                    } else {
-                                        var seconds = Math.floor(time / 1000);
-                                        return seconds + " seconds ago";
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             },
 
-            /**
-             * Convert comment's timestamp to easily readable time
-             * @param time comment's timestamp
-             */
-            toReadableTime(time) {
-                time = new Date(time);
-                return (time.getDate() < 10 ? "0" + time.getDate() : time.getDate()) + "/" +
-                    ((time.getMonth() + 1) < 10 ? "0" + (time.getMonth() + 1) : (time.getMonth() + 1)) + "/" +
-                    time.getFullYear() + " " +
-                    (time.getHours() < 10 ? "0" + time.getHours() : time.getHours()) + ":" +
-                    (time.getMinutes() < 10 ? "0" + time.getMinutes() : time.getMinutes()) + ":" + 
-                    (time.getSeconds() < 10 ? "0" + time.getSeconds() : time.getSeconds());
-            },
         },
         watch: {
             comment: {

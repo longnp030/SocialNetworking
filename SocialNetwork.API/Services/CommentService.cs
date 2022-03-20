@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using SocialNetwork.API.Entities.Comment;
+using SocialNetwork.API.Entities.Notification;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Models.Post;
@@ -43,6 +44,7 @@ public interface ICommentService
 
     /// <summary>
     /// Auth user likes this comment
+    /// <para>This method has 2 signalr hubs injected: CommentHub, NotificationHub</para>
     /// </summary>
     /// <param name="id">Comment's unique identifier</param>
     /// <param name="userId">User's unique identifier</param>
@@ -50,6 +52,7 @@ public interface ICommentService
 
     /// <summary>
     /// Auth user unliked this comment
+    /// <para>This method has 1 signalr hubs injected: CommentHub</para>
     /// </summary>
     /// <param name="id">Comment's unique identifier</param>
     /// <param name="userId">User's unique identifier</param>
@@ -64,6 +67,7 @@ public interface ICommentService
 
     /// <summary>
     /// Create new comment
+    /// <para>This method has 2 signalr hubs injected: PostHub, NotificationHub</para>
     /// </summary>
     /// <param name="model">Required fields to create new comment form</param>
     void Create(CreateCommentRequest model);
@@ -91,6 +95,7 @@ public class CommentService : ICommentService
     private readonly IMapper _mapper;
     private readonly IHubContext<PostHub, IPostHub> _postHubContext;
     private readonly IHubContext<CommentHub, ICommentHub> _commentHubContext;
+    private readonly IHubContext<NotificationHub, INotificationHub> _notificationHubContext;
     #endregion Properties
 
     #region Constructor
@@ -103,12 +108,14 @@ public class CommentService : ICommentService
         DataContext context,
         IMapper mapper,
         IHubContext<PostHub, IPostHub> postHubContext,
-        IHubContext<CommentHub, ICommentHub> commentHubContext)
+        IHubContext<CommentHub, ICommentHub> commentHubContext,
+        IHubContext<NotificationHub, INotificationHub> notificationHubContext)
     {
         _context = context;
         _mapper = mapper;
         _postHubContext = postHubContext;
         _commentHubContext = commentHubContext;
+        _notificationHubContext = notificationHubContext;
     }
     #endregion Constructor
 
@@ -149,9 +156,23 @@ public class CommentService : ICommentService
             Timestamp = DateTime.Now,
         };
         _context.CommentLike.Add(like);
-        _context.SaveChanges();
 
-        _commentHubContext.Clients.All.Reaction(id, userId, true);
+        var notifyToId = _context.Comment.Find(id).AuthorId;
+        var likeNotification = new Notification
+        {
+            FromId = userId,
+            ToId = notifyToId,
+            Verb = $"{_context.UserProfile.First(up => up.UserId == userId).Name} liked your comment \"{_context.Comment.Find(id).Text}\"",
+            EntityId = id,
+            Read = false,
+            Timestamp = DateTime.Now
+        };
+        //_context.Notification.Add(likeNotification);
+
+        _notificationHubContext.Clients.Group(notifyToId.ToString()).Notify(likeNotification);
+        _commentHubContext.Clients.All.Reaction(id, userId, true); // TODO: change send all
+
+        _context.SaveChanges();
     }
 
     public void Unlike(Guid id, Guid userId)
@@ -160,9 +181,9 @@ public class CommentService : ICommentService
             .Where(l => l.CommentId == id)
             .Single(l => l.UserId == userId);
         _context.CommentLike.Remove(like);
-        _context.SaveChanges();
 
-        _commentHubContext.Clients.All.Reaction(id, userId, false);
+        _commentHubContext.Clients.All.Reaction(id, userId, false); // TODO: change send all
+        _context.SaveChanges();
     }
 
     public IEnumerable<String> GetMedia(Guid id)
@@ -179,7 +200,6 @@ public class CommentService : ICommentService
         comment.Id = Guid.NewGuid();
         comment.Timestamp = DateTime.Now;
         _context.Comment.Add(comment);
-        _context.SaveChanges();
 
         if (model.MediaPaths.Any())
         {
@@ -196,7 +216,22 @@ public class CommentService : ICommentService
             }
         }
 
+        var notifyToId = _context.Post.Find(comment.PostId).AuthorId;
+        var commentNotification = new Notification
+        {
+            FromId = comment.AuthorId,
+            ToId = notifyToId,
+            Verb = $"{_context.UserProfile.First(up => up.UserId == comment.AuthorId).Name} commented on your post \"{_context.Post.Find(comment.PostId).Text}\" : \"{comment.Text}\"",
+            EntityId = comment.PostId,
+            Read = false,
+            Timestamp = DateTime.Now
+        };
+        //_context.Notification.Add(likeNotification);
+
+        _notificationHubContext.Clients.Group(notifyToId.ToString()).Notify(commentNotification);
         _postHubContext.Clients.Group(model.PostId.ToString()).Comment(comment);
+
+        _context.SaveChanges();
     }
 
     public void Edit(Guid id, CreateCommentRequest model)

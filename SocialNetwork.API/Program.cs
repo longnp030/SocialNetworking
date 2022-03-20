@@ -45,6 +45,7 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<IPostService, PostService>();
     services.AddScoped<ICommentService, CommentService>();
+    services.AddScoped<IChatService, ChatService>();
 }
 
 var app = builder.Build();
@@ -72,6 +73,7 @@ using (var scope = app.Services.CreateScope())
     {
         endpoints.MapHub<CommentHub>("/commentsocket");
         endpoints.MapHub<PostHub>("/postsocket");
+        endpoints.MapHub<ChatHub>("/chatsocket");
         endpoints.MapHub<NotificationHub>("/notificationsocket");
     });
 

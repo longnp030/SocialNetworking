@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
 using SocialNetwork.API.Authorization;
+using SocialNetwork.API.Entities.Notification;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Entities.User;
 using SocialNetwork.API.Helpers;
+using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Models.User;
 
 namespace SocialNetwork.API.Services;
@@ -77,7 +80,7 @@ public interface IUserService
     /// </summary>
     /// <param id="">User's unique identifier</param>
     /// <returns>All posts by this user</returns>
-    IEnumerable<Post> GetAllPostsByUserId(Guid id);
+    IEnumerable<Guid> GetAllPostsByUserId(Guid id);
 
     /// <summary>
     /// Get all posts saved by this user
@@ -106,6 +109,31 @@ public interface IUserService
     /// <param name="fromId">Id of who unfollows</param>
     /// <param name="toId">Id of who being unfollowed</param>
     void Unfollow(Guid fromId, Guid toId);
+
+    /// <summary>
+    /// Check if this user has followed the being viewed user (on UserProfile)
+    /// </summary>
+    /// <param name="fromId">This auth user's unique identifier</param>
+    /// <param name="toId">The being viewed user's unique identifier</param>
+    /// <returns>
+    /// Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
+    bool HasAuthUserFollowed(Guid fromId, Guid toId);
+
+    /// <summary>
+    /// Get the list of who followed the user with id
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of Guid of who followed</returns>
+    IEnumerable<Guid> GetFollowers(Guid id);
+
+    /// <summary>
+    /// Get the list of who the user with id is following
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of Guid</returns>
+    IEnumerable<Guid> GetFollowees(Guid id);
 }
 
 /// <summary>
@@ -117,6 +145,7 @@ public class UserService : IUserService
     private DataContext _context;
     private IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
+    private readonly IHubContext<NotificationHub, INotificationHub> _notificationHubContext;
     #endregion Properties
 
     #region Constructor
@@ -129,11 +158,13 @@ public class UserService : IUserService
     public UserService(
         DataContext context,
         IJwtUtils jwtUtils,
-        IMapper mapper)
+        IMapper mapper,
+        IHubContext<NotificationHub, INotificationHub> notificationHubContext)
     {
         _context = context;
         _jwtUtils = jwtUtils;
         _mapper = mapper;
+        _notificationHubContext = notificationHubContext;
     }
     #endregion Constructor
 
@@ -236,7 +267,7 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
-    public IEnumerable<Post> GetAllPostsByUserId(Guid id)
+    public IEnumerable<Guid> GetAllPostsByUserId(Guid id)
     {
         var ownPosts = _context.Post                  // get all posts
             .Where(p => p.AuthorId == id)             // by this user
@@ -255,7 +286,7 @@ public class UserService : IUserService
             .Where(p => sharedPostsIds.Contains(p.Id))      // which ids are in the id list "sharedPostsIds" we got above
             .ToList();
 
-        return ownPosts.Concat(sharedPosts);
+        return ownPosts.Concat(sharedPosts).OrderBy(p => p.Timestamp).Reverse().Select(p => p.Id);
     }
 
     public IEnumerable<Post> GetAllSavedPostsByUserId(Guid id)
@@ -288,6 +319,21 @@ public class UserService : IUserService
             Timestamp = DateTime.Now
         };
         _context.Follow.Add(follow);
+
+        var followNotification = new Notification
+        {
+            FromId = fromId,
+            ToId = toId,
+            Verb = $"{_context.UserProfile.First(up => up.UserId == fromId).Name} has followed you",
+            EntityId = fromId,
+            Read = false,
+            Timestamp = DateTime.Now
+        };
+        //_context.Notification.Add(likeNotification);
+
+        //_notificationHubContext.Clients.All.Notify(likeNotification);
+        _notificationHubContext.Clients.Group(toId.ToString()).Notify(followNotification);
+
         _context.SaveChanges(); 
     }
 
@@ -300,5 +346,32 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
+    public bool HasAuthUserFollowed(Guid fromId, Guid toId)
+    {
+        var followed = _context.Follow
+            .Where(f => f.FromId == fromId)
+            .Any(f => f.ToId == toId);
+        if (followed)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public IEnumerable<Guid> GetFollowers(Guid id)
+    {
+        var followers = _context.Follow     // query the Follow table
+            .Where(f => f.ToId == id)       // id of who being followed is the user id
+            .Select(f => f.FromId);         // select the id of who are following
+        return followers;
+    }
+    
+    public IEnumerable<Guid> GetFollowees(Guid id)
+    {
+        var followees = _context.Follow     // query the Follow table
+            .Where(f => f.FromId == id)     // id of follower is the user id
+            .Select(f => f.ToId);           // select the id of who are being followed
+        return followees;
+    }
     #endregion Methods
 }

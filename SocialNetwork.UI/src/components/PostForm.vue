@@ -36,8 +36,6 @@
 </template>
 
 <script>
-    import axios from 'axios';
-
     export default {
         name: 'PostForm',
         props: ["userId", "jwtToken"],
@@ -62,14 +60,9 @@
                 event.preventDefault();
                 this.form.AuthorId = this.userId;
 
-                axios.post(
+                this.$http.post(
                     this.postUrl,
-                    this.form,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                    this.form
                 ).then((res) => {
                     console.log(res);
                     this.$router.go();
@@ -84,12 +77,11 @@
 
                 var imgForm = new FormData();
                 imgForm.append('image', file);
-                axios.post(
+                this.$http.post(
                     this.uploadUrl,
                     imgForm,
                     {
                         headers: {
-                            Authorization: `Bearer ${this.jwtToken}`,
                             'Content-Type': 'multipart/form-data'
                         }
                     }
@@ -105,12 +97,11 @@
                 console.log(e.target.src);
                 var unloadForm = new FormData();
                 unloadForm.append(e.target.src.replace("blob:http://localhost:8080/", ""), "id");
-                axios.post(
+                this.$http.post(
                     this.unuploadUrl,
                     unloadForm,
                     {
                         headers: {
-                            Authorization: `Bearer ${this.jwtToken}`,
                             'Content-Type': 'multipart/form-data'
                         }
                     }

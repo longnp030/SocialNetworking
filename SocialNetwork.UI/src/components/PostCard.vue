@@ -1,4 +1,5 @@
 <template>
+    <!--TODO: Add shared by wrapped by b-card-->
     <b-card v-if="authorProfile" @click="postCardOnClick">
         <b-media>
             <template #aside>
@@ -55,8 +56,6 @@
 </template>
 
 <script>
-    import axios from 'axios';
-
     export default {
         name: 'PostCard',
         props: ["postId", "userId", "jwtToken"],
@@ -90,6 +89,10 @@
              * run the method named "postReacted"
              */
             await this.$postHub.$on('post-react', this.postReacted);
+            //console.log(this.$postHub)
+        },
+        beforeDestroy() {
+            this.$postHub.$off('post-react', this.postReacted);
         },
         async mounted() {
             /**
@@ -117,13 +120,8 @@
              * get the post to display (text, time, id, ...)
              * */
             async getPost() {
-                await axios.get(
-                    this.getPostUrl.replace("postId", this.postId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getPostUrl.replace("postId", this.postId)
                 ).then((res) => {
                     this.post = res.data;
                     //console.log(this.post);
@@ -136,13 +134,8 @@
              * get post's media
              * */
             async getMedia() {
-                axios.get(
-                    this.getMediaUrl.replace("postId", this.postId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getMediaUrl.replace("postId", this.postId)
                 ).then(res => {
                     res.data.forEach((val, _) => {
                         var media = require(`@/assets/${val}`);
@@ -157,13 +150,8 @@
              * get author to display (name, avatar, ...)
              * */
             async getAuthorProfile() {
-                await axios.get(
-                    this.getUserProfileUrl.replace("userId", this.post.AuthorId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getUserProfileUrl.replace("userId", this.post.AuthorId)
                 ).then((res) => {
                     this.authorProfile = res.data;
                     //console.log(this.author);
@@ -174,7 +162,7 @@
 
             openUserProfile(e) {
                 this.$router.push({
-                    name: 'profile',
+                    name: 'user',
                     params: {
                         userId: this.post.AuthorId,
                         myId: this.userId,
@@ -188,13 +176,8 @@
              * list all who liked the post
              * */
             async getWhoLiked() {
-                axios.get(
-                    this.getLikesUrl.replace("postId", this.postId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getLikesUrl.replace("postId", this.postId)
                 ).then((res) => {
                     this.likes = res.data.length;
                 }).catch((res) => {
@@ -206,13 +189,8 @@
              * check if viewing user has liked the comment ?
              * */
             async haveILiked() {
-                axios.get(
-                    this.checkLikedUrl.replace("postId", this.postId).replace("userId", this.userId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.checkLikedUrl.replace("postId", this.postId).replace("userId", this.userId)
                 ).then((res) => {
                     this.iLiked = res.data;
                     //console.log(this.liked);
@@ -227,14 +205,9 @@
              */
             async likePost(e) {
                 e.stopPropagation();
-                await axios.post(
+                await this.$http.post(
                     this.likePostUrl.replace("postId", this.postId).replace("userId", this.userId),
-                    null,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                    null
                 ).then((res) => {
                     console.log(res.data);
                 }).catch((res) => {
@@ -248,14 +221,9 @@
              */
             async unlikePost(e) {
                 e.stopPropagation();
-                await axios.post(
+                await this.$http.post(
                     this.unlikePostUrl.replace("postId", this.postId).replace("userId", this.userId),
-                    null,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                    null
                 ).then((res) => {
                     console.log(res.data);
                 }).catch((res) => {
@@ -288,13 +256,8 @@
              * Count how many replies this comment has
              * */
             async getCommentCount() {
-                axios.get(
-                    this.getCommentCountUrl.replace("postId", this.postId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                await this.$http.get(
+                    this.getCommentCountUrl.replace("postId", this.postId)
                 ).then(res => {
                     this.comments = res.data;
                 }).catch(res => {
@@ -316,61 +279,6 @@
                         }
                     })
                 }
-            },
-
-            /**
-             * Display how much time from when the comment is posted till now
-             * Still ugly coded
-             * @param time somment's timestamp
-             */
-            calcTimeTillNow(time) {
-                time = Date.now() - Date.parse(time);
-                var years = Math.floor(time / 31556952000);
-                if (years > 0) {
-                    return years + " years ago";
-                } else {
-                    var months = Math.floor(time / 2629746000);
-                    if (months > 0) {
-                        return months + " months ago";
-                    } else {
-                        var weeks = Math.floor(time / 604800000);
-                        if (weeks > 0) {
-                            return weeks + " weeks ago";
-                        } else {
-                            var days = Math.floor(time / 86400000);
-                            if (days > 0) {
-                                return days + " days ago";
-                            } else {
-                                var hours = Math.floor(time / 3600000);
-                                if (hours > 0) {
-                                    return hours + " hours ago";
-                                } else {
-                                    var minutes = Math.floor(time / 60000);
-                                    if (minutes > 0) {
-                                        return minutes + " minutes ago";
-                                    } else {
-                                        var seconds = Math.floor(time / 1000);
-                                        return seconds + " seconds ago";
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-
-            /**
-             * Convert comment's timestamp to easily readable time
-             * @param time comment's timestamp
-             */
-            toReadableTime(time) {
-                time = new Date(time);
-                return (time.getDate() < 10 ? "0" + time.getDate() : time.getDate()) + "/" +
-                    ((time.getMonth() + 1) < 10 ? "0" + (time.getMonth() + 1) : (time.getMonth() + 1)) + "/" +
-                    time.getFullYear() + " " +
-                    (time.getHours() < 10 ? "0" + time.getHours() : time.getHours()) + ":" +
-                    (time.getMinutes() < 10 ? "0" + time.getMinutes() : time.getMinutes()) + ":" + 
-                    (time.getSeconds() < 10 ? "0" + time.getSeconds() : time.getSeconds());
             },
         },
         watch: {

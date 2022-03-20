@@ -34,10 +34,25 @@
     <Content Include="src\App.vue" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="src\components\Chat.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\components\ChatForm.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\components\ChatHistory.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\components\ChatMessage.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\components\CommentCard.vue">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\components\CommentForm.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\components\NotificationAlert.vue">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\components\NotificationCard.vue">
@@ -49,7 +64,16 @@
     <Content Include="src\components\PostForm.vue">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\components\UserCard.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\layouts\Feed.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\layouts\FollowList.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\layouts\PersonalInformation.vue">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\layouts\PostLayout.vue">
@@ -68,6 +92,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\pages\UserProfile.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\plugins\hubs\chatHub\index.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\plugins\hubs\commentHub\index.js">
@@ -94,6 +121,7 @@
     <Folder Include="src\plugins\" />
     <Folder Include="src\plugins\hubs\" />
     <Folder Include="src\plugins\hubs\commentHub\" />
+    <Folder Include="src\plugins\hubs\chatHub\" />
     <Folder Include="src\plugins\hubs\notificationHub\" />
     <Folder Include="src\plugins\hubs\postHub\" />
     <Folder Include="src\plugins\router\" />

@@ -42,10 +42,11 @@ public interface IPostService
     /// <param name="id">Post's unique identifier</param>
     /// <param name="userId">User's unique identifier</param>
     /// <returns>True if liked otherwise false</returns>
-    bool IsAuthUserLiked(Guid id, Guid userId);
+    bool HasAuthUserLiked(Guid id, Guid userId);
 
     /// <summary>
     /// Auth user likes this post
+    /// <para>This method has 2 signalr hubs injected: PostHub, NotificationHub</para>
     /// </summary>
     /// <param name="id">Post's unique identifier</param>
     /// <param name="userId">User's unique identifier</param>
@@ -53,6 +54,7 @@ public interface IPostService
 
     /// <summary>
     /// Auth user unliked this post
+    /// <para>This method has 1 signalr hubs injected: PostHub</para>
     /// </summary>
     /// <param name="id">Post's unique identifier</param>
     /// <param name="userId">User's unique identifier</param>
@@ -133,6 +135,8 @@ public class PostService : IPostService
     {
         var comments = _context.Comment
             .Where(c => c.PostId == id)
+            .OrderBy(c => c.Timestamp)
+            .Reverse()
             .Select(c => c.Id).ToList();
         return comments;
     }
@@ -151,7 +155,7 @@ public class PostService : IPostService
         return shares;
     }
 
-    public bool IsAuthUserLiked(Guid id, Guid userId)
+    public bool HasAuthUserLiked(Guid id, Guid userId)
     {
         return _context.PostLike
             .Where(l => l.PostId == id)
@@ -173,16 +177,18 @@ public class PostService : IPostService
         {
             FromId = userId,
             ToId = notifyToId,
-            Verb = "liked",
+            Verb = $"{_context.UserProfile.First(up => up.UserId == userId).Name} liked your post \"{_context.Post.Find(id).Text}\"",
             EntityId = id,
             Read = false,
             Timestamp = DateTime.Now
         };
         //_context.Notification.Add(likeNotification);
-        _context.SaveChanges();
 
-        _notificationHubContext.Clients.All.Notify(likeNotification);
+        //_notificationHubContext.Clients.All.Notify(likeNotification);
+        _notificationHubContext.Clients.Group(notifyToId.ToString()).Notify(likeNotification);
         _postHubContext.Clients.All.Reaction(id, userId, true);
+
+        _context.SaveChanges();
     }
 
     public void Unlike(Guid id, Guid userId)

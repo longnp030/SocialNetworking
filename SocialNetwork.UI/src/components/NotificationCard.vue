@@ -1,104 +1,55 @@
 <template>
-    <b-media>
+    <b-media @click="notificationCardOnClick">
         <template #aside>
             <b-avatar variant="info" src="https://placekitten.com/300/300" size="4rem"></b-avatar>
         </template>
         
         <div class="noti-body">
-            <p class="mb-0 text">{{ notificationText }}</p>
+            <p class="mb-0 text">{{notification.verb}}</p>
             <p class="time">{{calcTimeTillNow(notification.timestamp)}}</p>
         </div>
     </b-media>
 </template>
 
 <script>
-    import axios from 'axios';
-
     export default {
         name: 'NotificationCard',
         props: ["notification", "jwtToken"],
         data() {
             return {
-                getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
-                notificationText: '',
+                getProfileUrl: "https://localhost:6868/Users/userId/profile",
+                getEntityTypeUrl: "https://localhost:6868/Entity/entityId",
                 from: null,
-                to: null,
-                entity: null,
             };
         },
         async mounted() {
-            console.log(this.notification);
-            await this.getProfile(this.notification.fromId, 'from');
-            await this.getProfile(this.notification.toId, 'to');
-            console.log(this.from, this.to);
-            await this.makeNotificationText();
+            await this.getProfile();
         },
         methods: {
             /**
              * get user to display (name, avatar, ...)
              * */
-            async getProfile(id, where) {
-                await axios.get(
-                    this.getUserProfileUrl.replace("userId", id),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+            async getProfile() {
+                await this.$http.get(
+                    this.getProfileUrl.replace("userId", this.notification.fromId)
                 ).then((res) => {
-                    if (where === 'from') {
-                        this.from = res.data;
-                    } else {
-                        this.to = res.data;
-                    }
+                    this.from = res.data;
                 }).catch((res) => {
                     console.log(res);
                 });
             },
 
-            async makeNotificationText() {
-                this.notificationText = `${this.from.Name} ${this.notification.verb} your ${this.notification.entityId}`;
-            },
-
             /**
-             * Display how much time from when the comment is posted till now
-             * Still ugly coded
-             * @param time somment's timestamp
-             */
-            calcTimeTillNow(time) {
-                time = Date.now() - Date.parse(time);
-                var years = Math.floor(time / 31556952000);
-                if (years > 0) {
-                    return years + " years ago";
-                } else {
-                    var months = Math.floor(time / 2629746000);
-                    if (months > 0) {
-                        return months + " months ago";
-                    } else {
-                        var weeks = Math.floor(time / 604800000);
-                        if (weeks > 0) {
-                            return weeks + " weeks ago";
-                        } else {
-                            var days = Math.floor(time / 86400000);
-                            if (days > 0) {
-                                return days + " days ago";
-                            } else {
-                                var hours = Math.floor(time / 3600000);
-                                if (hours > 0) {
-                                    return hours + " hours ago";
-                                } else {
-                                    var minutes = Math.floor(time / 60000);
-                                    if (minutes > 0) {
-                                        return minutes + " minutes ago";
-                                    } else {
-                                        var seconds = Math.floor(time / 1000);
-                                        return seconds + " seconds ago";
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+             * redirect to event's object if notification is clicked on
+             * */
+            async notificationCardOnClick() {
+                await this.$http.get(
+                    this.getEntityTypeUrl.replace("entityId", this.notification.entityId)
+                ).then(res => {
+                    this.$router.push(`/${res.data}/${this.notification.entityId}`);
+                }).catch(res => {
+                    console.log(res.response);
+                })
             },
         },
     }

@@ -37,6 +37,9 @@ public class UpdateProfileRequest
 
     /// <summary>
     /// User's gender
+    /// <para>0 - Male</para>
+    /// <para>1 - Female</para>
+    /// <para>2 - Private</para>
     /// </summary>
     public int? Gender { get; set; }
 

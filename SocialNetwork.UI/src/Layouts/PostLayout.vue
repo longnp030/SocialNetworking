@@ -1,37 +1,27 @@
 <template>
     <div>
         <h1>Post</h1>
-        <PostCard :userId="userId" :jwtToken="jwtToken" :postId="postId"/>
+        <post-card :userId="userId" :jwtToken="jwtToken" :postId="postId"/>
         
         <b-container fluid id="comments">
             <h2>Comments</h2>
-            <CommentForm 
+            <comment-form 
                          :userId="userId" 
                          :jwtToken="jwtToken" 
                          :postId="postId"/>
-            <CommentCard 
+            <comment-card 
                          :userId="userId" :jwtToken="jwtToken"
                          v-for="commentId in commentIds"
                          :key="commentId"
                          :commentId="commentId"/>
         </b-container>
-        
+        <notification-alert :notification="notification" :jwtToken="jwtToken" :dismissNotification="dismissNotification"/>
     </div>
 </template>
 
 <script>
-    import axios from 'axios';
-    import PostCard from "@/components/PostCard.vue";
-    import CommentForm from "@/components/CommentForm.vue";
-    import CommentCard from "@/components/CommentCard.vue";
-
     export default {
         name: 'PostLayout',
-        components: {
-            PostCard,
-            CommentForm,
-            CommentCard,
-        },
         data() {
             return {
                 userId: '',
@@ -40,6 +30,9 @@
 
                 getCommentsForPostUrl: "https://localhost:6868/Posts/postId/comments",
                 commentIds: [],
+
+                notification: null,
+                dismissNotification: false,
             }
         },
         async created() {
@@ -53,18 +46,24 @@
             }
             this.postId = this.$route.params.postId;
 
+            this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
+
             /**
              * Hub listener
              * whenever an event named "post-commented-on" triggered
              * run the method named "postCommentedOn"
              */
             await this.$postHub.$on('post-commented-on', this.postCommentedOn);
+
+            await this.$notificationHub.$on("notify", this.notify);
         },
         async beforeDestroy() {
             /**
              * Destroy hub when user is not viewing the post anymore
              * */
             this.$postHub.postClosed(this.postId);
+
+            this.$notificationHub.$off("notify", this.notify);
         },
         async mounted() {
             /**
@@ -81,16 +80,11 @@
              * get how many comments there are
              * */
             async getComments() {
-                axios.get(
-                    this.getCommentsForPostUrl.replace("postId", this.postId),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                this.$http.get(
+                    this.getCommentsForPostUrl.replace("postId", this.postId)
                 ).then(res => {
                     this.commentIds = res.data;
-                    console.log(this.commentIds);
+                    //console.log(this.commentIds);
                 }).catch(res => {
                     console.log(res.response);
                 })
@@ -100,12 +94,21 @@
              * Hub listener
              * whenever an event named "post-commented-on" triggered
              * run this
-             * @param params equivalent to parameter named "comment" sent from Backend in Class PostHub, Task Comment()
+             * @param comment equivalent to parameter named "comment" sent from Backend in Class PostHub, Task Comment()
              */
             async postCommentedOn(comment) {
                 console.log(comment);
                 this.commentIds.unshift(comment.id);
-            }
+            },
+
+            async notify(noti) {
+                this.notification = null;
+                console.log(noti);
+                this.$nextTick(() => {
+                    this.notification = noti;
+                    this.dismissNotification = 1000;
+                });
+            },
         },
     }
 </script>

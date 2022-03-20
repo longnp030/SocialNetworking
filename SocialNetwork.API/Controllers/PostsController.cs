@@ -89,9 +89,9 @@ public class PostsController : ControllerBase
     /// <param name="userId">User's unique identifier</param>
     /// <returns>True if liked otherwise false</returns>
     [HttpGet("{id}/likes/{userId}")]
-    public IActionResult IsAuthUserLiked(Guid id, Guid userId)
+    public IActionResult HasAuthUserLiked(Guid id, Guid userId)
     {
-        var liked = _postService.IsAuthUserLiked(id, userId);
+        var liked = _postService.HasAuthUserLiked(id, userId);
         return Ok(liked);
     }
 

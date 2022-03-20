@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SocialNetwork.API.Entities.Chat;
 using SocialNetwork.API.Entities.Comment;
 using SocialNetwork.API.Entities.Notification;
 using SocialNetwork.API.Entities.Post;
@@ -42,6 +43,13 @@ public class DataContext : DbContext
     public DbSet<CommentLike> CommentLike { get; set; }
     public DbSet<CommentMedia> CommentMedia { get; set; }
     #endregion Post
+
+    #region Chat
+    public DbSet<GroupChat> GroupChat { get; set; }
+    public DbSet<GroupChatMember> GroupChatMember { get; set; }
+    public DbSet<Message> Message { get; set; }
+    public DbSet<MessageMedia> MessageMedia { get; set; }
+    #endregion Chat
 
     #region Notification
     public DbSet<Notification> Notification { get; set; }

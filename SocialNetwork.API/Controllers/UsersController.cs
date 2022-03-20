@@ -240,6 +240,68 @@ public class UsersController : ControllerBase
         return Ok(new { Message = "Unfollowed" });
     }
 
-    
+    /// <summary>
+    /// Check if this user has followed the being viewed user (on UserProfile)
+    /// </summary>
+    /// <param name="fromId">This auth user's unique identifier</param>
+    /// <param name="toId">The being viewed user's unique identifier</param>
+    /// <returns>
+    /// Status code:
+    /// <para>200 if success, otherwise failed</para>
+    /// </returns>
+    [HttpGet("{fromId}/follow/{toId}")]
+    public IActionResult HasAuthUserFollowed(Guid fromId, Guid toId)
+    {
+        var followed = _userService.HasAuthUserFollowed(fromId, toId);
+        return Ok(followed);
+    }
+
+    /// <summary>
+    /// Get the list of who followed the user with id
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of Guid of who followed</returns>
+    [HttpGet("{id}/followers")]
+    public IActionResult GetFollowers(Guid id)
+    {
+        var followers = _userService.GetFollowers(id);
+        return Ok(followers);
+    }
+
+    /// <summary>
+    /// Get the number of followers
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>The number of followers</returns>
+    [HttpGet("{id}/followers/count")]
+    public IActionResult GetFollowerCount(Guid id)
+    {
+        var followerCount = _userService.GetFollowers(id).Count();
+        return Ok(followerCount);
+    }
+
+    /// <summary>
+    /// Get the list of who the user with id is following
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of Guid</returns>
+    [HttpGet("{id}/followees")]
+    public IActionResult GetFollowees(Guid id)
+    {
+        var followers = _userService.GetFollowees(id);
+        return Ok(followers);
+    }
+
+    /// <summary>
+    /// Get the number of followees
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>The number of followees</returns>
+    [HttpGet("{id}/followees/count")]
+    public IActionResult GetFolloweeCount(Guid id)
+    {
+        var followerCount = _userService.GetFollowees(id).Count();
+        return Ok(followerCount);
+    }
     #endregion Methods
 }

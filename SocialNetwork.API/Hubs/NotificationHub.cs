@@ -57,7 +57,6 @@ public class NotificationHub : Hub<INotificationHub>
         {
             await Clients.Client(client.First().Value).Notify(notification);
         }
-        
     }
 
     public async Task Online(Guid userId)

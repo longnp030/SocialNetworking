@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using SocialNetwork.API.Entities.Chat;
 using SocialNetwork.API.Entities.Comment;
 using SocialNetwork.API.Entities.Post;
 using SocialNetwork.API.Entities.User;
+using SocialNetwork.API.Models.Chat;
 using SocialNetwork.API.Models.Post;
 using SocialNetwork.API.Models.User;
 
@@ -71,5 +73,11 @@ public class AutoMapperProfile : Profile
             .ForSourceMember(x => x.MediaPaths, y => y.DoNotValidate());
 
         #endregion Post
+        
+        #region Chat
+        // CreateMessageRequest -> Message
+        CreateMap<CreateMessageRequest, Message>()
+            .ForSourceMember(x => x.MediaPaths, y => y.DoNotValidate());
+        #endregion Chat
     }
 }

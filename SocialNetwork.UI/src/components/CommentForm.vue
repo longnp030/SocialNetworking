@@ -36,8 +36,6 @@
 </template>
 
 <script>
-    import axios from 'axios';
-
     export default {
         name: 'CommentForm',
         props: ["postId", "userId", "jwtToken"],
@@ -59,14 +57,9 @@
                 this.form.AuthorId = this.userId;
                 this.form.PostId = this.postId,
 
-                await axios.post(
+                await this.$http.post(
                     this.commentUrl,
-                    JSON.parse(JSON.stringify(this.form)),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.jwtToken}`
-                        }
-                    }
+                    JSON.parse(JSON.stringify(this.form))
                 ).then((res) => {
                     console.log(res);
                     this.$refs.form.reset();
@@ -81,12 +74,11 @@
 
                 var imgForm = new FormData();
                 imgForm.append('image', file);
-                axios.post(
+                this.$http.post(
                     this.uploadUrl,
                     imgForm,
                     {
                         headers: {
-                            Authorization: `Bearer ${this.jwtToken}`,
                             'Content-Type': 'multipart/form-data'
                         }
                     }
