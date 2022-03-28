@@ -14,12 +14,12 @@
             <div id="info">
                 <div id="name-follow">
                     <h1 id="name">{{profile.Name}}</h1>
-                    <div id="actions" v-if="meId !== userId">
+                    <div id="actions" v-if="myId !== userId">
                         <b-button variant="outline-danger" v-if="iFollowed" @click="unfollow">
                             <b-icon icon="person-dash"></b-icon></b-button>
                         <b-button variant="outline-success" v-else @click="follow">
                             <b-icon icon="person-plus"></b-icon></b-button>
-                        <b-button variant="outline-info" @click="startChat(jwtToken, meId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
+                        <b-button variant="outline-info" @click="startChat(jwtToken, myId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
                     </div>
                 </div>
                 <div id="about-me"><b-icon icon="info-circle"></b-icon>{{profile.SelfIntroduction}}</div>
@@ -38,12 +38,12 @@
                 <b-avatar class="mr-3"></b-avatar>
                 <span class="mr-auto">{{profile.Name}}</span>
             </div>
-            <div class="actions" v-if="meId !== userId">
+            <div class="actions" v-if="myId !== userId">
                 <b-button variant="outline-danger" v-if="iFollowed" @click="unfollow">
                     <b-icon icon="person-dash"></b-icon></b-button>
                 <b-button variant="outline-success" v-else @click="follow">
                     <b-icon icon="person-plus"></b-icon></b-button>
-                <b-button variant="outline-info" @click="startChat(jwtToken, meId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
+                <b-button variant="outline-info" @click="startChat(jwtToken, myId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
             </div>
         </div>
     </b-card>
@@ -52,7 +52,7 @@
 <script>
     export default {
         name: 'UserCard',
-        props: ["jwtToken", "meId", "userId", "full"],
+        props: ["jwtToken", "myId", "userId", "full"],
         data() {
             return {
                 getProfileUrl: "https://localhost:6868/Users/userId/profile",
@@ -90,7 +90,7 @@
 
             async haveIFollowed() {
                 await this.$http.get(
-                    this.followUrl.replace("fromId", this.meId).replace("toId", this.userId)
+                    this.followUrl.replace("fromId", this.myId).replace("toId", this.userId)
                 ).then(res => {
                     this.iFollowed = res.data;
                 }).catch(res => {
@@ -120,7 +120,7 @@
 
             async follow() {
                 await this.$http.post(
-                    this.followUrl.replace("fromId", this.meId).replace("toId", this.userId),
+                    this.followUrl.replace("fromId", this.myId).replace("toId", this.userId),
                     null
                 ).then(res => {
                     console.log(res);
@@ -133,7 +133,7 @@
 
             async unfollow() {
                 await this.$http.post(
-                    this.followUrl.replace("follow", "unfollow").replace("fromId", this.meId).replace("toId", this.userId),
+                    this.followUrl.replace("follow", "unfollow").replace("fromId", this.myId).replace("toId", this.userId),
                     null
                 ).then(res => {
                     console.log(res);
@@ -144,8 +144,8 @@
                 })
             },
 
-            startChat(jwtToken, meId, userId) {
-                this.$bus.$emit('startChat', { jwtToken, meId, userId });
+            startChat(jwtToken, myId, userId) {
+                this.$bus.$emit('startChat', { jwtToken, myId, userId });
             },
         }
     }

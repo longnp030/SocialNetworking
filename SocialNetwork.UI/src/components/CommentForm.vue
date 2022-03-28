@@ -39,7 +39,7 @@
 <script>
     export default {
         name: 'CommentForm',
-        props: ["postId", "userId", "jwtToken", "comment"],
+        props: ["postId", "myId", "jwtToken", "comment"],
         data() {
             return {
                 commentUrl: "https://localhost:6868/Comments/",
@@ -68,7 +68,7 @@
                         console.log(res.response)
                     });
                 } else {
-                    this.form.AuthorId = this.userId;
+                    this.form.AuthorId = this.myId;
                     this.form.PostId = this.postId,
 
                     await this.$http.post(

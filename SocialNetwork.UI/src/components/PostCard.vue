@@ -17,7 +17,7 @@
                     <div>・</div>
                     <div class="date" :title="toReadableTime(post.Timestamp)">{{ calcTimeTillNow(post.Timestamp) }}</div>
                 </div>
-                <div class="opts">
+                <div class="opts" v-if="myId===post.AuthorId">
                     <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
                         <template #button-content><b-icon icon="three-dots"></b-icon></template>
                         <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
@@ -73,7 +73,7 @@
     <post-form 
         v-else
         :post="post"
-        :userId="userId"
+        :myId="myId"
         :jwtToken="jwtToken"
         @cancelEditing="cancelEditing"/>
 </template>
@@ -81,7 +81,7 @@
 <script>
     export default {
         name: 'PostCard',
-        props: ["postId", "userId", "jwtToken"],
+        props: ["postId", "jwtToken", "myId"],
         data() {
             return {
                 getPostUrl: "https://localhost:6868/Posts/postId",
@@ -190,7 +190,7 @@
                     name: 'user',
                     params: {
                         userId: this.post.AuthorId,
-                        myId: this.userId,
+                        myId: this.myId,
                         jwtToken: this.jwtToken
                     }
                 });
@@ -215,7 +215,7 @@
              * */
             async haveILiked() {
                 await this.$http.get(
-                    this.checkLikedUrl.replace("postId", this.postId).replace("userId", this.userId)
+                    this.checkLikedUrl.replace("postId", this.postId).replace("userId", this.myId)
                 ).then((res) => {
                     this.iLiked = res.data;
                     //console.log(this.liked);
@@ -231,7 +231,7 @@
             async likePost(e) {
                 e.stopPropagation();
                 await this.$http.post(
-                    this.likePostUrl.replace("postId", this.postId).replace("userId", this.userId),
+                    this.likePostUrl.replace("postId", this.postId).replace("userId", this.myId),
                     null
                 ).then((res) => {
                     console.log(res.data);
@@ -247,7 +247,7 @@
             async unlikePost(e) {
                 e.stopPropagation();
                 await this.$http.post(
-                    this.unlikePostUrl.replace("postId", this.postId).replace("userId", this.userId),
+                    this.unlikePostUrl.replace("postId", this.postId).replace("userId", this.myId),
                     null
                 ).then((res) => {
                     console.log(res.data);
@@ -266,12 +266,12 @@
                 if (this.postId !== params.postId) return;
                 if (params.like) {
                     this.likes += 1;
-                    if (this.userId === params.userId) {
+                    if (this.myId === params.userId) {
                         this.iLiked = true;
                     }
                 } else {
                     this.likes -= 1;
-                    if (this.userId === params.userId) {
+                    if (this.myId === params.userId) {
                         this.iLiked = false;
                     }
                 }
@@ -299,7 +299,7 @@
                         name: 'post',
                         params: {
                             postId: this.postId,
-                            userId: this.userId,
+                            myId: this.myId,
                             jwtToken: this.jwtToken
                         }
                     })

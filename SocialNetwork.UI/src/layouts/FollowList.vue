@@ -11,7 +11,7 @@
                         >
                             <user-card
                                 :jwtToken="jwtToken"
-                                :meId="meId"
+                                :myId="myId"
                                 :userId="follower"/>
                         </b-list-group-item>
                     </b-list-group>
@@ -26,7 +26,7 @@
                         >
                             <user-card
                                 :jwtToken="jwtToken"
-                                :meId="meId"
+                                :myId="myId"
                                 :userId="followee"/>
                         </b-list-group-item>
                     </b-list-group>
@@ -40,7 +40,7 @@
 <script>
     export default {
         name: 'FollowList',
-        props: ["meId", "userId", "jwtToken"],
+        props: ["myId", "userId", "jwtToken"],
         data() {
             return {
                 getFollowersUrl: "https://localhost:6868/Users/userId/followers",

@@ -47,7 +47,7 @@
             sendMessage() {
                 if (this.msg) {
                     this.$emit("sendMessage", this.msg);
-                    this.msg = "";
+                    this.msg.Text = "";
                 }
                 return;
             },

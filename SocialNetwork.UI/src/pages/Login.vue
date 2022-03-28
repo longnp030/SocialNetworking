@@ -59,7 +59,7 @@
             /**
              * Shortcut for saving cookies
              * @param authToken JwtToken for user authentication
-             * @param userId User ID
+             * @param myId User ID
              * @param expire Cookies expire time, delete when browser is closed -> 0
              */
             saveCookie(authToken, userId, expire) {
@@ -75,19 +75,19 @@
                     JSON.parse(JSON.stringify(this.form))
                 ).then((res) => {
                     var authToken = res.data.JwtToken;
-                    var userId = res.data.Id;
+                    var myId = res.data.Id;
 
                     if (this.saveCred) {
-                        this.saveCookie(authToken, userId, -1);
+                        this.saveCookie(authToken, myId, -1);
                     } else {
-                        this.saveCookie(authToken, userId, 0);
+                        this.saveCookie(authToken, myId, 0);
                     }
                     this.$nextTick(function () {
                         this.$router.push({
                             name: 'home',
                             params: {
                                 authToken: authToken,
-                                userId: userId,
+                                myId: myId,
                             }
                         });
                     });

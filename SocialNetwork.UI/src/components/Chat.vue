@@ -7,7 +7,7 @@
             <b-icon icon="x" class="close-chat-btn" @click="closeChat"></b-icon>
         </div>
 
-        <chat-history :msgs="msgs" :meId="meId"/>
+        <chat-history :msgs="msgs" :myId="myId"/>
         <chat-form @sendMessage="sendMessage"/>
     </div>
 </template>
@@ -15,7 +15,7 @@
 <script>
     import _ from 'lodash';
     export default {
-        props: ["meId", "jwtToken", "userId"],
+        props: ["myId", "jwtToken", "userId"],
         data() {
             return {
                 getChatHistoryUrl: "https://localhost:6868/Chat/fromId/and/toId",
@@ -32,7 +32,7 @@
             this.$chatHub.$off('message-received', this.messageReceived);
         },
         async mounted() {
-            await this.$chatHub.chatOpened(this.meId);
+            await this.$chatHub.chatOpened(this.myId);
             await this.$chatHub.chatOpened(this.userId);
 
             await this.getChatHistory();
@@ -40,7 +40,7 @@
         methods: {
             async getChatHistory() {
                 await this.$http.get(
-                    this.getChatHistoryUrl.replace("fromId", this.meId).replace("toId", this.userId)
+                    this.getChatHistoryUrl.replace("fromId", this.myId).replace("toId", this.userId)
                 ).then(res => {
                     this.msgs = res.data;
                 }).catch(res => {
@@ -49,7 +49,7 @@
             },
 
             async sendMessage(msg) {
-                msg.FromId = this.meId;
+                msg.FromId = this.myId;
                 msg.ToId = this.userId;
                 console.log(msg)
                 await this.$http.post(

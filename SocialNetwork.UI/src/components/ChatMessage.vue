@@ -1,12 +1,12 @@
 <template>
-    <div>
+    <div v-if="!isEditing">
         <div
-            v-if="msg.FromId === meId"
+            v-if="msg.FromId === myId"
             class="chat__mymessage"
             :class="[isSame ? '' : 'chat__first']">
             <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
                 <template #button-content><b-icon icon="three-dots"></b-icon></template>
-                <b-dropdown-item ><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
+                <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
             </b-dropdown>
             <p class="chat__mymessage__paragraph">{{ msg.Text }}</p>
         </div>
@@ -37,18 +37,15 @@
 
 <script>
     export default {
-        props: ["msg", "prev", "meId"],
+        props: ["msg", "prev", "myId"],
         data() {
             return {
                 isSame: false,
-                //avatar: require("../assets/avatar.svg"),
+                isEditing: false,
             };
         },
         created() {
             this.isSame = this.isSamePerson(this.msg, this.prev);
-            //if (this.msg?.from.avatar) {
-            //    this.avatar = this.msg?.from.avatar;
-            //}
         },
         methods: {
             isSamePerson(msg, prev) {
@@ -60,6 +57,18 @@
                     return false;
                 }
             },
+
+            onDeleteClick(e) {
+                e.stopPropagation();
+                //this.$http.delete(
+                //    this.getPostUrl.replace("postId", this.postId)
+                //).then((res) => {
+                //    console.log(res);
+                //    this.$router.go();
+                //}).catch((res) => {
+                //    console.log(res.response)
+                //});
+            }
         },
     };
 </script>

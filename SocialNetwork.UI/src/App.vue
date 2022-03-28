@@ -34,7 +34,7 @@
                 v-for="chatBox in chatBoxes"
                 :key="chatBox.toId"
                 :jwtToken="chatBox.jwtToken"
-                :meId="chatBox.fromId"
+                :myId="chatBox.fromId"
                 :userId="chatBox.toId"
                 @closeChat="closeChat"/>
         </div>
@@ -60,9 +60,9 @@
             }
 
             // Open chat box event listener
-            await this.$bus.$on("startChat", ({ jwtToken, meId, userId }) => {
+            await this.$bus.$on("startChat", ({ jwtToken, myId, userId }) => {
                 this.$http.defaults.headers.common["Authorization"] = jwtToken;
-                this.createChatBox(jwtToken, meId, userId);
+                this.createChatBox(jwtToken, myId, userId);
             });
         },
         methods: {

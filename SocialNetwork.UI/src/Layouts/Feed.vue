@@ -1,8 +1,9 @@
 <template>
     <div id="feed">
-        <post-form v-if="userId===meId" :userId="userId" :jwtToken="jwtToken"/>
+        <post-form v-if="userId===myId" :myId="myId" :jwtToken="jwtToken"/>
         <post-card 
-            :userId="userId" :jwtToken="jwtToken"
+            :myId="myId"
+            :jwtToken="jwtToken"
             v-for="postId in postIds"
             :key="postId"
             :postId="postId"/>
@@ -12,7 +13,7 @@
 <script>
     export default {
         name: 'Feed',
-        props: ["userId", "jwtToken", "feedType", "meId"],
+        props: ["userId", "jwtToken", "feedType", "myId"],
         data() {
             return {
                 getFeedUrl: "https://localhost:6868/Users/userId/feedType",

@@ -5,13 +5,13 @@
             :key="msg.Id"
             :msg="msg"
             :prev="[index == 0 ? null : msgs[index - 1]]"
-            :meId="meId"/>
+            :myId="myId"/>
   </div>
 </template>
 
 <script>
     export default {
-        props: ["msgs", "meId"],
+        props: ["msgs", "myId"],
     };
 </script>
 

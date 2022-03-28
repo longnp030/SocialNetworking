@@ -4,9 +4,9 @@
             <b-col cols="3">Column</b-col>
             <b-col cols="6">
                 <feed
-                    v-if="userId"
-                    :userId="userId"
-                    :meId="userId"
+                    v-if="myId"
+                    :userId="myId"
+                    :myId="myId"
                     :jwtToken="jwtToken"
                     :feedType="'feed'"/>
             </b-col>
@@ -25,7 +25,7 @@
                 getUserUrl: "https://localhost:6868/Users/userId",
                 getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 jwtToken: "",
-                userId: "",
+                myId: "",
                 notification: null,
                 dismissNotification: false,
             };
@@ -44,7 +44,8 @@
         async mounted() {
             await this.getUser();
             await this.getUserProfile();
-            await this.$notificationHub.online(this.userId);
+
+            await this.$notificationHub.online(this.myId);
         },
         beforeDestroy() {
             this.$notificationHub.$off("notify", this.notify);
@@ -61,13 +62,13 @@
             },
 
             async getUser() {
-                this.userId = this.$cookies.get('sn-user-id');
-                if (this.userId !== null) {
+                this.myId = this.$cookies.get('sn-user-id');
+                if (this.myId !== null) {
                     await this.$http.get(
-                        this.getUserUrl.replace("userId", this.userId)
+                        this.getUserUrl.replace("userId", this.myId)
                     ).then((res) => {
                         this.user = res.data;
-                        //console.log(this.user);
+                        console.log(this.myId);
                     }).catch((res) => {
                         console.log(res);
                     });
@@ -77,14 +78,14 @@
             async getUserProfile() {
                 var self = this;
                 await this.$http.get(
-                    this.getUserProfileUrl.replace("userId", this.userId)
+                    this.getUserProfileUrl.replace("userId", this.myId)
                 ).then(res => {
                     if (!res.data.Timestamp) {
                         this.$router.push({
                             name: 'updateprofile',
                             params: {
                                 userProfile: res.data,
-                                userId: self.userId,
+                                myId: self.myId,
                                 jwtToken: self.jwtToken
                             }
                         });

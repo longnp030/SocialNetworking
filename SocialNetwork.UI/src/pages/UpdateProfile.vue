@@ -86,7 +86,7 @@
                 event.preventDefault();
                 this.form.Timestamp = new Date();
                 axios.patch(
-                    this.profileUrl.replace("userId", this.$route.params.userId),
+                    this.profileUrl.replace("userId", this.$route.params.myId),
                     JSON.parse(JSON.stringify(this.form)),
                     {
                         headers: {
@@ -99,7 +99,7 @@
                         name: 'home',
                         params: {
                             jwtToken: this.$route.params.jwtToken,
-                            userId: this.$route.params.userId,
+                            myId: this.$route.params.myId,
                         }
                     });
                 }).catch((res) => {

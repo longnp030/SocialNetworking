@@ -1,16 +1,16 @@
 <template>
     <div>
         <h1>Post</h1>
-        <post-card :userId="userId" :jwtToken="jwtToken" :postId="postId"/>
+        <post-card :myId="myId" :jwtToken="jwtToken" :postId="postId"/>
         
         <b-container fluid id="comments">
             <h2>Comments</h2>
             <comment-form 
-                         :userId="userId" 
+                         :myId="myId" 
                          :jwtToken="jwtToken" 
                          :postId="postId"/>
             <comment-card 
-                         :userId="userId" :jwtToken="jwtToken"
+                         :myId="myId" :jwtToken="jwtToken"
                          v-for="commentId in commentIds"
                          :key="commentId"
                          :commentId="commentId"/>
@@ -24,7 +24,7 @@
         name: 'PostLayout',
         data() {
             return {
-                userId: '',
+                myId: '',
                 jwtToken: '',
                 postId: '',
 
@@ -36,9 +36,9 @@
             }
         },
         async created() {
-            this.userId = this.$route.params.userId;
-            if (this.userId === undefined) {
-                this.userId = this.$cookies.get('sn-user-id');
+            this.myId = this.$route.params.myId;
+            if (this.myId === undefined) {
+                this.myId = this.$cookies.get('sn-user-id');
             }
             this.jwtToken = this.$route.params.jwtToken;
             if (this.jwtToken === undefined) {

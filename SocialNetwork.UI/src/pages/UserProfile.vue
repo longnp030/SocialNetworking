@@ -1,8 +1,9 @@
 <template>
     <div id="user-profile">
         <user-card 
+            v-if="userId&&myId"
             :jwtToken="jwtToken"
-            :meId="meId"
+            :myId="myId"
             :userId="userId"
             :full="fullUserCard"/>
 
@@ -24,7 +25,7 @@
                     <feed 
                         v-if="userId"
                         :userId="userId"
-                        :meId="meId"
+                        :myId="myId"
                         :jwtToken="jwtToken"
                         :feedType="'posts'"/>
                 </b-tab>
@@ -34,7 +35,7 @@
                 <b-tab title="Follow">
                     <follow-list 
                         v-if="userId"
-                        :meId="meId"
+                        :myId="myId"
                         :userId="userId"
                         :jwtToken="jwtToken"/>
                 </b-tab>
@@ -51,7 +52,7 @@
         data() {
             return {
                 jwtToken: '',
-                meId: null,
+                myId: null,
                 userId: null,
 
                 fullUserCard: true,
@@ -61,13 +62,13 @@
             };
         },
         async created() {
-            this.meId = this.$route.params.meId;
-            if (this.meId === undefined || this.meId === null) {
-                this.meId = this.$cookies.get('sn-user-id');
+            this.myId = this.$route.params.myId;
+            if (this.myId === undefined || this.myId === null) {
+                this.myId = this.$cookies.get('sn-user-id');
             }
 
             this.userId = this.$route.params.userId;
-            //console.log(this.userId, this.meId);
+            console.log(this.myId);
             if (this.userId === undefined || this.userId === null) {
                 this.$router.go(-1);
             }

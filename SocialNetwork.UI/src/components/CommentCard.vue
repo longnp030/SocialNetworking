@@ -11,7 +11,7 @@
                     <div>・</div>
                     <div class="date" :title="toReadableTime(comment.Timestamp)">{{ calcTimeTillNow(comment.Timestamp) }}</div>
                 </div>
-                <div class="opts">
+                <div class="opts" v-if="myId===comment.AuthorId">
                     <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
                         <template #button-content><b-icon icon="three-dots"></b-icon></template>
                         <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
@@ -57,7 +57,7 @@
     <comment-form 
         v-else
         :comment="comment"
-        :userId="userId"
+        :myId="myId"
         :jwtToken="jwtToken"/>
 </template>
 
@@ -65,7 +65,7 @@
     import _ from 'lodash';
     export default {
         name: 'CommentCard',
-        props: ["commentId", "userId", "jwtToken"],
+        props: ["commentId", "myId", "jwtToken"],
         data() {
             return {
                 getCommentUrl: "https://localhost:6868/Comments/commentId",
@@ -190,7 +190,7 @@
              * */
             async haveILiked() {
                 await this.$http.get(
-                    this.checkLikedUrl.replace("commentId", this.commentId).replace("userId", this.userId)
+                    this.checkLikedUrl.replace("commentId", this.commentId).replace("userId", this.myId)
                 ).then((res) => {
                     this.iLiked = res.data;
                     //console.log(this.liked);
@@ -206,7 +206,7 @@
             async likeComment(e) {
                 //console.log("Like...");
                 await this.$http.post(
-                    this.likeCommentUrl.replace("commentId", this.commentId).replace("userId", this.userId),
+                    this.likeCommentUrl.replace("commentId", this.commentId).replace("userId", this.myId),
                     null
                 ).then((res) => {
                     console.log(res);
@@ -222,7 +222,7 @@
              */
             async unlikeComment(e) {
                 await this.$http.post(
-                    this.unlikeCommentUrl.replace("commentId", this.commentId).replace("userId", this.userId),
+                    this.unlikeCommentUrl.replace("commentId", this.commentId).replace("userId", this.myId),
                     null
                 ).then((res) => {
                     console.log(res);
@@ -243,12 +243,12 @@
                 if (this.commentId !== params.commentId) return;
                 if (params.like) {
                     this.likes += 1;
-                    if (this.userId === params.userId) {
+                    if (this.myId === params.userId) {
                         this.iLiked = true;
                     }
                 } else {
                     this.likes -= 1;
-                    if (this.userId === params.userId) {
+                    if (this.myId === params.userId) {
                         this.iLiked = false;
                     }
                 }

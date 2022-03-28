@@ -42,7 +42,7 @@
 <script>
     export default {
         name: 'PostForm',
-        props: ["userId", "jwtToken", "post"],
+        props: ["myId", "jwtToken", "post"],
         data() {
             return {
                 postUrl: "https://localhost:6868/Posts/",
@@ -76,7 +76,7 @@
                         console.log(res.response)
                     });
                 } else {
-                    this.form.AuthorId = this.userId;
+                    this.form.AuthorId = this.myId;
 
                     this.$http.post(
                         this.postUrl,
