@@ -20,11 +20,25 @@ public interface IPostHub
     Task Reaction(Guid postId, Guid userId, bool like);
 
     /// <summary>
-    /// Send "Reply" event to Front-end whenever use comments on a post
+    /// Send "Reply" event to Front-end whenever user comments on a post
     /// </summary>
     /// <param name="comment">The commented comment</param>
     /// <returns></returns>
     Task Comment(Comment comment);
+    
+    /// <summary>
+    /// Send "Edit" event to Front-end whenever user edit a comment
+    /// </summary>
+    /// <param name="comment">The edited comment</param>
+    /// <returns></returns>
+    Task Edit(Comment comment);
+    
+    /// <summary>
+    /// Send "Delete" event to Front-end whenever user delete a comment
+    /// </summary>
+    /// <param name="comment">The deleted comment</param>
+    /// <returns></returns>
+    Task Delete(Guid id);
 
     /// <summary>
     /// Send "ViewingPost" event to Front-end whenever user click to view a post
@@ -70,16 +84,6 @@ public class PostHub : Hub<IPostHub>
     #endregion Constructor
 
     #region Methods
-    public async Task Reaction(Guid postId, Guid userId, bool like)
-    {
-        await Clients.Group(postId.ToString()).Reaction(postId, userId, like);
-    }
-
-    public async Task Comment(Comment comment)
-    {
-        await Clients.Group(comment.PostId.ToString()).Comment(comment);
-    }
-
     public async Task ViewingPost(Guid postId)
     {
         _logger.LogInformation($"Client {Context.ConnectionId} is viewing {postId}");

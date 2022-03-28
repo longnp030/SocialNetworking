@@ -17,6 +17,8 @@ public interface IChatService
 
     void DeleteMessage(Guid id);
     void DeleteGroupChat(Guid id);
+
+    //IEnumerable<Message> GetChatList(Guid userId);
     //TODO: Add methods
 }
 
@@ -105,5 +107,20 @@ public class ChatService : IChatService
 
         _context.SaveChanges();
     }
+
+    //public IEnumerable<Message> GetChatList(Guid userId)
+    //{
+    //    var chats = _context.Message
+    //                .Where(m => m.FromId == userId)
+    //                .Where(m => m.ToId == userId);
+    //    var chats2 = from c in chats
+    //                 group c by c.ToId
+    //                 into c1
+    //                 select new { Id = c1.Key, Latest = c1.Max(m => m.Timestamp) };
+    //    var res = from c1 in chats
+    //              from c2 in chats2.Select(c => c.Id == c1.Id)
+    //              on c1.Id equals c2.Id && c1.Timestamp equals c2.Latest
+    //              select c1;
+    //}
     #endregion Methods
 }

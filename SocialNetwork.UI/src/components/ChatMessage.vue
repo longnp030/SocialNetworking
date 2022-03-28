@@ -4,6 +4,10 @@
             v-if="msg.FromId === meId"
             class="chat__mymessage"
             :class="[isSame ? '' : 'chat__first']">
+            <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
+                <template #button-content><b-icon icon="three-dots"></b-icon></template>
+                <b-dropdown-item ><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
+            </b-dropdown>
             <p class="chat__mymessage__paragraph">{{ msg.Text }}</p>
         </div>
         <div
@@ -64,24 +68,24 @@
     .chat__mymessage {
         display: flex;
         justify-content: right;
-        align-items: flex-end;
+        align-items: center;
         margin: 0;
         min-height: 40px;
         line-break: anywhere;
     }
 
     .chat__mymessage__paragraph {
-        margin: 0.4rem 0 0 1rem;
+        margin: 0;
         border-radius: 20px 20px 0px 20px;
         max-width: 180px;
         background-color: #bbc4ef;
-        color: #ffffff;
+        color: #000;
         padding: 0.8rem;
         font-size: 14px;
     }
 
     .chat__first {
-        margin-top: 2rem;
+        margin-top: 10px;
     }
 
     .chat__yourmessage {
@@ -90,12 +94,12 @@
 
     .chat__yourmessage__avartar {
         width: 40px;
-        margin-right: 1rem;
+        margin-right: 10px;
     }
 
     .chat__yourmessage__img {
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
         object-fit: cover;
     }
@@ -117,9 +121,9 @@
     .chat__yourmessage__paragraph {
         margin: 0.4rem 1rem 0 0;
         border-radius: 0px 20px 20px 20px;
-        background-color: #f3f3f3;
+        background-color: #343a40;
         max-width: 180px;
-        color: #414141;
+        color: var(--white);
         padding: 0.8rem;
         font-size: 14px;
     }

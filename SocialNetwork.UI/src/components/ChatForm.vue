@@ -59,17 +59,18 @@
     .form {
         display: flex;
         justify-content: space-between;
-        padding: 1.4rem;
+        padding: 8px;
         background: #ffffff;
-        border-radius: 30px 30px 24px 24px;
+        border-radius: 0 0 8px 8px;
         box-shadow: 0px -5px 30px rgba(0, 0, 0, 0.05);
+        background-color: #343a40;
     }
 
     .form__input {
         border: none;
-        padding: 0.5rem;
         font-size: 16px;
         width: calc(100% - 60px);
+        background-color: #343a40;
     }
 
     .form__input:focus {

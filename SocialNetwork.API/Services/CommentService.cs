@@ -239,16 +239,20 @@ public class CommentService : ICommentService
         var comment = _context.Comment.Find(id);
         _mapper.Map(model, comment);
         _context.Comment.Update(comment);
+
+        _postHubContext.Clients.Group(model.PostId.ToString()).Edit(comment);
+
         _context.SaveChanges();
     }
 
     public void Delete(Guid id)
     {
         var comment = _context.Comment.Find(id);
+        _postHubContext.Clients.Group(comment.PostId.ToString()).Delete(id);
         _context.Comment.Remove(comment);
-        _context.SaveChanges();
 
         _context.CommentMedia.RemoveRange(_context.CommentMedia.Where(m => m.CommentId == id).ToList());
+
         _context.SaveChanges();
     }
 

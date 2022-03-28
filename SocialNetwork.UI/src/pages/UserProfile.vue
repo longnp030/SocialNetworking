@@ -24,6 +24,7 @@
                     <feed 
                         v-if="userId"
                         :userId="userId"
+                        :meId="meId"
                         :jwtToken="jwtToken"
                         :feedType="'posts'"/>
                 </b-tab>

@@ -171,7 +171,7 @@ public class PostsController : ControllerBase
     /// <returns>Status code:
     /// <para>200 if success, otherwise failed</para>
     /// </returns>
-    [HttpPatch("{id}/edit")]
+    [HttpPatch("{id}")]
     public IActionResult Edit(Guid id, [FromBody] CreatePostRequest model)
     {
         _postService.Edit(id, model);
@@ -200,11 +200,13 @@ public class PostsController : ControllerBase
 
         IFormFile file = HttpContext.Request.Form.Files[0];
         var path = "E:\\Code\\Web\\Backend\\SocialNetwork\\SocialNetwork.UI\\src\\assets\\";
+        var fileExtension = "." + file.FileName.Split(".").Last();
+        Console.Write(fileExtension);
         if (!Directory.Exists(path))
         {
             Directory.CreateDirectory(path);
         }
-        var destPath = path + (Guid.NewGuid().ToString() + ".jpg");
+        var destPath = path + (Guid.NewGuid().ToString() + fileExtension);
 
         using (var stream = System.IO.File.Create(destPath))
         {

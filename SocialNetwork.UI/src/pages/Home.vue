@@ -6,6 +6,7 @@
                 <feed
                     v-if="userId"
                     :userId="userId"
+                    :meId="userId"
                     :jwtToken="jwtToken"
                     :feedType="'feed'"/>
             </b-col>

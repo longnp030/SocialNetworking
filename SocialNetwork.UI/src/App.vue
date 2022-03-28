@@ -1,51 +1,42 @@
 <template>
     <div id="app">
-        <div>
-            <b-navbar toggleable="lg" type="dark">
-                <b-navbar-brand href="#">NavBar</b-navbar-brand>
+        <b-navbar toggleable="lg" type="dark" id="navbar">
+            <b-navbar-brand href="/home"><b-icon icon="twitter"></b-icon></b-navbar-brand>
 
-                <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-                <b-collapse id="nav-collapse" is-nav>
-                    <b-navbar-nav>
-                        <b-nav-item href="#">Link</b-nav-item>
-                        <b-nav-item href="#" disabled>Disabled</b-nav-item>
-                    </b-navbar-nav>
+            <b-collapse id="nav-collapse" is-nav>
+                <b-navbar-nav>
+                    <b-nav-form>
+                        <b-button size="sm" class="w-10 ml-4 search-btn" type="submit"><b-icon icon="search"></b-icon></b-button>
+                        <b-form-input class="w-90 search-input" size="sm" placeholder="Search"></b-form-input>
+                    </b-nav-form>
+                </b-navbar-nav>
 
-                        <!-- Right aligned nav items -->
-                    <b-navbar-nav class="ml-auto">
-                        <b-nav-form>
-                            <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
-                            <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
-                        </b-nav-form>
+                <!-- Right aligned nav items -->
+                <b-navbar-nav class="ml-auto">
+                    <b-nav-item-dropdown right>
+                        <!-- Using 'button-content' slot -->
+                        <template #button-content>
+                            <em>Messages</em>
+                        </template>
+                        <b-dropdown-item href="#">Profile</b-dropdown-item>
+                        <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+                    </b-nav-item-dropdown>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
 
-                        <b-nav-item-dropdown text="Lang" right>
-                            <b-dropdown-item href="#">EN</b-dropdown-item>
-                            <b-dropdown-item href="#">ES</b-dropdown-item>
-                            <b-dropdown-item href="#">RU</b-dropdown-item>
-                            <b-dropdown-item href="#">FA</b-dropdown-item>
-                        </b-nav-item-dropdown>
+        <router-view id="content"></router-view>
 
-                        <b-nav-item-dropdown right>
-                            <!-- Using 'button-content' slot -->
-                            <template #button-content>
-                                <em>User</em>
-                            </template>
-                            <b-dropdown-item href="#">Profile</b-dropdown-item>
-                            <b-dropdown-item href="#">Sign Out</b-dropdown-item>
-                        </b-nav-item-dropdown>
-                    </b-navbar-nav>
-                </b-collapse>
-            </b-navbar>
-        </div>
-        <router-view></router-view>
         <div v-if="chatBoxes.length > 0">
             <chat
                 v-for="chatBox in chatBoxes"
                 :key="chatBox.toId"
                 :jwtToken="chatBox.jwtToken"
                 :meId="chatBox.fromId"
-                :userId="chatBox.toId"/>
+                :userId="chatBox.toId"
+                @closeChat="closeChat"/>
         </div>
     </div>
 </template>
@@ -81,7 +72,12 @@
                     fromId: fromId,
                     toId: toId
                 });
-            }
+            },
+
+            closeChat(userId) {
+                let thisChat = this.chatBoxes.find(c => c.ToId === userId);
+                this.chatBoxes.splice(this.chatBoxes.indexOf(thisChat), 1);
+            },
         },
     };
 </script>
@@ -102,6 +98,38 @@
     #app a, u {
         text-decoration: none;
         color: var(--white);
+    }
+
+    #navbar {
+        z-index: 2;
+        background-color: #000;
+        position: fixed;
+        top: 0;
+        width: 100%;
+
+        display: flex;
+        align-items: center;
+    }
+
+    .navbar-brand {
+        display: flex !important;
+    }
+
+    .search-input,
+    .search-btn {
+        border-radius: 10px !important;
+        background-color: #111 !important;
+    }
+
+    #content {
+        margin-top: 56px;
+    }
+
+    .dropdown-menu {
+        background-color: #111 !important;
+    }
+    .dropdown-item:hover {
+        background-color: #222 !important;
     }
 </style>
 

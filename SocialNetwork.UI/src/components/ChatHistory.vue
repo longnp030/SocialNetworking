@@ -17,9 +17,11 @@
 
 <style scoped>
     .chat__body {
-        padding: 2rem;
+        padding: 10px;
         overflow: scroll;
         scroll-behavior: smooth;
+
+        background-color: #111;
     }
 
     .chat__body::-webkit-scrollbar {

@@ -1,15 +1,24 @@
 <template>
-    <b-card v-if="author">
+    <b-card v-if="author && !isEditing">
         <b-media>
             <template #aside>
                 <b-avatar variant="info" src="https://placekitten.com/300/300" size="4rem"></b-avatar>
             </template>
 
-            <div class="d-inline-flex author-date">
-                <b class="mt-0 author"><a :href="userProfileUrl" @click="$(this).stopPropagation();">{{ author.Name }}</a></b>
-                <div>・</div>
-                <div class="date" :title="toReadableTime(comment.Timestamp)">{{ calcTimeTillNow(comment.Timestamp) }}</div>
-            </div>
+            <b-container class="d-inline-flex author-date-opts" fluid>
+                <div class="author-date">
+                    <b class="mt-0 author"><a :href="userProfileUrl" @click="$(this).stopPropagation();">{{ author.Name }}</a></b>
+                    <div>・</div>
+                    <div class="date" :title="toReadableTime(comment.Timestamp)">{{ calcTimeTillNow(comment.Timestamp) }}</div>
+                </div>
+                <div class="opts">
+                    <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
+                        <template #button-content><b-icon icon="three-dots"></b-icon></template>
+                        <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
+                        <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
+                    </b-dropdown>
+                </div>
+            </b-container>
             
             <p class="mb-0 text">
               {{ comment.Text }}
@@ -44,9 +53,16 @@
             </div>
         </b-button-group>
     </b-card>
+
+    <comment-form 
+        v-else
+        :comment="comment"
+        :userId="userId"
+        :jwtToken="jwtToken"/>
 </template>
 
 <script>
+    import _ from 'lodash';
     export default {
         name: 'CommentCard',
         props: ["commentId", "userId", "jwtToken"],
@@ -55,7 +71,6 @@
                 getCommentUrl: "https://localhost:6868/Comments/commentId",
                 getMediaUrl: "https://localhost:6868/Comments/commentId/media",
                 getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
-                userProfileUrl: `http://localhost:8080/user/${this.userId}/profile`,
                 comment: {},
                 commentMedia: [],
                 author: null,
@@ -72,6 +87,8 @@
                 getChildCountUrl: "https://localhost:6868/Comments/commentId/comments/count",
                 comments: 0,
                 shares: 0,
+
+                isEditing: false,
             }
         },
         async created() {
@@ -81,10 +98,12 @@
              * run the method named "commentReacted"
              */
             await this.$commentHub.$on('comment-react', this.commentReacted);
-            //console.log(this.$commentHub);
+
+            await this.$postHub.$on('comment-edited', this.commentEdited);
         },
         beforeDestroy() {
             this.$commentHub.$off('comment-react', this.commentReacted);
+            this.$postHub.$off('comment-edited', this.commentEdited);
         },
         async mounted() {
             /**
@@ -248,15 +267,46 @@
                 });
             },
 
-        },
-        watch: {
-            comment: {
-                immediate: true,
-                deep: true,
-                handler: function () {
-                    //console.log(this.comment);
+            onEditClick(e) {
+                this.isEditing = true;
+                e.stopPropagation();
+            },
+
+            async commentEdited(cmt) {
+                cmt = _.mapKeys(cmt, function (v, k) {
+                    return _.upperFirst(k);
+                });
+
+                if (this.comment.Id === cmt.Id) {
+                    this.isEditing = false;
+                    this.comment = cmt;
                 }
             },
+
+            onDeleteClick(e) {
+                e.stopPropagation();
+                this.$http.delete(
+                    this.getCommentUrl.replace("commentId", this.commentId)
+                ).then((res) => {
+                    console.log(res);
+                }).catch((res) => {
+                    console.log(res.response);
+                });
+            }
+        },
+        watch: {
+            //comment: {
+            //    immediate: true,
+            //    deep: true,
+            //    handler: function () {
+            //        console.log(this.comment);
+            //    }
+            //},
+        },
+        computed: {
+            userProfileUrl() {
+                return `http://localhost:8080/user/${this.comment.AuthorId}/profile`;
+            }
         }
     }
 </script>
@@ -267,12 +317,16 @@
         border-radius: 10px;
     }
 
-    .author-date {
-        gap: 10px;
+    .author-date-opts {
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
     }
 
-    .date {
-        margin-bottom: 8px;
+    .author-date {
+        display: flex;
+        gap: 10px;
+        align-items: center;
     }
 
     .like-cmt-share {

@@ -1,6 +1,6 @@
 <template>
     <!--TODO: Add shared by wrapped by b-card-->
-    <b-card v-if="authorProfile" @click="postCardOnClick">
+    <b-card v-if="authorProfile && !isEditing" @click="postCardOnClick">
         <b-media>
             <template #aside>
                 <b-avatar 
@@ -11,15 +11,23 @@
                 ></b-avatar>
             </template>
 
-            <div class="d-inline-flex author-date">
-                <b class="mt-0 author"><a @click="openUserProfile">{{ authorProfile.Name }}</a></b>
-                <div>・</div>
-                <div class="date" :title="toReadableTime(post.Timestamp)">{{ calcTimeTillNow(post.Timestamp) }}</div>
-            </div>
+            <b-container class="d-inline-flex author-date-opts" fluid>
+                <div class="author-date">
+                    <b class="mt-0 author"><a @click="openUserProfile">{{ authorProfile.Name }}</a></b>
+                    <div>・</div>
+                    <div class="date" :title="toReadableTime(post.Timestamp)">{{ calcTimeTillNow(post.Timestamp) }}</div>
+                </div>
+                <div class="opts">
+                    <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
+                        <template #button-content><b-icon icon="three-dots"></b-icon></template>
+                        <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
+                        <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
+                        <b-dropdown-item ><b-icon icon="bookmark-heart-fill"></b-icon>&nbsp;Save for later</b-dropdown-item>
+                    </b-dropdown>
+                </div>
+            </b-container>
             
-            <p class="mb-0 text">
-                {{ post.Text }}
-            </p>
+            <p class="mb-0 text">{{ post.Text }}</p>
 
             <b-carousel
                 id="carousel"
@@ -29,11 +37,19 @@
                 img-height="200"
                 v-if="postMedia.length > 0"
             >
-                <b-carousel-slide 
+                <!--<b-carousel-slide 
                     v-for="media in postMedia"
                     :key="media"
                     :img-src="media">
-                </b-carousel-slide>
+                </b-carousel-slide>-->
+                <b-embed
+                    v-for="media in postMedia"
+                    type="iframe"
+                    aspect="16by9"
+                    :key="media"
+                    :src="media"
+                    allowfullscreen
+                ></b-embed>
             </b-carousel>
         </b-media>
 
@@ -53,6 +69,13 @@
             </div>
         </b-button-group>
     </b-card>
+
+    <post-form 
+        v-else
+        :post="post"
+        :userId="userId"
+        :jwtToken="jwtToken"
+        @cancelEditing="cancelEditing"/>
 </template>
 
 <script>
@@ -80,6 +103,8 @@
                 getCommentCountUrl: "https://localhost:6868/Posts/postId/comments/count",
                 comments: 0,
                 shares: 0,
+
+                isEditing: false,
             }
         },
         async created() {
@@ -280,6 +305,27 @@
                     })
                 }
             },
+
+            onEditClick(e) {
+                this.isEditing = true;
+                e.stopPropagation();
+            },
+
+            cancelEditing() {
+                this.isEditing = false;
+            },
+
+            onDeleteClick(e) {
+                e.stopPropagation();
+                this.$http.delete(
+                    this.getPostUrl.replace("postId", this.postId)
+                ).then((res) => {
+                    console.log(res);
+                    this.$router.go();
+                }).catch((res) => {
+                    console.log(res.response)
+                });
+            }
         },
         watch: {
             post: {
@@ -299,12 +345,16 @@
         border-radius: 10px;
     }
 
-    .author-date {
-        gap: 10px;
+    .author-date-opts {
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
     }
 
-    .date {
-        margin-bottom: 8px;
+    .author-date {
+        display: flex;
+        gap: 10px;
+        align-items: center;
     }
 
     .like-cmt-share {
@@ -338,5 +388,9 @@
         max-height: 200px !important;
         min-height: 200px !important;
         background-size: cover;
+    }
+
+    .dropdown-toggle {
+        padding: 0;
     }
 </style>

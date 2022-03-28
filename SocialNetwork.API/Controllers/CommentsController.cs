@@ -156,7 +156,7 @@ public class CommentsController : ControllerBase
     /// <returns>Status code:
     /// <para>200 if success, otherwise failed</para>
     /// </returns>
-    [HttpPatch("{id}/edit")]
+    [HttpPatch("{id}")]
     public IActionResult Edit(Guid id, CreateCommentRequest model)
     {
         _commentService.Edit(id, model);

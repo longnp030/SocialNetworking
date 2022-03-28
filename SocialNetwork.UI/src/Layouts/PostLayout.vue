@@ -54,6 +54,7 @@
              * run the method named "postCommentedOn"
              */
             await this.$postHub.$on('post-commented-on', this.postCommentedOn);
+            await this.$postHub.$on('comment-deleted', this.commentDeleted);
 
             await this.$notificationHub.$on("notify", this.notify);
         },
@@ -63,6 +64,8 @@
              * */
             this.$postHub.postClosed(this.postId);
 
+            await this.$postHub.$off('post-commented-on', this.postCommentedOn);
+            await this.$postHub.$off('comment-deleted', this.commentDeleted);
             this.$notificationHub.$off("notify", this.notify);
         },
         async mounted() {
@@ -101,9 +104,15 @@
                 this.commentIds.unshift(comment.id);
             },
 
+            async commentDeleted(commentId) {
+                console.log(commentId)
+                this.commentIds.splice(this.commentIds.indexOf(commentId), 1);
+                console.log(this.commentIds)
+            },
+
             async notify(noti) {
                 this.notification = null;
-                console.log(noti);
+                //console.log(noti);
                 this.$nextTick(() => {
                     this.notification = noti;
                     this.dismissNotification = 1000;

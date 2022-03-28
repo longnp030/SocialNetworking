@@ -26,6 +26,16 @@ export default {
             postHub.$emit('post-commented-on', comment)
         });
 
+        // handle users edit a comment
+        connection.on('Edit', (comment) => {
+            postHub.$emit('comment-edited', comment)
+        });
+
+        // handle users edit a comment
+        connection.on('Delete', (commentId) => {
+            postHub.$emit('comment-deleted', commentId)
+        });
+
         // handle tracking users view post
         postHub.postOpened = postId => {
             return startedPromise

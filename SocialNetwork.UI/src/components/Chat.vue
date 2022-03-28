@@ -4,6 +4,7 @@
             <span class="chat__header__greetings">
                 안녕하세요!
             </span>
+            <b-icon icon="x" class="close-chat-btn" @click="closeChat"></b-icon>
         </div>
 
         <chat-history :msgs="msgs" :meId="meId"/>
@@ -67,7 +68,11 @@
                 });
                 console.log(message);
                 this.msgs.push(message);
-            }
+            },
+
+            closeChat() {
+                this.$emit("closeChat", this.userId);
+            },
         },
     };
 </script>
@@ -77,18 +82,31 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+
+        position: fixed;
+        bottom: 0;
+        right: 20px;
+
+        z-index: 1;
     }
 
     .chat__header {
-        background: #ffffff;
+        background-color: #343a40;
         box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.05);
-        border-radius: 24px 24px 0px 0px;
-        padding: 1.8rem;
+        border-radius: 4px 4px 0 0;
+        padding: 10px;
         font-size: 16px;
         font-weight: 700;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .chat__header__greetings {
-        color: #292929;
+        color: var(--white);
+    }
+
+    .close-chat-btn {
+        cursor: pointer;
     }
 </style>

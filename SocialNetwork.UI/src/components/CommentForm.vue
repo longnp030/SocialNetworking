@@ -24,6 +24,7 @@
                         multiple
                     ></b-form-file>
 
+                    <b-button v-if="isEditing" variant="secondary" @click="cancelEditing">Cancel</b-button>
                     <b-button type="submit" variant="primary">Submit</b-button>
                 </div>
 
@@ -38,7 +39,7 @@
 <script>
     export default {
         name: 'CommentForm',
-        props: ["postId", "userId", "jwtToken"],
+        props: ["postId", "userId", "jwtToken", "comment"],
         data() {
             return {
                 commentUrl: "https://localhost:6868/Comments/",
@@ -49,23 +50,41 @@
                 },
                 media: null,
                 imgUrls: [],
+
+                isEditing: false,
             }
         },
         methods: {
             async onSubmit(event) {
                 event.preventDefault();
-                this.form.AuthorId = this.userId;
-                this.form.PostId = this.postId,
 
-                await this.$http.post(
-                    this.commentUrl,
-                    JSON.parse(JSON.stringify(this.form))
-                ).then((res) => {
-                    console.log(res);
-                    this.$refs.form.reset();
-                }).catch((res) => {
-                    console.log(res.response);
-                });
+                if (this.isEditing) {
+                    this.$http.patch(
+                        this.commentUrl + this.comment.Id,
+                        this.form
+                    ).then((res) => {
+                        console.log(res);
+                    }).catch((res) => {
+                        console.log(res.response)
+                    });
+                } else {
+                    this.form.AuthorId = this.userId;
+                    this.form.PostId = this.postId,
+
+                    await this.$http.post(
+                        this.commentUrl,
+                        JSON.parse(JSON.stringify(this.form))
+                    ).then((res) => {
+                        console.log(res);
+                        this.$refs.form.reset();
+                    }).catch((res) => {
+                        console.log(res.response);
+                    });
+                }
+            },
+
+            cancelEditing() {
+                this.$emit('cancelEditing');
             },
 
             addImg(e) {
@@ -92,6 +111,18 @@
             removeImg(e) {
                 this.imgUrls.splice(this.imgUrls.indexOf(e.target.src), 1);
                 e.preventDefault();
+            }
+        },
+        watch: {
+            comment: {
+                deep: true,
+                immediate: true,
+                handler: function () {
+                    if (this.comment) {
+                        this.isEditing = true;
+                        this.form = this.comment;
+                    }
+                }
             }
         },
     }

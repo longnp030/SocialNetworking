@@ -20,15 +20,19 @@
                         v-model="media"
                         accept="image/*"
                         placeholder="Add an image..."
-                        @change="addImg"
+                        @change="addMedia"
                         multiple
                     ></b-form-file>
 
+                    <b-button v-if="isEditing" variant="secondary" @click="cancelEditing">Cancel</b-button>
                     <b-button type="submit" variant="primary">Submit</b-button>
                 </div>
                 
-                <div id="preview">
-                    <img v-for="url in imgUrls" :key="url" :src="url" @contextmenu="removeImg"/>
+                <div id="preview" v-if="mediaUrls.length > 0">
+                    <img v-for="url in mediaUrls" :key="url" :src="url" @contextmenu="removeImg"/>
+                    <video controls v-for="url in mediaUrls" :key="url" >
+                        <source :src="url" />
+                    </video>
                 </div>
             </b-form>
         </b-media>
@@ -38,7 +42,7 @@
 <script>
     export default {
         name: 'PostForm',
-        props: ["userId", "jwtToken"],
+        props: ["userId", "jwtToken", "post"],
         data() {
             return {
                 postUrl: "https://localhost:6868/Posts/",
@@ -48,38 +52,57 @@
                     MediaPaths: [],
                 },
                 media: null,
-                imgUrls: [],
+                mediaUrls: [],
                 privacyOptions: [
                     { value: 0, text: 'Public' },
                     { value: 1, text: 'Private' }
-                ]
+                ],
+
+                isEditing: false,
             }
         },
         methods: {
-            onSubmit(event) {
+            async onSubmit(event) {
                 event.preventDefault();
-                this.form.AuthorId = this.userId;
 
-                this.$http.post(
-                    this.postUrl,
-                    this.form
-                ).then((res) => {
-                    console.log(res);
-                    this.$router.go();
-                }).catch((res) => {
-                    console.log(res.response)
-                });
+                if (this.isEditing) {
+                    this.$http.patch(
+                        this.postUrl + this.post.Id,
+                        this.form
+                    ).then((res) => {
+                        console.log(res);
+                        this.$router.go();
+                    }).catch((res) => {
+                        console.log(res.response)
+                    });
+                } else {
+                    this.form.AuthorId = this.userId;
+
+                    this.$http.post(
+                        this.postUrl,
+                        this.form
+                    ).then((res) => {
+                        console.log(res);
+                        this.$router.go();
+                    }).catch((res) => {
+                        console.log(res.response)
+                    });
+                }
             },
 
-            addImg(e) {
-                const file = e.target.files[0];
-                this.imgUrls.push(URL.createObjectURL(file));
+            cancelEditing() {
+                this.$emit('cancelEditing');
+            },
 
-                var imgForm = new FormData();
-                imgForm.append('image', file);
+            addMedia(e) {
+                const file = e.target.files[0];
+                this.mediaUrls.push(URL.createObjectURL(file));
+
+                var mediaForm = new FormData();
+                mediaForm.append('media', file);
                 this.$http.post(
                     this.uploadUrl,
-                    imgForm,
+                    mediaForm,
                     {
                         headers: {
                             'Content-Type': 'multipart/form-data'
@@ -107,11 +130,23 @@
                     }
                 ).then(res => {
                     console.log(res);
-                    this.imgUrls.splice(this.imgUrls.indexOf(e.target.src), 1);
+                    this.mediaUrls.splice(this.mediaUrls.indexOf(e.target.src), 1);
                 }).catch(res => {
                     console.log(res.response);
                 });
                 e.preventDefault();
+            }
+        },
+        watch: {
+            post: {
+                deep: true,
+                immediate: true,
+                handler: function () {
+                    if (this.post) {
+                        this.isEditing = true;
+                        this.form = this.post;
+                    }
+                }
             }
         },
     }

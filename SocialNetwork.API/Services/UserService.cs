@@ -304,10 +304,13 @@ public class UserService : IUserService
 
     public IEnumerable<Guid> GetFeed(Guid id)
     {
-        return _context.Post                          // get all posts
-            .Where(p => p.AuthorId == id)             // by this user
-            .Select(p => p.Id)
-            .ToList();
+        var ownPosts = _context.Post        // get all posts
+            .Where(p => p.AuthorId == id);  // by this user
+        var followees = GetFollowees(id);
+        var followingPosts = _context.Post
+            .Where(p => followees.Contains(p.AuthorId));
+        return ownPosts.Concat(followingPosts)
+            .OrderBy(p => p.Timestamp).Reverse().Select(p => p.Id).ToList();
     }
 
     public void Follow(Guid fromId, Guid toId)

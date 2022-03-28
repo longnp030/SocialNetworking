@@ -247,7 +247,6 @@ public class PostService : IPostService
     {
         var post = _context.Post.Find(id);
         _context.Post.Remove(post);
-        _context.SaveChanges();
 
         _context.PostMedia.RemoveRange(_context.PostMedia.Where(m => m.PostId == id).ToList());
         _context.SaveChanges();
