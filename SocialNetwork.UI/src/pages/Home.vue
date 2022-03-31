@@ -68,7 +68,6 @@
                         this.getUserUrl.replace("userId", this.myId)
                     ).then((res) => {
                         this.user = res.data;
-                        console.log(this.myId);
                     }).catch((res) => {
                         console.log(res);
                     });

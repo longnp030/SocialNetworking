@@ -2,7 +2,7 @@
     <b-card>
         <b-media>
             <template #aside>
-                <b-avatar variant="info" src="https://placekitten.com/300/300" size="4rem"></b-avatar>
+                <b-avatar v-if="avatar" :src="avatar" size="4rem"></b-avatar>
             </template>
 
             <b-form @submit="onSubmit">
@@ -45,6 +45,9 @@
         props: ["myId", "jwtToken", "post"],
         data() {
             return {
+                getAvatarUrl: "https://localhost:6868/Users/userId/profile/avatar",
+                avatar: null,
+
                 postUrl: "https://localhost:6868/Posts/",
                 uploadUrl: "https://localhost:6868/Posts/upload",
                 unuploadUrl: "https://localhost:6868/Posts/unupload",
@@ -61,7 +64,20 @@
                 isEditing: false,
             }
         },
+        async mounted() {
+            await this.getAvatar();
+        },
         methods: {
+            async getAvatar() {
+                await this.$http.get(
+                    this.getAvatarUrl.replace("userId", this.myId)
+                ).then(res => {
+                    this.avatar = require(`@/assets/${res.data}`);
+                }).catch(err => {
+                    console.log(err.response);
+                });
+            },
+
             async onSubmit(event) {
                 event.preventDefault();
 

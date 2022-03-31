@@ -75,6 +75,19 @@ public interface IPostService
     IEnumerable<String> GetMedia(Guid id);
 
     /// <summary>
+    /// Delete a post media
+    /// </summary>
+    /// <param name="mediaPath"></param>
+    void DeleteMedia(String mediaPath);
+
+    /// <summary>
+    /// Save a post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    void Save(Guid id, Guid userId);
+
+    /// <summary>
     /// Create new post
     /// </summary>
     /// <param name="model">Required fields to create new post form</param>
@@ -208,6 +221,27 @@ public class PostService : IPostService
             .Where(pm => pm.PostId == id)
             .Select(pm => pm.Path);
         return mediaPaths;
+    }
+
+    public void DeleteMedia(String mediaPath)
+    {
+        var media = _context.PostMedia
+            .First(pm => pm.Path == mediaPath);
+        _context.PostMedia.Remove(media);
+        _context.SaveChanges();
+    }
+
+    public void Save(Guid id, Guid userId)
+    {
+        var postSaved = new PostSave
+        {
+            Id = Guid.NewGuid(),
+            PostId = id,
+            UserId = userId,
+            Timestamp = DateTime.Now
+        };
+        _context.PostSave.Add(postSaved);
+        _context.SaveChanges();
     }
 
     public void Create(CreatePostRequest model)

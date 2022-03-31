@@ -12,7 +12,8 @@
                             <user-card
                                 :jwtToken="jwtToken"
                                 :myId="myId"
-                                :userId="follower"/>
+                                :userId="follower"
+                                :size="userCardSize"/>
                         </b-list-group-item>
                     </b-list-group>
                     <div v-else>No followers yet.</div>
@@ -27,7 +28,8 @@
                             <user-card
                                 :jwtToken="jwtToken"
                                 :myId="myId"
-                                :userId="followee"/>
+                                :userId="followee"
+                                :full="fullUserCard"/>
                         </b-list-group-item>
                     </b-list-group>
                     <div v-else>Not following anyone yet.</div>
@@ -48,6 +50,8 @@
 
                 followers: null,
                 followees: null,
+
+                userCardSize: 'S',
             };
         },
         async mounted() {

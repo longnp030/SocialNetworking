@@ -5,15 +5,15 @@
             :jwtToken="jwtToken"
             :myId="myId"
             :userId="userId"
-            :full="fullUserCard"/>
+            :size="userCardSize"/>
 
-        <b-card no-body>
+        <b-card no-body class="border-0">
             <b-tabs 
                 card 
-                active-nav-item-class="text-light bg-dark border-0" 
-                active-tab-class="bg-dark"
-                nav-wrapper-class="bg-dark"
-                nav-class="bg-dark"
+                active-nav-item-class="text-light bg-dark border-0 rounded-0" 
+                active-tab-class="bg-dark border-0 rounded-0"
+                nav-wrapper-class="bg-dark py-0 border-0 rounded-0"
+                nav-class="bg-dark border-0"
                 align="center" 
                 justified
             > 
@@ -55,7 +55,7 @@
                 myId: null,
                 userId: null,
 
-                fullUserCard: true,
+                userCardSize: 'L',
 
                 notification: null,
                 dismissNotification: false,
@@ -68,7 +68,6 @@
             }
 
             this.userId = this.$route.params.userId;
-            console.log(this.myId);
             if (this.userId === undefined || this.userId === null) {
                 this.$router.go(-1);
             }

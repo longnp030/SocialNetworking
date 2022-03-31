@@ -62,6 +62,27 @@ public interface IUserService
     UserProfile GetProfile(Guid id);
 
     /// <summary>
+    /// Get only avatar url and name
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>Avatar and name</returns>
+    object GetAvatarName(Guid id);
+
+    /// <summary>
+    /// Get only avatar url
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>Avatar</returns>
+    string GetAvatar(Guid id);
+
+    /// <summary>
+    /// Get only name
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>Name</returns>
+    string GetName(Guid id);
+
+    /// <summary>
     /// Update user profile
     /// </summary>
     /// <param name="id">User's unique identifier</param>
@@ -249,6 +270,28 @@ public class UserService : IUserService
     public UserProfile GetProfile(Guid id)
     {
         return _context.UserProfile.SingleOrDefault(x => x.UserId == id);
+    }
+
+    public object GetAvatarName(Guid id)
+    {
+        var name = _context.UserProfile.First(up => up.UserId == id).Name;
+        var avatar = _context.UserProfile.First(up => up.UserId == id).Avatar;
+
+        return new
+        {
+            Name = name,
+            Avatar = avatar
+        };
+    }
+    
+    public string GetAvatar(Guid id)
+    {
+        return _context.UserProfile.First(up => up.UserId == id).Avatar;
+    }
+    
+    public string GetName(Guid id)
+    {
+        return _context.UserProfile.First(up => up.UserId == id).Name;
     }
     
     public void UpdateProfile(Guid id, UpdateProfileRequest model)

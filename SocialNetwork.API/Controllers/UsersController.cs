@@ -143,6 +143,42 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// Get only avatar url and name
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>Avatar and name</returns>
+    [HttpGet("{id}/profile/avatarname")]
+    public IActionResult GetAvatarName(Guid id)
+    {
+        var avatarName = _userService.GetAvatarName(id);
+        return Ok(avatarName);
+    }
+    
+    /// <summary>
+    /// Get only avatar url
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>Avatar</returns>
+    [HttpGet("{id}/profile/avatar")]
+    public IActionResult GetAvatar(Guid id)
+    {
+        var avatarName = _userService.GetAvatar(id);
+        return Ok(avatarName);
+    }
+    
+    /// <summary>
+    /// Get only name
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>Name</returns>
+    [HttpGet("{id}/profile/name")]
+    public IActionResult GetName(Guid id)
+    {
+        var avatarName = _userService.GetName(id);
+        return Ok(avatarName);
+    }
+
+    /// <summary>
     /// Update user profile
     /// </summary>
     /// <param name="id">User's unque identifier</param>

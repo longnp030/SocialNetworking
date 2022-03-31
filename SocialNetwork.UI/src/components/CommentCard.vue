@@ -1,13 +1,13 @@
 <template>
-    <b-card v-if="author && !isEditing">
+    <b-card v-if="!isEditing">
         <b-media>
             <template #aside>
-                <b-avatar variant="info" src="https://placekitten.com/300/300" size="4rem"></b-avatar>
+                <b-avatar v-if="avatar" :src="avatar" size="4rem"></b-avatar>
             </template>
 
             <b-container class="d-inline-flex author-date-opts" fluid>
                 <div class="author-date">
-                    <b class="mt-0 author"><a :href="userProfileUrl" @click="$(this).stopPropagation();">{{ author.Name }}</a></b>
+                    <b class="mt-0 author"><a :href="userProfileUrl" @click="$(this).stopPropagation();">{{ name }}</a></b>
                     <div>・</div>
                     <div class="date" :title="toReadableTime(comment.Timestamp)">{{ calcTimeTillNow(comment.Timestamp) }}</div>
                 </div>
@@ -68,12 +68,14 @@
         props: ["commentId", "myId", "jwtToken"],
         data() {
             return {
+                getAvatarNameUrl: "https://localhost:6868/Users/userId/profile/avatarname",
+                avatar: null,
+                name: null,
+
                 getCommentUrl: "https://localhost:6868/Comments/commentId",
                 getMediaUrl: "https://localhost:6868/Comments/commentId/media",
-                getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 comment: {},
                 commentMedia: [],
-                author: null,
 
                 getLikesUrl: "https://localhost:6868/Comments/commentId/likes",
                 checkLikedUrl: "https://localhost:6868/Comments/commentId/likes/userId",
@@ -119,7 +121,8 @@
              */
             await this.getComment();
             await this.getMedia();
-            await this.getAuthorProfile();
+
+            await this.getAvatarName();
 
             await this.haveILiked();
             await this.getWhoLiked();
@@ -127,6 +130,17 @@
             await this.getChildCount();
         },
         methods: {
+            async getAvatarName() {
+                await this.$http.get(
+                    this.getAvatarNameUrl.replace("userId", this.comment.AuthorId)
+                ).then(res => {
+                    this.avatar = require(`@/assets/${res.data.Avatar}`);
+                    this.name = res.data.Name
+                }).catch(err => {
+                    console.log(err.response);
+                });
+            },
+
             /**
              * get the comment to display (text, time, id, ...)
              * */
@@ -155,20 +169,6 @@
                     });
                 }).catch(res => {
                     console.log(res.response);
-                });
-            },
-
-            /**
-             * get author to display (name, avatar, ...)
-             * */
-            async getAuthorProfile() {
-                await this.$http.get(
-                    this.getUserProfileUrl.replace("userId", this.comment.AuthorId)
-                ).then((res) => {
-                    this.author = res.data;
-                    //console.log(this.author);
-                }).catch((res) => {
-                    console.log(res);
                 });
             },
 

@@ -1,20 +1,26 @@
 <template>
     <b-card
-        v-if="full && profile"
-        img-src="https://picsum.photos/600/300/?image=25"
+        v-if="size==='L' && profile"
+        :img-src="require(`@/assets/${profile.Cover}`)"
         img-alt="Image"
         img-top
         tag="article"
-        style="max-width: 20rem;"
         class="mb-2"
         id="profile-header"
     >
+        <b-button v-if="userId===myId" id="change-cover" @click="showAvatarOrCoverChangeModal($event, 'cover')"><b-icon icon="camera"></b-icon></b-button>
         <div id="basic-info">
-            <b-avatar id="avatar" variant="info" src="https://placekitten.com/300/300" size="15rem"></b-avatar>
+            <b-avatar
+                id="avatar" 
+                :src="require(`@/assets/${profile.Avatar}`)" 
+                size="15rem"
+                button
+                @click="showAvatarOrCoverChangeModal($event, 'avatar')">
+            </b-avatar>
             <div id="info">
                 <div id="name-follow">
                     <h1 id="name">{{profile.Name}}</h1>
-                    <div id="actions" v-if="myId !== userId">
+                    <div class="actions" v-if="myId !== userId">
                         <b-button variant="outline-danger" v-if="iFollowed" @click="unfollow">
                             <b-icon icon="person-dash"></b-icon></b-button>
                         <b-button variant="outline-success" v-else @click="follow">
@@ -30,12 +36,49 @@
                 <div id="mutual">Mo foro- sarete imasu</div>
             </div>
         </div>
+
+        <b-modal 
+            v-if="userId===myId"
+            id="change-avatar-or-cover-modal" 
+            :title="`Change ${modalType}`" 
+            size="lg"
+            @ok="saveAvatarOrCover"
+        >
+            <b-form-file
+                accept="image/*"
+                placeholder="Add an image..."
+                @change="chooseImage"
+            ></b-form-file>
+
+            <div id="preview" v-if="avatarOrCoverUrl">
+                <img :src="avatarOrCoverUrl" width="400" height="400"/>
+            </div>
+        </b-modal>
+    </b-card>
+
+    <b-card v-else-if="size==='M' && profile" class="p-0 border-0 user-card-medium">
+        <b-avatar size="6rem" class="mr-3 center" :src="require(`@/assets/${profile.Avatar}`)"></b-avatar>
+        <div class="medium-card-right">
+            <div class="name">
+                <span class="mr-auto"><b>{{profile.Name}}</b></span>
+            </div>
+            <div id="follow"><b-icon icon="people"></b-icon>
+                <div>{{followerCount}} followers<div>・</div>{{followeeCount}} following</div>
+            </div>
+            <div class="actions" v-if="myId !== userId">
+                <b-button variant="outline-danger" v-if="iFollowed" @click="unfollow">
+                    <b-icon icon="person-dash"></b-icon></b-button>
+                <b-button variant="outline-success" v-else @click="follow">
+                    <b-icon icon="person-plus"></b-icon></b-button>
+                <b-button variant="outline-info" @click="startChat(jwtToken, myId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
+            </div>
+        </div>
     </b-card>
 
     <b-card v-else>
         <div class="user-card-small" v-if="profile">
             <div class="avatar-name">
-                <b-avatar class="mr-3"></b-avatar>
+                <b-avatar class="mr-3" :src="require(`@/assets/${profile.Avatar}`)"></b-avatar>
                 <span class="mr-auto">{{profile.Name}}</span>
             </div>
             <div class="actions" v-if="myId !== userId">
@@ -52,11 +95,15 @@
 <script>
     export default {
         name: 'UserCard',
-        props: ["jwtToken", "myId", "userId", "full"],
+        props: ["jwtToken", "myId", "userId", "size"],
         data() {
             return {
                 getProfileUrl: "https://localhost:6868/Users/userId/profile",
                 profile: null,
+                uploadUrl: "https://localhost:6868/Posts/upload",
+                newAvatarOrCover: null,
+                avatarOrCoverUrl: null,
+                modalType: null,
 
                 followUrl: "https://localhost:6868/Users/fromId/follow/toId",
                 getFollowerCountUrl: "https://localhost:6868/Users/userId/followers/count",
@@ -147,11 +194,62 @@
             startChat(jwtToken, myId, userId) {
                 this.$bus.$emit('startChat', { jwtToken, myId, userId });
             },
+
+            showAvatarOrCoverChangeModal(e, type) {
+                e.stopPropagation();
+                this.modalType = type;
+                this.$bvModal.show('change-avatar-or-cover-modal');
+            },
+
+            chooseImage(e) {
+                const file = e.target.files[0];
+                this.avatarOrCoverUrl = URL.createObjectURL(file);
+
+                var mediaForm = new FormData();
+                mediaForm.append('media', file);
+                this.$http.post(
+                    this.uploadUrl,
+                    mediaForm,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                ).then(res => {
+                    this.newAvatarOrCover = res.data;
+                }).catch(res => {
+                    console.log(res.response);
+                })
+            },
+
+            async saveAvatarOrCover() {
+                if (this.modalType === 'avatar') {
+                    this.profile.Avatar = this.newAvatarOrCover;
+                } else if (this.modalType === 'cover') {
+                    this.profile.Cover = this.newAvatarOrCover;
+                }
+                
+                await this.$http.patch(
+                    this.getProfileUrl.replace("userId", this.myId),
+                    this.profile
+                ).then(res => { }).catch(err => {
+                    console.log(err.response);
+                });
+            },
         }
     }
 </script>
 
 <style scoped>
+    #change-cover {
+        position: absolute;
+        margin-top: -68px;
+        right: 50px;
+    }
+    #change-cover .b-icon {
+        margin: 0;
+    }
+
     #profile-header {
         width: 100%;
         max-width: 100% !important;
@@ -182,6 +280,7 @@
 
     #info {
         width: 100%;
+        margin-top: 65px;
     }
 
     #name-follow {
@@ -191,25 +290,21 @@
         width: 100%;
     }
 
-    #name-follow #actions {
+    #name-follow .actions {
         display: flex;
         gap: 5px;
-        align-items: end;
-        margin-bottom: 18px;
+        align-items: center;
+        margin-bottom: 12px;
     }
 
-    #name-follow #actions .btn {
-        max-height: 30px;
+    #name-follow .actions .btn {
+        max-height: 50px;
         display: flex;
         align-items: center;
     }
 
-    #actions .btn .b-icon {
+    .actions .btn .b-icon {
         margin: 0;
-    }
-
-    #name {
-        margin-top: 68px;
     }
 
     #follow, #follow div {
@@ -230,6 +325,35 @@
         margin-right: 10px;
     }
 
+    .user-card-medium {
+
+    }
+    .user-card-medium .card-body {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        color: var(--white);
+        padding: 5px;
+    }
+    .medium-card-right {
+        padding: 0 !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: start;
+    }
+    .medium-card-right .actions {
+        width: 100%;
+        display: flex;
+        gap: 5px;
+        align-items: end;
+        justify-content: space-between;
+    }
+    .user-card-medium .actions .btn {
+        width: 100%;
+    }
+
     .user-card-small {
         display: flex;
         flex-direction: row;
@@ -242,7 +366,9 @@
         gap: 10px;
         align-items: end;
     }
-    .user-card-small .actions .b-icon {
-        margin: 0;
+
+    #preview {
+        display: flex;
+        justify-content: space-around;
     }
 </style>

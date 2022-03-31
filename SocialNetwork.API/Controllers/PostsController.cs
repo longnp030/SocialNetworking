@@ -149,6 +149,26 @@ public class PostsController : ControllerBase
         return Ok(media);
     }
 
+    [HttpDelete("media/{mediaPath}/delete")]
+    public IActionResult DeleteMedia(String mediaPath)
+    {
+        _postService.DeleteMedia(mediaPath);
+        return Ok(new { Message = "Media deleted" });
+    }
+
+    /// <summary>
+    /// Save a post
+    /// </summary>
+    /// <param name="id">Post's unique identifier</param>
+    /// <param name="userId">User's unique identifier</param>
+    /// <returns></returns>
+    [HttpPost("{id}/save/{userId}")]
+    public IActionResult Save(Guid id, Guid userId)
+    {
+        _postService.Save(id, userId);
+        return Ok(new { Message = "Post saved" });
+    }
+
     /// <summary>
     /// Create new post
     /// </summary>

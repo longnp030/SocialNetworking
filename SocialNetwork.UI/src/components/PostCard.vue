@@ -1,28 +1,49 @@
 <template>
     <!--TODO: Add shared by wrapped by b-card-->
-    <b-card v-if="authorProfile && !isEditing" @click="postCardOnClick">
+    <b-card v-if="!isEditing" @click="postCardOnClick">
         <b-media>
             <template #aside>
                 <b-avatar 
-                    variant="info"
-                    src="https://placekitten.com/300/300" 
+                    v-if="avatar"
+                    :src="avatar" 
                     size="4rem"
+                    button
                     @click="openUserProfile"
+                    :id="postId" 
                 ></b-avatar>
             </template>
 
+            <b-popover 
+                :target="postId" 
+                triggers="hover" 
+                placement="top"
+                custom-class="wide-popover"
+            >
+                <user-card
+                    :jwtToken="jwtToken"
+                    :myId="myId"
+                    :userId="post.AuthorId"
+                    :size="userCardSize"/>
+            </b-popover>
+
             <b-container class="d-inline-flex author-date-opts" fluid>
                 <div class="author-date">
-                    <b class="mt-0 author"><a @click="openUserProfile">{{ authorProfile.Name }}</a></b>
+                    <b class="mt-0 author"><a @click="openUserProfile">{{ name }}</a></b>
                     <div>・</div>
                     <div class="date" :title="toReadableTime(post.Timestamp)">{{ calcTimeTillNow(post.Timestamp) }}</div>
                 </div>
-                <div class="opts" v-if="myId===post.AuthorId">
+
+                <div class="opts">
                     <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
                         <template #button-content><b-icon icon="three-dots"></b-icon></template>
-                        <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
-                        <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
-                        <b-dropdown-item ><b-icon icon="bookmark-heart-fill"></b-icon>&nbsp;Save for later</b-dropdown-item>
+
+                        <div v-if="myId===post.AuthorId">
+                            <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
+                            <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
+                        </div>
+                        <div v-else>
+                            <b-dropdown-item @click="onSaveClick"><b-icon icon="bookmark-heart-fill"></b-icon>&nbsp;Save for later</b-dropdown-item>
+                        </div>
                     </b-dropdown>
                 </div>
             </b-container>
@@ -70,7 +91,7 @@
         </b-button-group>
     </b-card>
 
-    <post-form 
+    <post-form
         v-else
         :post="post"
         :myId="myId"
@@ -84,17 +105,21 @@
         props: ["postId", "jwtToken", "myId"],
         data() {
             return {
+                getAvatarNameUrl: "https://localhost:6868/Users/userId/profile/avatarname",
+                avatar: null,
+                name: null,
+
                 getPostUrl: "https://localhost:6868/Posts/postId",
                 getMediaUrl: "https://localhost:6868/Posts/postId/media",
-                getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 post: {},
                 postMedia: [],
-                authorProfile: null,
 
                 getLikesUrl: "https://localhost:6868/Posts/postId/likes",
                 checkLikedUrl: "https://localhost:6868/Posts/postId/likes/userId",
                 likePostUrl: "https://localhost:6868/Posts/postId/likes/userId/like",
                 unlikePostUrl: "https://localhost:6868/Posts/postId/likes/userId/unlike",
+
+                savePostUrl: "https://localhost:6868/Posts/postId/save/userId",
 
                 iLiked: false,
                 whoLiked: [],
@@ -105,6 +130,7 @@
                 shares: 0,
 
                 isEditing: false,
+                userCardSize: 'M',
             }
         },
         async created() {
@@ -133,7 +159,8 @@
              */
             await this.getPost();
             await this.getMedia();
-            await this.getAuthorProfile();
+
+            await this.getAvatarName();
 
             await this.haveILiked();
             await this.getWhoLiked();
@@ -141,6 +168,17 @@
             await this.getCommentCount();
         },
         methods: {
+            async getAvatarName() {
+                await this.$http.get(
+                    this.getAvatarNameUrl.replace("userId", this.post.AuthorId)
+                ).then(res => {
+                    this.avatar = require(`@/assets/${res.data.Avatar}`);
+                    this.name = res.data.Name;
+                }).catch(err => {
+                    console.log(err.response);
+                });
+            },
+
             /**
              * get the post to display (text, time, id, ...)
              * */
@@ -171,20 +209,6 @@
                 });
             },
 
-            /**
-             * get author to display (name, avatar, ...)
-             * */
-            async getAuthorProfile() {
-                await this.$http.get(
-                    this.getUserProfileUrl.replace("userId", this.post.AuthorId)
-                ).then((res) => {
-                    this.authorProfile = res.data;
-                    //console.log(this.author);
-                }).catch((res) => {
-                    console.log(res);
-                });
-            },
-
             openUserProfile(e) {
                 this.$router.push({
                     name: 'user',
@@ -193,6 +217,8 @@
                         myId: this.myId,
                         jwtToken: this.jwtToken
                     }
+                }).catch(err => {
+                    this.$router.go();
                 });
                 e.stopPropagation();
             },
@@ -325,7 +351,19 @@
                 }).catch((res) => {
                     console.log(res.response)
                 });
-            }
+            },
+
+            onSaveClick(e) {
+                e.stopPropagation();
+                this.$http.post(
+                    this.savePostUrl.replace("postId", this.postId).replace("userId", this.myId),
+                    null
+                ).then((res) => {
+                    console.log(res);
+                }).catch((res) => {
+                    console.log(res.response)
+                });
+            },
         },
         watch: {
             post: {
@@ -355,6 +393,10 @@
         display: flex;
         gap: 10px;
         align-items: center;
+    }
+
+    .author {
+        cursor: pointer;
     }
 
     .like-cmt-share {
@@ -392,5 +434,11 @@
 
     .dropdown-toggle {
         padding: 0;
+    }
+
+    .wide-popover {
+        min-width: max-content;
+        background-color: #111;
+        box-shadow: 0 0 10px #9ecaed;
     }
 </style>
