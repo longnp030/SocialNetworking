@@ -286,7 +286,9 @@ FakesAssemblies/
 node_modules/
 
 # Front-end static files
+SocialNetwork.UI/src/assets/
 src/assets/
+assets/
 
 # Visual Studio 6 build log
 *.plg
