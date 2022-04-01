@@ -60,7 +60,7 @@
         <b-avatar size="6rem" class="mr-3 center" :src="require(`@/assets/${profile.Avatar}`)"></b-avatar>
         <div class="medium-card-right">
             <div class="name">
-                <span class="mr-auto"><b>{{profile.Name}}</b></span>
+                <span class="mr-auto"><b><a :href="`/user/${profile.UserId}/profile`">{{profile.Name}}</a></b></span>
             </div>
             <div id="follow"><b-icon icon="people"></b-icon>
                 <div>{{followerCount}} followers<div>・</div>{{followeeCount}} following</div>
@@ -79,7 +79,7 @@
         <div class="user-card-small" v-if="profile">
             <div class="avatar-name">
                 <b-avatar class="mr-3" :src="require(`@/assets/${profile.Avatar}`)"></b-avatar>
-                <span class="mr-auto">{{profile.Name}}</span>
+                <span class="mr-auto"><a :href="`/user/${profile.UserId}/profile`">{{profile.Name}}</a></span>
             </div>
             <div class="actions" v-if="myId !== userId">
                 <b-button variant="outline-danger" v-if="iFollowed" @click="unfollow">
@@ -241,6 +241,11 @@
 </script>
 
 <style scoped>
+    a, u {
+        text-decoration: none;
+        color: var(--white);
+    }
+
     #change-cover {
         position: absolute;
         margin-top: -68px;

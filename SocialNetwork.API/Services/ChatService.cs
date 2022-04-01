@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using SocialNetwork.API.Entities.Chat;
+using SocialNetwork.API.Entities.Notification;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Models.Chat;
@@ -28,17 +29,20 @@ public class ChatService : IChatService
     private DataContext _context;
     private readonly IMapper _mapper;
     private readonly IHubContext<ChatHub, IChatHub> _chatHub;
+    private readonly IHubContext<NotificationHub, INotificationHub> _notificationHub;
     #endregion Properties
 
     #region Constructor
     public ChatService(
         DataContext context,
         IMapper mapper,
-        IHubContext<ChatHub, IChatHub> chatHub)
+        IHubContext<ChatHub, IChatHub> chatHub,
+        IHubContext<NotificationHub, INotificationHub> notificationHub)
     {
         _context = context;
         _mapper = mapper;
         _chatHub = chatHub;
+        _notificationHub = notificationHub;
     }
     #endregion Constructor
 
@@ -48,7 +52,7 @@ public class ChatService : IChatService
         var message = _mapper.Map<Message>(model);
         message.ParentId = Guid.NewGuid();
         message.Timestamp = DateTime.Now;
-        _context.Message.Add(message);
+        //_context.Message.Add(message);
 
         if (model.MediaPaths.Any())
         {
@@ -61,11 +65,22 @@ public class ChatService : IChatService
                     Path = mediaPath
                 };
                 _context.MessageMedia.Add(messageMedia);
-
             }
         }
 
+        var newMsgNotification = new Notification
+        {
+            FromId = message.FromId,
+            ToId = message.ToId,
+            Verb = $"{_context.UserProfile.First(up => up.UserId == message.FromId).Name} has sent a message",
+            EntityId = message.Id,
+            Read = false,
+            Timestamp = DateTime.Now
+        };
+        //_context.Notification.Add(likeNotification);
+
         _chatHub.Clients.Group(message.ToId.ToString()).Send(message);
+        _notificationHub.Clients.Group(message.ToId.ToString()).Notify(newMsgNotification);
 
         _context.SaveChanges();
     }

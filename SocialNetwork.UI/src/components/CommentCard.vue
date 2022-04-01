@@ -2,8 +2,28 @@
     <b-card v-if="!isEditing">
         <b-media>
             <template #aside>
-                <b-avatar v-if="avatar" :src="avatar" size="4rem"></b-avatar>
+                <b-avatar 
+                    v-if="avatar"
+                    :src="avatar" 
+                    size="4rem"
+                    button
+                    @click="openUserProfile"
+                    :id="commentId" 
+                ></b-avatar>
             </template>
+
+            <b-popover 
+                :target="commentId" 
+                triggers="hover" 
+                placement="top"
+                custom-class="wide-popover"
+            >
+                <user-card
+                    :jwtToken="jwtToken"
+                    :myId="myId"
+                    :userId="comment.AuthorId"
+                    :size="userCardSize"/>
+            </b-popover>
 
             <b-container class="d-inline-flex author-date-opts" fluid>
                 <div class="author-date">
@@ -91,6 +111,7 @@
                 shares: 0,
 
                 isEditing: false,
+                userCardSize: 'M',
             }
         },
         async created() {
@@ -170,6 +191,20 @@
                 }).catch(res => {
                     console.log(res.response);
                 });
+            },
+
+            openUserProfile(e) {
+                this.$router.push({
+                    name: 'user',
+                    params: {
+                        userId: this.comment.AuthorId,
+                        myId: this.myId,
+                        jwtToken: this.jwtToken
+                    }
+                }).catch(err => {
+                    this.$router.go();
+                });
+                e.stopPropagation();
             },
 
             /**
@@ -354,5 +389,11 @@
 
     .carousel {
         margin-top: 10px;
+    }
+
+    .wide-popover {
+        min-width: max-content;
+        background-color: #111;
+        box-shadow: 0 0 10px #9ecaed;
     }
 </style>

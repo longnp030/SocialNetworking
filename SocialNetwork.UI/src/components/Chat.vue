@@ -28,14 +28,14 @@
 
             this.$chatHub.$on('message-received', this.messageReceived);
         },
-        beforeDestroy() {
-            this.$chatHub.$off('message-received', this.messageReceived);
-        },
         async mounted() {
             await this.$chatHub.chatOpened(this.myId);
             await this.$chatHub.chatOpened(this.userId);
 
             await this.getChatHistory();
+        },
+        beforeDestroy() {
+            this.$chatHub.$off('message-received', this.messageReceived);
         },
         methods: {
             async getChatHistory() {

@@ -197,7 +197,6 @@ public class PostService : IPostService
         };
         //_context.Notification.Add(likeNotification);
 
-        //_notificationHubContext.Clients.All.Notify(likeNotification);
         _notificationHubContext.Clients.Group(notifyToId.ToString()).Notify(likeNotification);
         _postHubContext.Clients.All.Reaction(id, userId, true);
 

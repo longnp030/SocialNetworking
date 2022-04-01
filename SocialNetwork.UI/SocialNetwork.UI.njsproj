@@ -114,7 +114,6 @@
     <Folder Include="dist\" />
     <Folder Include="public\" />
     <Folder Include="src\" />
-    <Folder Include="src\assets\" />
     <Folder Include="src\components\" />
     <Folder Include="src\layouts\" />
     <Folder Include="src\pages\" />

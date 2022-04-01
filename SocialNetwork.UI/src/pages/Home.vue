@@ -94,13 +94,23 @@
                 });
             },
 
+            startChat(jwtToken, myId, userId) {
+                this.$bus.$emit('startChat', { jwtToken, myId, userId });
+            },
+
             async notify(noti) {
                 this.notification = null;
-                console.log(noti);
-                this.$nextTick(() => {
-                    this.notification = noti;
-                    this.dismissNotification = 1000;
-                });
+                //console.log(noti);
+                if (!noti.verb.includes("message")) {
+                    this.$nextTick(() => {
+                        this.notification = noti;
+                        this.dismissNotification = 1000;
+                    });
+                } else {
+                    if (noti.toId === this.myId) {
+                        this.startChat(this.jwtToken, noti.toId, noti.fromId);
+                    }
+                }
             },
         },
         watch: {

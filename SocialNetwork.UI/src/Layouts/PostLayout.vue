@@ -53,30 +53,28 @@
              * whenever an event named "post-commented-on" triggered
              * run the method named "postCommentedOn"
              */
+            await this.$postHub.postOpened(this.postId);
             await this.$postHub.$on('post-commented-on', this.postCommentedOn);
             await this.$postHub.$on('comment-deleted', this.commentDeleted);
 
+            await this.$notificationHub.online(this.myId);
             await this.$notificationHub.$on("notify", this.notify);
+        },
+        async mounted() {
+            /**
+             * Get how many comments there are
+             */
+            await this.getComments();
         },
         async beforeDestroy() {
             /**
              * Destroy hub when user is not viewing the post anymore
              * */
-            this.$postHub.postClosed(this.postId);
+            await this.$postHub.postClosed(this.postId);
 
             await this.$postHub.$off('post-commented-on', this.postCommentedOn);
             await this.$postHub.$off('comment-deleted', this.commentDeleted);
-            this.$notificationHub.$off("notify", this.notify);
-        },
-        async mounted() {
-            /**
-             * What to do when component is mounted:
-             * 1. notify the hub that user has clicked to view the post
-             *
-             * 2. get how many comments there are
-             */
-            await this.$postHub.postOpened(this.postId);
-            await this.getComments();
+            await this.$notificationHub.$off("notify", this.notify);
         },
         methods: {
             /**
@@ -113,10 +111,16 @@
             async notify(noti) {
                 this.notification = null;
                 //console.log(noti);
-                this.$nextTick(() => {
-                    this.notification = noti;
-                    this.dismissNotification = 1000;
-                });
+                if (!noti.verb.includes("message")) {
+                    this.$nextTick(() => {
+                        this.notification = noti;
+                        this.dismissNotification = 1000;
+                    });
+                } else {
+                    if (noti.toId === this.myId) {
+                        this.startChat(this.jwtToken, noti.toId, noti.fromId);
+                    }
+                }
             },
         },
     }

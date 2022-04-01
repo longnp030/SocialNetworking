@@ -29,7 +29,7 @@
                                 :jwtToken="jwtToken"
                                 :myId="myId"
                                 :userId="followee"
-                                :full="fullUserCard"/>
+                                :size="userCardSize"/>
                         </b-list-group-item>
                     </b-list-group>
                     <div v-else>Not following anyone yet.</div>
