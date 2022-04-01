@@ -15,7 +15,6 @@
                          :key="commentId"
                          :commentId="commentId"/>
         </b-container>
-        <notification-alert :notification="notification" :jwtToken="jwtToken" :dismissNotification="dismissNotification"/>
     </div>
 </template>
 
@@ -30,9 +29,6 @@
 
                 getCommentsForPostUrl: "https://localhost:6868/Posts/postId/comments",
                 commentIds: [],
-
-                notification: null,
-                dismissNotification: false,
             }
         },
         async created() {
@@ -44,9 +40,10 @@
             if (this.jwtToken === undefined) {
                 this.jwtToken = this.$cookies.get('sn-auth-token');
             }
+            this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
             this.postId = this.$route.params.postId;
 
-            this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
+            await this.$bus.$emit("getCreds", { jwtToken: this.jwtToken, myId: this.myId });
 
             /**
              * Hub listener
@@ -56,9 +53,6 @@
             await this.$postHub.postOpened(this.postId);
             await this.$postHub.$on('post-commented-on', this.postCommentedOn);
             await this.$postHub.$on('comment-deleted', this.commentDeleted);
-
-            await this.$notificationHub.online(this.myId);
-            await this.$notificationHub.$on("notify", this.notify);
         },
         async mounted() {
             /**
@@ -71,10 +65,8 @@
              * Destroy hub when user is not viewing the post anymore
              * */
             await this.$postHub.postClosed(this.postId);
-
             await this.$postHub.$off('post-commented-on', this.postCommentedOn);
             await this.$postHub.$off('comment-deleted', this.commentDeleted);
-            await this.$notificationHub.$off("notify", this.notify);
         },
         methods: {
             /**
@@ -106,21 +98,6 @@
                 console.log(commentId)
                 this.commentIds.splice(this.commentIds.indexOf(commentId), 1);
                 console.log(this.commentIds)
-            },
-
-            async notify(noti) {
-                this.notification = null;
-                //console.log(noti);
-                if (!noti.verb.includes("message")) {
-                    this.$nextTick(() => {
-                        this.notification = noti;
-                        this.dismissNotification = 1000;
-                    });
-                } else {
-                    if (noti.toId === this.myId) {
-                        this.startChat(this.jwtToken, noti.toId, noti.fromId);
-                    }
-                }
             },
         },
     }

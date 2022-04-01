@@ -140,7 +140,6 @@
              * run the method named "postReacted"
              */
             await this.$postHub.$on('post-react', this.postReacted);
-            //console.log(this.$postHub)
         },
         beforeDestroy() {
             this.$postHub.$off('post-react', this.postReacted);
@@ -150,6 +149,7 @@
              * What to do when component is mounted:
              * 1. get the post to display (text, time, id, ...)
              * 2. get post's media
+             * 
              * 3. get author to display (name, avatar, ...)
              *
              * 4. check if viewing user has liked the post ?
@@ -187,7 +187,6 @@
                     this.getPostUrl.replace("postId", this.postId)
                 ).then((res) => {
                     this.post = res.data;
-                    //console.log(this.post);
                 }).catch((res) => {
                     console.log(res);
                 });

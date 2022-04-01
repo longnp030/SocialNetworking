@@ -41,8 +41,6 @@
                 </b-tab>
             </b-tabs>
         </b-card>
-
-        <notification-alert :notification="notification" :jwtToken="jwtToken" :dismissNotification="dismissNotification"/>
     </div>
 </template>
 
@@ -56,9 +54,6 @@
                 userId: null,
 
                 userCardSize: 'L',
-
-                notification: null,
-                dismissNotification: false,
             };
         },
         async created() {
@@ -77,30 +72,7 @@
                 this.jwtToken = this.$cookies.get('sn-auth-token');
             }
             this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
-
-            await this.$notificationHub.online(this.myId);
-            await this.$notificationHub.$on("notify", this.notify);
-        },
-        beforeDestroy() {
-            this.$notificationHub.$off("notify", this.notify);
-        },
-        async mounted() {
-        },
-        methods: {
-            async notify(noti) {
-                this.notification = null;
-                //console.log(noti);
-                if (!noti.verb.includes("message")) {
-                    this.$nextTick(() => {
-                        this.notification = noti;
-                        this.dismissNotification = 1000;
-                    });
-                } else {
-                    if (noti.toId === this.myId) {
-                        this.startChat(this.jwtToken, noti.toId, noti.fromId);
-                    }
-                }
-            },
+            await this.$bus.$emit("getCreds", { jwtToken: this.jwtToken, myId: this.myId });
         },
     }
 </script>

@@ -12,8 +12,6 @@
             </b-col>
             <b-col cols="3">Column</b-col>
         </b-row>
-
-        <notification-alert :notification="notification" :jwtToken="jwtToken" :dismissNotification="dismissNotification"/>
     </b-container>
 </template>
 
@@ -26,8 +24,6 @@
                 getUserProfileUrl: "https://localhost:6868/Users/userId/profile",
                 jwtToken: "",
                 myId: "",
-                notification: null,
-                dismissNotification: false,
             };
         },
         async created() {
@@ -38,17 +34,13 @@
                     this.$router.push('login');
                 }
             }
-            this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
-            await this.$notificationHub.$on("notify", this.notify);
+            this.myId = this.$cookies.get('sn-user-id');
+
+            await this.$bus.$emit("getCreds", { jwtToken: this.jwtToken, myId: this.myId });
         },
         async mounted() {
             await this.getUser();
-            await this.getUserProfile();
-
-            await this.$notificationHub.online(this.myId);
-        },
-        beforeDestroy() {
-            this.$notificationHub.$off("notify", this.notify);
+            //await this.getUserProfile();
         },
         methods: {
             logout() {
@@ -62,14 +54,13 @@
             },
 
             async getUser() {
-                this.myId = this.$cookies.get('sn-user-id');
                 if (this.myId !== null) {
                     await this.$http.get(
                         this.getUserUrl.replace("userId", this.myId)
                     ).then((res) => {
                         this.user = res.data;
-                    }).catch((res) => {
-                        console.log(res);
+                    }).catch(err => {
+                        console.log(err.response);
                     });
                 }
             },
@@ -89,31 +80,14 @@
                             }
                         });
                     }
-                }).catch(res => {
-                    console.log(res.response);
+                }).catch(err => {
+                    console.log(err.response);
                 });
             },
 
             startChat(jwtToken, myId, userId) {
                 this.$bus.$emit('startChat', { jwtToken, myId, userId });
             },
-
-            async notify(noti) {
-                this.notification = null;
-                //console.log(noti);
-                if (!noti.verb.includes("message")) {
-                    this.$nextTick(() => {
-                        this.notification = noti;
-                        this.dismissNotification = 1000;
-                    });
-                } else {
-                    if (noti.toId === this.myId) {
-                        this.startChat(this.jwtToken, noti.toId, noti.fromId);
-                    }
-                }
-            },
-        },
-        watch: {
         },
     };
 </script>

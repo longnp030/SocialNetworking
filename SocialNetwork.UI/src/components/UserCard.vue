@@ -86,7 +86,7 @@
                     <b-icon icon="person-dash"></b-icon></b-button>
                 <b-button variant="outline-success" v-else @click="follow">
                     <b-icon icon="person-plus"></b-icon></b-button>
-                <b-button variant="outline-info" @click="startChat(jwtToken, myId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
+                <b-button variant="outline-info" @click="startChat(myId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
             </div>
         </div>
     </b-card>
@@ -191,8 +191,8 @@
                 })
             },
 
-            startChat(jwtToken, myId, userId) {
-                this.$bus.$emit('startChat', { jwtToken, myId, userId });
+            startChat(myId, userId) {
+                this.$bus.$emit('startChat', { myId, userId });
             },
 
             showAvatarOrCoverChangeModal(e, type) {

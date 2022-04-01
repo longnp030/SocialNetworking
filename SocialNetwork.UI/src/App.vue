@@ -33,11 +33,13 @@
             <chat
                 v-for="chatBox in chatBoxes"
                 :key="chatBox.toId"
-                :jwtToken="chatBox.jwtToken"
+                :jwtToken="jwtToken"
                 :myId="chatBox.fromId"
                 :userId="chatBox.toId"
                 @closeChat="closeChat"/>
         </div>
+
+        <notification-alert :notification="notification" :jwtToken="jwtToken" :dismissNotification="dismissNotification"/>
     </div>
 </template>
 
@@ -46,6 +48,12 @@
         name: 'app',
         data() {
             return {
+                jwtToken: null,
+                myId: null,
+
+                notification: null,
+                dismissNotification: false,
+                
                 getChatHistoryUrl: "https://localhost:6868/Chat/fromId/and/toId",
                 chatBoxes: [],
             };
@@ -59,16 +67,27 @@
                 });
             }
 
+            await this.$bus.$on("getCreds", (creds) => {
+                console.log(creds);
+                this.jwtToken = creds.jwtToken;
+                this.myId = creds.myId;
+                this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
+            });
+
+            await this.$notificationHub.online(this.myId);
+            await this.$notificationHub.$on("notify", this.notify);
+
             // Open chat box event listener
-            await this.$bus.$on("startChat", ({ jwtToken, myId, userId }) => {
-                this.$http.defaults.headers.common["Authorization"] = jwtToken;
-                this.createChatBox(jwtToken, myId, userId);
+            await this.$bus.$on("startChat", ({ myId, userId }) => {
+                this.createChatBox(myId, userId);
             });
         },
+        beforeDestroy() {
+            this.$notificationHub.$off("notify", this.notify);
+        },
         methods: {
-            async createChatBox(jwtToken, fromId, toId) {
+            async createChatBox(fromId, toId) {
                 this.chatBoxes.push({
-                    jwtToken: jwtToken,
                     fromId: fromId,
                     toId: toId
                 });
@@ -77,6 +96,21 @@
             closeChat(userId) {
                 let thisChat = this.chatBoxes.find(c => c.ToId === userId);
                 this.chatBoxes.splice(this.chatBoxes.indexOf(thisChat), 1);
+            },
+
+            async notify(noti) {
+                this.notification = null;
+                console.log(noti);
+                if (!noti.verb.includes("message")) {
+                    this.$nextTick(() => {
+                        this.notification = noti;
+                        this.dismissNotification = 1000;
+                    });
+                } else {
+                    if (noti.toId === this.myId) {
+                        this.startChat(this.jwtToken, noti.toId, noti.fromId);
+                    }
+                }
             },
         },
     };
