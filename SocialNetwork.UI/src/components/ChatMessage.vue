@@ -15,15 +15,11 @@
             class="chat__yourmessage"
             :class="[isSame ? '' : 'chat__first']">
             <div class="chat__yourmessage__avartar">
-                <!--<img
-                    :src="avatar"
-                    alt=""
-                    v-if="!isSame"
-                    class="chat__yourmessage__img"/>-->
+                <b-avatar v-if="avatar" :src="avatar" size="2rem"></b-avatar>
             </div>
             <div>
                 <p class="chat__yourmessage__user" v-if="!isSame">
-                    {{ msg.UserId }}
+                    {{name}}
                 </p>
                 <div class="chat__yourmessage__p">
                     <p class="chat__yourmessage__paragraph">
@@ -40,14 +36,31 @@
         props: ["msg", "prev", "myId"],
         data() {
             return {
+                getNameAvatarUrl: "https://localhost:6868/Users/userId/profile/avatarname",
+                avatar: null,
+                name: null,
                 isSame: false,
                 isEditing: false,
             };
         },
-        created() {
+        async created() {
             this.isSame = this.isSamePerson(this.msg, this.prev);
+            if (this.msg.UserId !== this.myId) {
+                await this.getAvatarName();
+            }
         },
         methods: {
+            async getAvatarName() {
+                await this.$http.get(
+                    this.getNameAvatarUrl.replace("userId", this.msg.UserId)
+                ).then(res => {
+                    console.log(res.data);
+                    this.avatar = require(`@/assets/${res.data.Avatar}`);
+                    this.name = res.data.Name;
+                }).catch(err => {
+                    console.log(err);
+                });
+            },
             isSamePerson(msg, prev) {
                 if (prev === null) {
                     return false;

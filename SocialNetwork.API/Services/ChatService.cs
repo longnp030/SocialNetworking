@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using SocialNetwork.API.Entities.Chat;
 using SocialNetwork.API.Entities.Notification;
+using SocialNetwork.API.Entities.User;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Models.Chat;
@@ -15,6 +16,10 @@ public interface IChatService
     void AddChatMember(Guid chatId, Guid userId);
 
     Guid GetOneToOneChatId(Guid fromId, Guid toId);
+
+    string GetChatName(Guid id);
+
+    Guid GetOneToOneChatBuddyId(Guid id, Guid userId);
 
     void Send(CreateMessageRequest model);
 
@@ -121,6 +126,25 @@ public class ChatService : IChatService
         else
         {
             return chat.Id;
+        }
+    }
+
+    public string GetChatName(Guid id)
+    {
+        return _context.Chat.Find(id).Name;
+    }
+
+    public Guid GetOneToOneChatBuddyId(Guid id, Guid userId)
+    {
+        var chat = _context.OneToOneChat
+            .Find(id);
+        if (chat.User1Id == userId)
+        {
+            return chat.User2Id;
+        }
+        else
+        {
+            return chat.User1Id;
         }
     }
 

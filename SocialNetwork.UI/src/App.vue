@@ -116,7 +116,7 @@
                     });
                 } else {
                     if (noti.toId === this.myId) {
-                        this.startChat(this.jwtToken, noti.toId, noti.fromId);
+                        this.createChatBox(noti.toId, noti.fromId);
                     }
                 }
             },

@@ -2,7 +2,7 @@
     <div class="chat" v-if="msgs">
         <div class="chat__header">
             <span class="chat__header__greetings">
-                Hello!
+                {{chatName}}
             </span>
             <b-icon icon="x" class="close-chat-btn" @click="closeChat"></b-icon>
         </div>
@@ -18,8 +18,13 @@
         props: ["myId", "jwtToken", "chatId"],
         data() {
             return {
-                getChatHistoryUrl: "https://localhost:6868/Chat/chatId",
+                getChatNameUrl: "https://localhost:6868/Chat/chatId/name",
+                getOneToOneChatBuddyId: "https://localhost:6868/Chat/chatId/userId/buddy/",
+                getBuddyName: "https://localhost:6868/Users/userId/profile/name",
+                getChatHistoryUrl: "https://localhost:6868/Chat/chatId/history",
                 sendMessageUrl: "https://localhost:6868/Chat/messages",
+
+                chatName: null,
                 msgs: null,
             };
         },
@@ -30,13 +35,39 @@
         },
         async mounted() {
             await this.$chatHub.chatOpened(this.chatId);
-
+            await this.getChat();
             await this.getChatHistory();
         },
         beforeDestroy() {
             this.$chatHub.$off('message-received', this.messageReceived);
         },
         methods: {
+            async getChat() {
+                await this.$http.get(
+                    this.getChatNameUrl.replace("chatId", this.chatId)
+                ).then(res => {
+                    if (res.data === "") {
+                        this.$http.get(
+                            this.getOneToOneChatBuddyId.replace("chatId", this.chatId).replace("userId", this.myId)
+                        ).then(res => {
+                            let buddyId = res.data;
+                            this.$http.get(
+                                this.getBuddyName.replace("userId", buddyId)
+                            ).then(res => {
+                                this.chatName = res.data;
+                            }).catch(err => {
+                                console.log(err.response);
+                            });
+                        }).catch(err => {
+                            console.log(err.response);
+                        });
+                    } else {
+                        this.chatName = res.data;
+                    }
+                }).catch(err => {
+                    console.log(err);
+                });
+            },
             async getChatHistory() {
                 await this.$http.get(
                     this.getChatHistoryUrl.replace("chatId", this.chatId)
@@ -81,11 +112,11 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-
+        box-shadow: 0 0 6px #9ecaed;
+        border-radius: 4px;
         position: fixed;
         bottom: 0;
         right: 20px;
-
         z-index: 1;
     }
 

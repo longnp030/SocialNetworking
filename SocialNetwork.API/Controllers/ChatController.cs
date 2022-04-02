@@ -46,7 +46,21 @@ public class ChatController : ControllerBase
         return Ok(new { Message = "Message sent" });
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}/name")]
+    public IActionResult GetChatName(Guid id)
+    {
+        var chatName = _chatService.GetChatName(id);
+        return Ok(chatName);
+    }
+    
+    [HttpGet("{id}/{userId}/buddy")]
+    public IActionResult GetOneToOneChatBuddyId(Guid id, Guid userId)
+    {
+        var buddy = _chatService.GetOneToOneChatBuddyId(id, userId);
+        return Ok(buddy);
+    }
+
+    [HttpGet("{id}/history")]
     public IActionResult GetChatHistory(Guid id)
     {
         var chatHistory = _chatService.GetChatHistory(id);
