@@ -64,6 +64,9 @@
                 isEditing: false,
             }
         },
+        created() {
+            this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
+        },
         async mounted() {
             await this.getAvatar();
         },

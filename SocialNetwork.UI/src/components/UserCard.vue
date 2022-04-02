@@ -25,7 +25,7 @@
                             <b-icon icon="person-dash"></b-icon></b-button>
                         <b-button variant="outline-success" v-else @click="follow">
                             <b-icon icon="person-plus"></b-icon></b-button>
-                        <b-button variant="outline-info" @click="startChat(jwtToken, myId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
+                        <b-button variant="outline-info" @click="startChat"><b-icon icon="chat-text"></b-icon></b-button>
                     </div>
                 </div>
                 <div id="about-me"><b-icon icon="info-circle"></b-icon>{{profile.SelfIntroduction}}</div>
@@ -70,7 +70,7 @@
                     <b-icon icon="person-dash"></b-icon></b-button>
                 <b-button variant="outline-success" v-else @click="follow">
                     <b-icon icon="person-plus"></b-icon></b-button>
-                <b-button variant="outline-info" @click="startChat(jwtToken, myId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
+                <b-button variant="outline-info" @click="startChat"><b-icon icon="chat-text"></b-icon></b-button>
             </div>
         </div>
     </b-card>
@@ -86,7 +86,7 @@
                     <b-icon icon="person-dash"></b-icon></b-button>
                 <b-button variant="outline-success" v-else @click="follow">
                     <b-icon icon="person-plus"></b-icon></b-button>
-                <b-button variant="outline-info" @click="startChat(myId, userId)"><b-icon icon="chat-text"></b-icon></b-button>
+                <b-button variant="outline-info" @click="startChat"><b-icon icon="chat-text"></b-icon></b-button>
             </div>
         </div>
     </b-card>
@@ -191,8 +191,8 @@
                 })
             },
 
-            startChat(myId, userId) {
-                this.$bus.$emit('startChat', { myId, userId });
+            startChat() {
+                this.$bus.$emit('startChat', { myId: this.myId, userId: this.userId });
             },
 
             showAvatarOrCoverChangeModal(e, type) {

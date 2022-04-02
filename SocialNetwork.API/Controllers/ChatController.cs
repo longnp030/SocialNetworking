@@ -25,25 +25,32 @@ public class ChatController : ControllerBase
     #endregion Constructor
 
     #region Methods
+    [HttpGet("user/{userId}")]
+    public IActionResult GetChatList(Guid userId)
+    {
+        var chatList = _chatService.GetChatList(userId);
+        return Ok(chatList);
+    }
+
+    [HttpGet("{fromId}/{toId}")]
+    public IActionResult GetOneToOneChatId(Guid fromId, Guid toId)
+    {
+        var chatId = _chatService.GetOneToOneChatId(fromId, toId);
+        return Ok(chatId);
+    }
+
     [HttpPost("messages")]
     public IActionResult Send([FromBody] CreateMessageRequest model)
     {
         _chatService.Send(model);
-        return Ok(new { Message = "Message sent." });
+        return Ok(new { Message = "Message sent" });
     }
 
-    [HttpGet("{fromId}/and/{toId}")]
-    public IActionResult GetChatHistory(Guid fromId, Guid toId)
+    [HttpGet("{id}")]
+    public IActionResult GetChatHistory(Guid id)
     {
-        var chatHistory = _chatService.GetChatHistory(fromId, toId);
+        var chatHistory = _chatService.GetChatHistory(id);
         return Ok(chatHistory);
-    }
-
-    [HttpGet("{chatId}")]
-    public IActionResult GetGroupChatHistory(Guid chatId)
-    {
-        var groupChatHistory = _chatService.GetGroupChatHistory(chatId);
-        return Ok(groupChatHistory);
     }
 
     [HttpDelete("messages/{id}")]
@@ -56,7 +63,7 @@ public class ChatController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteGroupChat(Guid id)
     {
-        _chatService.DeleteGroupChat(id);
+        _chatService.DeleteChat(id);
         return Ok(new { Message = "Deleted" });
     }
     #endregion Methods

@@ -1,7 +1,7 @@
 <template>
     <div v-if="!isEditing">
         <div
-            v-if="msg.FromId === myId"
+            v-if="msg.UserId === myId"
             class="chat__mymessage"
             :class="[isSame ? '' : 'chat__first']">
             <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
@@ -23,7 +23,7 @@
             </div>
             <div>
                 <p class="chat__yourmessage__user" v-if="!isSame">
-                    {{ msg.FromId }}
+                    {{ msg.UserId }}
                 </p>
                 <div class="chat__yourmessage__p">
                     <p class="chat__yourmessage__paragraph">
@@ -51,7 +51,7 @@
             isSamePerson(msg, prev) {
                 if (prev === null) {
                     return false;
-                } else if (prev[0]?.FromId == msg?.FromId) {
+                } else if (prev[0]?.UserId == msg?.UserId) {
                     return true;
                 } else {
                     return false;

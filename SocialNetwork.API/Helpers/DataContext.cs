@@ -45,8 +45,9 @@ public class DataContext : DbContext
     #endregion Post
 
     #region Chat
-    public DbSet<GroupChat> GroupChat { get; set; }
-    public DbSet<GroupChatMember> GroupChatMember { get; set; }
+    public DbSet<Chat> Chat { get; set; }
+    public DbSet<OneToOneChat> OneToOneChat { get; set; }
+    public DbSet<ChatMember> ChatMember { get; set; }
     public DbSet<Message> Message { get; set; }
     public DbSet<MessageMedia> MessageMedia { get; set; }
     #endregion Chat

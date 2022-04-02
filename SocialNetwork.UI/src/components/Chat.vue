@@ -2,7 +2,7 @@
     <div class="chat" v-if="msgs">
         <div class="chat__header">
             <span class="chat__header__greetings">
-                안녕하세요!
+                Hello!
             </span>
             <b-icon icon="x" class="close-chat-btn" @click="closeChat"></b-icon>
         </div>
@@ -15,10 +15,10 @@
 <script>
     import _ from 'lodash';
     export default {
-        props: ["myId", "jwtToken", "userId"],
+        props: ["myId", "jwtToken", "chatId"],
         data() {
             return {
-                getChatHistoryUrl: "https://localhost:6868/Chat/fromId/and/toId",
+                getChatHistoryUrl: "https://localhost:6868/Chat/chatId",
                 sendMessageUrl: "https://localhost:6868/Chat/messages",
                 msgs: null,
             };
@@ -29,8 +29,7 @@
             this.$chatHub.$on('message-received', this.messageReceived);
         },
         async mounted() {
-            await this.$chatHub.chatOpened(this.myId);
-            await this.$chatHub.chatOpened(this.userId);
+            await this.$chatHub.chatOpened(this.chatId);
 
             await this.getChatHistory();
         },
@@ -40,7 +39,7 @@
         methods: {
             async getChatHistory() {
                 await this.$http.get(
-                    this.getChatHistoryUrl.replace("fromId", this.myId).replace("toId", this.userId)
+                    this.getChatHistoryUrl.replace("chatId", this.chatId)
                 ).then(res => {
                     this.msgs = res.data;
                 }).catch(res => {
@@ -49,9 +48,9 @@
             },
 
             async sendMessage(msg) {
-                msg.FromId = this.myId;
-                msg.ToId = this.userId;
-                console.log(msg)
+                msg.UserId = this.myId;
+                msg.ChatId = this.chatId;
+                //console.log(msg)
                 await this.$http.post(
                     this.sendMessageUrl,
                     msg
@@ -71,7 +70,7 @@
             },
 
             closeChat() {
-                this.$emit("closeChat", this.userId);
+                this.$emit("closeChat", this.chatId);
             },
         },
     };

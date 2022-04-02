@@ -10,16 +10,20 @@ namespace SocialNetwork.API.Services;
 
 public interface IChatService
 {
+    void CreateChat(Guid userId);
+
+    void AddChatMember(Guid chatId, Guid userId);
+
+    Guid GetOneToOneChatId(Guid fromId, Guid toId);
+
     void Send(CreateMessageRequest model);
 
-    IEnumerable<Message> GetChatHistory(Guid fromId, Guid toId);
-
-    IEnumerable<Message> GetGroupChatHistory(Guid chatId);
+    IEnumerable<Message> GetChatHistory(Guid chatId);
 
     void DeleteMessage(Guid id);
-    void DeleteGroupChat(Guid id);
+    void DeleteChat(Guid id);
 
-    //IEnumerable<Message> GetChatList(Guid userId);
+    IEnumerable<Message> GetChatList(Guid userId);
     //TODO: Add methods
 }
 
@@ -47,12 +51,84 @@ public class ChatService : IChatService
     #endregion Constructor
 
     #region Methods
+    public void CreateChat(Guid userId)
+    {
+        var chat = new Chat
+        {
+            Id = Guid.NewGuid(),
+            Name = "",
+            Timestamp = DateTime.Now
+        };
+        var chatCreator = new ChatMember
+        {
+            Id = Guid.NewGuid(),
+            ChatId = chat.Id,
+            UserId = userId,
+            Role = 0,
+            Timestamp = DateTime.Now
+        };
+        _context.Chat.Add(chat);
+        _context.ChatMember.Add(chatCreator);
+        _context.SaveChanges();
+    }
+
+    public void AddChatMember(Guid chatId, Guid userId)
+    {
+        var chatMember = new ChatMember
+        {
+            Id = Guid.NewGuid(),
+            ChatId = chatId,
+            UserId = userId,
+            Role = 1,
+            Timestamp = DateTime.Now
+        };
+        _context.ChatMember.Add(chatMember);
+        _context.SaveChanges();
+    }
+
+    public Guid GetOneToOneChatId(Guid fromId, Guid toId)
+    {
+        var chat = _context.OneToOneChat
+            .Where(c => c.User1Id == fromId)
+            .FirstOrDefault(c => c.User2Id == toId);
+
+        if (chat == null)
+        {
+            chat = _context.OneToOneChat
+                .Where(c => c.User1Id == toId)
+                .FirstOrDefault(c => c.User2Id == fromId);
+
+            if (chat == null)
+            {
+                chat = new OneToOneChat
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "",
+                    User1Id = fromId,
+                    User2Id = toId,
+                    Timestamp = DateTime.Now
+                };
+                _context.OneToOneChat.Add(chat);
+                _context.SaveChanges();
+
+                return chat.Id;
+            }
+            else
+            {
+                return chat.Id;
+            }
+        }
+        else
+        {
+            return chat.Id;
+        }
+    }
+
     public void Send(CreateMessageRequest model)
     {
         var message = _mapper.Map<Message>(model);
-        message.ParentId = Guid.NewGuid();
         message.Timestamp = DateTime.Now;
-        //_context.Message.Add(message);
+        _context.Message.Add(message);
 
         if (model.MediaPaths.Any())
         {
@@ -70,36 +146,25 @@ public class ChatService : IChatService
 
         var newMsgNotification = new Notification
         {
-            FromId = message.FromId,
-            ToId = message.ToId,
-            Verb = $"{_context.UserProfile.First(up => up.UserId == message.FromId).Name} has sent a message",
+            FromId = message.UserId,
+            ToId = message.ChatId,
+            Verb = $"{_context.UserProfile.First(up => up.UserId == message.UserId).Name} has sent a message",
             EntityId = message.Id,
             Read = false,
             Timestamp = DateTime.Now
         };
         //_context.Notification.Add(likeNotification);
 
-        _chatHub.Clients.Group(message.ToId.ToString()).Send(message);
-        _notificationHub.Clients.Group(message.ToId.ToString()).Notify(newMsgNotification);
+        _chatHub.Clients.Group(message.ChatId.ToString()).Send(message);
+        _notificationHub.Clients.Group(message.ChatId.ToString()).Notify(newMsgNotification);
 
         _context.SaveChanges();
     }
 
-    public IEnumerable<Message> GetChatHistory(Guid fromId, Guid toId)
-    {
-        var aToB = _context.Message
-            .Where(m => m.FromId == fromId)
-            .Where(m => m.ToId == toId);
-        var bToA = _context.Message
-            .Where(m => m.FromId == toId)
-            .Where(m => m.ToId == fromId);
-        return aToB.Concat(bToA).OrderBy(m => m.Timestamp).Reverse().ToList();
-    }
-
-    public IEnumerable<Message> GetGroupChatHistory(Guid chatId)
+    public IEnumerable<Message> GetChatHistory(Guid chatId)
     {
         var groupChatHistory = _context.Message
-            .Where(m => m.ToId == chatId)
+            .Where(m => m.ChatId == chatId)
             .ToList();
         return groupChatHistory;
     }
@@ -111,31 +176,41 @@ public class ChatService : IChatService
 
         _context.MessageMedia.RemoveRange(_context.MessageMedia.Where(m => m.MessageId == id).ToList());
 
-        _chatHub.Clients.Group(message.ToId.ToString()).Delete(message.Id);
+        _chatHub.Clients.Group(message.ChatId.ToString()).Delete(message.Id);
         _context.SaveChanges();
     }
     
-    public void DeleteGroupChat(Guid id)
+    public void DeleteChat(Guid id)
     {
-        var chat = _context.GroupChat.Find(id);
-        _context.GroupChat.Remove(chat);
+        var chat = _context.Chat.Find(id);
+        _context.Chat.Remove(chat);
 
         _context.SaveChanges();
     }
 
-    //public IEnumerable<Message> GetChatList(Guid userId)
-    //{
-    //    var chats = _context.Message
-    //                .Where(m => m.FromId == userId)
-    //                .Where(m => m.ToId == userId);
-    //    var chats2 = from c in chats
-    //                 group c by c.ToId
-    //                 into c1
-    //                 select new { Id = c1.Key, Latest = c1.Max(m => m.Timestamp) };
-    //    var res = from c1 in chats
-    //              from c2 in chats2.Select(c => c.Id == c1.Id)
-    //              on c1.Id equals c2.Id && c1.Timestamp equals c2.Latest
-    //              select c1;
-    //}
+    public IEnumerable<Message> GetChatList(Guid userId)
+    {
+        var myOneToOneChatIds = _context.OneToOneChat
+            .Where(c => (c.User1Id == userId) || (c.User2Id == userId))
+            .Select(c => c.Id).ToList();
+        var myGroupChatIds = _context.ChatMember
+            .Where(cm => cm.UserId == userId)
+            .Select(cm => cm.ChatId).ToList();
+        var myChatIds = myOneToOneChatIds.Concat(myGroupChatIds).Take(10);
+
+        var msgList = new List<Message>();
+        foreach (var myChatId in myChatIds)
+        {
+            var latestMsg = _context.Message
+                .Where(m => m.ChatId == myChatId)
+                .OrderByDescending(m => m.Timestamp)
+                .FirstOrDefault();
+            if (latestMsg != null)
+            {
+                msgList.Add(latestMsg);
+            }
+        }
+        return msgList;
+    }
     #endregion Methods
 }

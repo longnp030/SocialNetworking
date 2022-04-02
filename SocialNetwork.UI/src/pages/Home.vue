@@ -34,6 +34,7 @@
                     this.$router.push('login');
                 }
             }
+            this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
             this.myId = this.$cookies.get('sn-user-id');
 
             await this.$bus.$emit("getCreds", { jwtToken: this.jwtToken, myId: this.myId });
@@ -83,10 +84,6 @@
                 }).catch(err => {
                     console.log(err.response);
                 });
-            },
-
-            startChat(jwtToken, myId, userId) {
-                this.$bus.$emit('startChat', { jwtToken, myId, userId });
             },
         },
     };

@@ -32,10 +32,10 @@
         <div v-if="chatBoxes.length > 0">
             <chat
                 v-for="chatBox in chatBoxes"
-                :key="chatBox.toId"
+                :key="chatBox.chatId"
                 :jwtToken="jwtToken"
-                :myId="chatBox.fromId"
-                :userId="chatBox.toId"
+                :myId="chatBox.myId"
+                :chatId="chatBox.chatId"
                 @closeChat="closeChat"/>
         </div>
 
@@ -53,8 +53,8 @@
 
                 notification: null,
                 dismissNotification: false,
-                
-                getChatHistoryUrl: "https://localhost:6868/Chat/fromId/and/toId",
+
+                getChatIdUrl: "https://localhost:6868/Chat/fromId/toId",
                 chatBoxes: [],
             };
         },
@@ -68,7 +68,6 @@
             }
 
             await this.$bus.$on("getCreds", (creds) => {
-                console.log(creds);
                 this.jwtToken = creds.jwtToken;
                 this.myId = creds.myId;
                 this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
@@ -86,15 +85,24 @@
             this.$notificationHub.$off("notify", this.notify);
         },
         methods: {
-            async createChatBox(fromId, toId) {
-                this.chatBoxes.push({
-                    fromId: fromId,
-                    toId: toId
+            async createChatBox(myId, userId) {
+                let chatId = null;
+                await this.$http.get(
+                    this.getChatIdUrl.replace("fromId", myId).replace("toId", userId)
+                ).then(res => {
+                    chatId = res.data;
+                }).catch(err => {
+                    console.log(err);
+                });
+
+                await this.chatBoxes.push({
+                    myId: myId,
+                    chatId: chatId,
                 });
             },
 
-            closeChat(userId) {
-                let thisChat = this.chatBoxes.find(c => c.ToId === userId);
+            closeChat(toId) {
+                let thisChat = this.chatBoxes.find(c => c.ToId === toId);
                 this.chatBoxes.splice(this.chatBoxes.indexOf(thisChat), 1);
             },
 

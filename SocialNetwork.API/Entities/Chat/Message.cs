@@ -8,12 +8,12 @@ public class Message : Entity
     /// <summary>
     /// User who sent message unique identifier
     /// </summary>
-    public Guid FromId { get; set; }
+    public Guid UserId { get; set; }
 
     /// <summary>
-    /// Can either be a user or a group chat
+    /// Chat's unique identifier
     /// </summary>
-    public Guid ToId { get; set; }
+    public Guid ChatId { get; set; }
 
     /// <summary>
     /// Message's parent if this is a reply message

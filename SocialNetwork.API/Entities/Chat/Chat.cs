@@ -3,7 +3,7 @@
 /// <summary>
 /// Class for group chat
 /// </summary>
-public class GroupChat : Entity
+public class Chat : Entity
 {
     /// <summary>
     /// Name of the chat
