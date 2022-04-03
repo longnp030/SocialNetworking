@@ -232,11 +232,12 @@ public class UserService : IUserService
 
         // save user
         _context.User.Add(user);
-        _context.SaveChanges();
 
         var userProfile = new UserProfile
         {
-            UserId = user.Id
+            UserId = user.Id,
+            Avatar = "default-avatar.jpg",
+            Cover = "default-cover.png"
         };
         _context.UserProfile.Add(userProfile);
         _context.SaveChanges();

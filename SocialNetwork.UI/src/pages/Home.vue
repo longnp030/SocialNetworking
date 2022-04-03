@@ -41,7 +41,7 @@
         },
         async mounted() {
             await this.getUser();
-            //await this.getUserProfile();
+            await this.getUserProfile();
         },
         methods: {
             logout() {
@@ -71,6 +71,7 @@
                 await this.$http.get(
                     this.getUserProfileUrl.replace("userId", this.myId)
                 ).then(res => {
+                    console.log(res.data);
                     if (!res.data.Timestamp) {
                         this.$router.push({
                             name: 'updateprofile',

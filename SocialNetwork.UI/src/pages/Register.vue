@@ -55,7 +55,7 @@
                     this.registerUrl,
                     JSON.parse(JSON.stringify(this.form))
                 ).then(res => {
-                    console.log(res);
+                    //console.log(res);
                     this.$router.push({
                         name: 'login'
                     });
