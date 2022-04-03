@@ -46,7 +46,6 @@ public class DataContext : DbContext
 
     #region Chat
     public DbSet<Chat> Chat { get; set; }
-    public DbSet<OneToOneChat> OneToOneChat { get; set; }
     public DbSet<ChatMember> ChatMember { get; set; }
     public DbSet<Message> Message { get; set; }
     public DbSet<MessageMedia> MessageMedia { get; set; }

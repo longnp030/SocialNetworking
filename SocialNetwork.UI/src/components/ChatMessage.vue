@@ -54,7 +54,6 @@
                 await this.$http.get(
                     this.getNameAvatarUrl.replace("userId", this.msg.UserId)
                 ).then(res => {
-                    console.log(res.data);
                     this.avatar = require(`@/assets/${res.data.Avatar}`);
                     this.name = res.data.Name;
                 }).catch(err => {

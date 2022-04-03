@@ -93,40 +93,48 @@ public class ChatService : IChatService
 
     public Guid GetOneToOneChatId(Guid fromId, Guid toId)
     {
-        var chat = _context.OneToOneChat
-            .Where(c => c.User1Id == fromId)
-            .FirstOrDefault(c => c.User2Id == toId);
+        var chatsOfFromId = _context.ChatMember
+            .Where(cm => cm.UserId == fromId).Select(cm => cm.ChatId).ToList();
+        var chatsOfToId = _context.ChatMember
+            .Where(cm => cm.UserId == toId).Select(cm => cm.ChatId).ToList();
+        var commonChatIds = chatsOfFromId.Intersect(chatsOfToId);
 
-        if (chat == null)
+        foreach (var commonChatId in commonChatIds)
         {
-            chat = _context.OneToOneChat
-                .Where(c => c.User1Id == toId)
-                .FirstOrDefault(c => c.User2Id == fromId);
-
-            if (chat == null)
+            var memberCount = _context.ChatMember
+                .Where(cm => cm.ChatId == commonChatId).Count();
+            if (memberCount == 2)
             {
-                chat = new OneToOneChat
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "",
-                    User1Id = fromId,
-                    User2Id = toId,
-                    Timestamp = DateTime.Now
-                };
-                _context.OneToOneChat.Add(chat);
-                _context.SaveChanges();
-
-                return chat.Id;
-            }
-            else
-            {
-                return chat.Id;
+                return commonChatId;
             }
         }
-        else
+
+        var chat = new Chat
         {
-            return chat.Id;
-        }
+            Id = Guid.NewGuid(),
+            Name = "",
+            Timestamp = DateTime.Now
+        };
+        var chatMem1 = new ChatMember
+        {
+            ChatId = chat.Id,
+            UserId = fromId,
+            Role = 0,
+            Timestamp = DateTime.Now
+        };
+        var chatMem2 = new ChatMember
+        {
+            ChatId = chat.Id,
+            UserId = toId,
+            Role = 0,
+            Timestamp = DateTime.Now
+        };
+        _context.Chat.Add(chat);
+        _context.ChatMember.Add(chatMem1);
+        _context.ChatMember.Add(chatMem2);
+        _context.SaveChanges();
+
+        return chat.Id;
     }
 
     public string GetChatName(Guid id)
@@ -136,16 +144,11 @@ public class ChatService : IChatService
 
     public Guid GetOneToOneChatBuddyId(Guid id, Guid userId)
     {
-        var chat = _context.OneToOneChat
-            .Find(id);
-        if (chat.User1Id == userId)
-        {
-            return chat.User2Id;
-        }
-        else
-        {
-            return chat.User1Id;
-        }
+        var buddyId = _context.ChatMember
+            .Where(cm => cm.ChatId == id)
+            .Where(cm => cm.UserId != userId)
+            .SingleOrDefault().UserId;
+        return buddyId;
     }
 
     public void Send(CreateMessageRequest model)
@@ -214,13 +217,9 @@ public class ChatService : IChatService
 
     public IEnumerable<Message> GetChatList(Guid userId)
     {
-        var myOneToOneChatIds = _context.OneToOneChat
-            .Where(c => (c.User1Id == userId) || (c.User2Id == userId))
-            .Select(c => c.Id).ToList();
-        var myGroupChatIds = _context.ChatMember
+        var myChatIds = _context.ChatMember
             .Where(cm => cm.UserId == userId)
             .Select(cm => cm.ChatId).ToList();
-        var myChatIds = myOneToOneChatIds.Concat(myGroupChatIds).Take(10);
 
         var msgList = new List<Message>();
         foreach (var myChatId in myChatIds)
