@@ -67,6 +67,13 @@ public class ChatController : ControllerBase
         return Ok(chatHistory);
     }
 
+    [HttpPost("{id}/messages/read/{userId}")]
+    public IActionResult MarkAsRead(Guid id, Guid userId)
+    {
+        _chatService.MarkAsRead(id, userId);
+        return Ok(new { Message = "Marked as read" });
+    }
+
     [HttpDelete("messages/{id}")]
     public IActionResult DeleteMessage(Guid id)
     {

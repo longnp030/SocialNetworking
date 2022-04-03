@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!isEditing">
+    <div>
         <div
             v-if="msg.UserId === myId"
             class="chat__mymessage"
@@ -8,7 +8,7 @@
                 <template #button-content><b-icon icon="three-dots"></b-icon></template>
                 <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
             </b-dropdown>
-            <p class="chat__mymessage__paragraph">{{ msg.Text }}</p>
+            <p class="chat__mymessage__paragraph">{{msg.Text}}</p>
         </div>
         <div
             v-else
@@ -23,7 +23,7 @@
                 </p>
                 <div class="chat__yourmessage__p">
                     <p class="chat__yourmessage__paragraph">
-                        {{ msg.Text }}
+                        {{msg.Text}}
                     </p>
                 </div>
             </div>
@@ -40,7 +40,6 @@
                 avatar: null,
                 name: null,
                 isSame: false,
-                isEditing: false,
             };
         },
         async created() {
@@ -48,7 +47,7 @@
             if (this.msg.UserId !== this.myId) {
                 await this.getAvatarName();
             }
-            if (!this.msg.Read) {
+            if (this.msg.UserId !== this.myId && !this.msg.Read) {
                 this.$bus.$emit("newMsg", true);
             }
         },

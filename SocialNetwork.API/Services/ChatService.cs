@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using SocialNetwork.API.Entities.Chat;
 using SocialNetwork.API.Entities.Notification;
-using SocialNetwork.API.Entities.User;
 using SocialNetwork.API.Helpers;
 using SocialNetwork.API.Hubs;
 using SocialNetwork.API.Models.Chat;
@@ -23,7 +23,9 @@ public interface IChatService
 
     void Send(CreateMessageRequest model);
 
-    IEnumerable<Message> GetChatHistory(Guid chatId);
+    IEnumerable<Message> GetChatHistory(Guid id);
+
+    void MarkAsRead(Guid id, Guid userId);
 
     void DeleteMessage(Guid id);
     void DeleteChat(Guid id);
@@ -155,7 +157,7 @@ public class ChatService : IChatService
     {
         var message = _mapper.Map<Message>(model);
         message.Timestamp = DateTime.Now;
-        //_context.Message.Add(message);
+        _context.Message.Add(message);
 
         if (model.MediaPaths.Any())
         {
@@ -191,16 +193,28 @@ public class ChatService : IChatService
         {
             _notificationHub.Clients.Group(chatMember.ToString()).Notify(newMsgNotification);
         }
-        //_context.Notification.Add(likeNotification);
         _context.SaveChanges();
     }
 
-    public IEnumerable<Message> GetChatHistory(Guid chatId)
+    public IEnumerable<Message> GetChatHistory(Guid id)
     {
-        var groupChatHistory = _context.Message
-            .Where(m => m.ChatId == chatId)
+        return _context.Message
+            .Where(m => m.ChatId == id)
             .ToList();
-        return groupChatHistory;
+    }
+
+    public void MarkAsRead(Guid id, Guid userId)
+    {
+        var msgs = _context.Message
+            .Where(m => m.ChatId == id)
+            .Where(m => m.UserId != userId)
+            .Where(m => m.Read == false)
+            .ToList();
+        foreach (var msg in msgs)
+        {
+            msg.Read = true;
+        }
+        _context.SaveChanges();
     }
 
     public void DeleteMessage(Guid id)

@@ -25,6 +25,7 @@
                 getBuddyInfo: "https://localhost:6868/Users/userId/profile/avatarname",
                 getChatHistoryUrl: "https://localhost:6868/Chat/chatId/history",
                 sendMessageUrl: "https://localhost:6868/Chat/messages",
+                markAsReadMessagesUrl: "https://localhost:6868/Chat/chatId/messages/read/userId",
 
                 chatName: null,
                 avatar: null,
@@ -33,14 +34,24 @@
                 unreadMsg: false,
             };
         },
-        created() {
+        async created() {
             this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
 
-            this.$chatHub.$on('message-received', this.messageReceived);
+            await this.$chatHub.$on('message-received', this.messageReceived);
 
-            this.$bus.$on("newMsg", val => {
+            await this.$bus.$on("newMsg", val => {
+                if (this.unreadMsg === true && val === false) {
+                    this.$http.post(
+                        this.markAsReadMessagesUrl.replace("chatId", this.chatId).replace("userId", this.myId),
+                        null
+                    ).then(res => {
+                        console.log(res);
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                }
                 this.unreadMsg = val;
-            })
+            });
         },
         async mounted() {
             await this.$chatHub.chatOpened(this.chatId);
