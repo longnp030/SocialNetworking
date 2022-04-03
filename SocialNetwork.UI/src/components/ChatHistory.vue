@@ -18,6 +18,7 @@
 <style scoped>
     .chat__body {
         padding: 10px;
+        max-height: 300px;
         overflow: scroll;
         scroll-behavior: smooth;
 

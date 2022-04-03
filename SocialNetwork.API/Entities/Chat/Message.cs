@@ -24,4 +24,11 @@ public class Message : Entity
     /// Text of message
     /// </summary>
     public String Text { get; set; }
+
+    /// <summary>
+    /// Whether message is read or not
+    /// <para>0 - unread</para>
+    /// <para>1 - read</para>
+    /// </summary>
+    public Boolean Read { get; set; } = false;
 }

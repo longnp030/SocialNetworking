@@ -1,8 +1,10 @@
 <template>
-    <div class="chat" v-if="msgs">
-        <div class="chat__header">
+    <div v-if="msgs" class="chat">
+        <div class="chat__header" :class="[unreadMsg ? 'new__msg' : '']">
             <span class="chat__header__greetings">
+                <b-avatar v-if="avatar" :src="avatar" size="2rem"></b-avatar>
                 {{chatName}}
+                <b-icon v-if="unreadMsg" variant="danger" icon="circle-fill"></b-icon>
             </span>
             <b-icon icon="x" class="close-chat-btn" @click="closeChat"></b-icon>
         </div>
@@ -20,18 +22,25 @@
             return {
                 getChatNameUrl: "https://localhost:6868/Chat/chatId/name",
                 getOneToOneChatBuddyId: "https://localhost:6868/Chat/chatId/userId/buddy/",
-                getBuddyName: "https://localhost:6868/Users/userId/profile/name",
+                getBuddyInfo: "https://localhost:6868/Users/userId/profile/avatarname",
                 getChatHistoryUrl: "https://localhost:6868/Chat/chatId/history",
                 sendMessageUrl: "https://localhost:6868/Chat/messages",
 
                 chatName: null,
+                avatar: null,
                 msgs: null,
+
+                unreadMsg: false,
             };
         },
         created() {
             this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
 
             this.$chatHub.$on('message-received', this.messageReceived);
+
+            this.$bus.$on("newMsg", val => {
+                this.unreadMsg = val;
+            })
         },
         async mounted() {
             await this.$chatHub.chatOpened(this.chatId);
@@ -52,14 +61,15 @@
                         ).then(res => {
                             let buddyId = res.data;
                             this.$http.get(
-                                this.getBuddyName.replace("userId", buddyId)
+                                this.getBuddyInfo.replace("userId", buddyId)
                             ).then(res => {
-                                this.chatName = res.data;
+                                this.chatName = res.data.Name;
+                                this.avatar = require(`@/assets/${res.data.Avatar}`);
                             }).catch(err => {
                                 console.log(err.response);
                             });
                         }).catch(err => {
-                            console.log(err.response);
+                            console.log(err);
                         });
                     } else {
                         this.chatName = res.data;
@@ -68,6 +78,7 @@
                     console.log(err);
                 });
             },
+
             async getChatHistory() {
                 await this.$http.get(
                     this.getChatHistoryUrl.replace("chatId", this.chatId)
@@ -130,6 +141,9 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+    .chat__header.new__msg {
+        background-color: var(--primary);
     }
 
     .chat__header__greetings {

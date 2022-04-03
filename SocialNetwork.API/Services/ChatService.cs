@@ -155,7 +155,7 @@ public class ChatService : IChatService
     {
         var message = _mapper.Map<Message>(model);
         message.Timestamp = DateTime.Now;
-        _context.Message.Add(message);
+        //_context.Message.Add(message);
 
         if (model.MediaPaths.Any())
         {
@@ -180,11 +180,18 @@ public class ChatService : IChatService
             Read = false,
             Timestamp = DateTime.Now
         };
-        //_context.Notification.Add(likeNotification);
+        var chatMembers = _context.ChatMember
+            .Where(cm => cm.ChatId == message.ChatId)
+            .Where(cm => cm.UserId != message.UserId)
+            .Select(cm => cm.UserId)
+            .ToList();
 
         _chatHub.Clients.Group(message.ChatId.ToString()).Send(message);
-        _notificationHub.Clients.Group(message.ChatId.ToString()).Notify(newMsgNotification);
-
+        foreach (var chatMember in chatMembers)
+        {
+            _notificationHub.Clients.Group(chatMember.ToString()).Notify(newMsgNotification);
+        }
+        //_context.Notification.Add(likeNotification);
         _context.SaveChanges();
     }
 

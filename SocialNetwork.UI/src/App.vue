@@ -54,7 +54,7 @@
                 notification: null,
                 dismissNotification: false,
 
-                getChatIdUrl: "https://localhost:6868/Chat/fromId/toId",
+                audio: new Audio(require('@/assets/notification.ogg')),
                 chatBoxes: [],
             };
         },
@@ -77,24 +77,18 @@
             await this.$notificationHub.$on("notify", this.notify);
 
             // Open chat box event listener
-            await this.$bus.$on("startChat", ({ myId, userId }) => {
-                this.createChatBox(myId, userId);
+            await this.$bus.$on("startChat", ({ myId, chatId }) => {
+                this.createChatBox(myId, chatId);
             });
         },
         beforeDestroy() {
             this.$notificationHub.$off("notify", this.notify);
         },
         methods: {
-            async createChatBox(myId, userId) {
-                let chatId = null;
-                await this.$http.get(
-                    this.getChatIdUrl.replace("fromId", myId).replace("toId", userId)
-                ).then(res => {
-                    chatId = res.data;
-                }).catch(err => {
-                    console.log(err);
-                });
-
+            async createChatBox(myId, chatId) {
+                if (this.chatBoxes.length === 1) {
+                    this.chatBoxes.splice(0);
+                }
                 await this.chatBoxes.push({
                     myId: myId,
                     chatId: chatId,
@@ -109,15 +103,16 @@
             async notify(noti) {
                 this.notification = null;
                 console.log(noti);
+
+                this.audio.play();
+
                 if (!noti.verb.includes("message")) {
                     this.$nextTick(() => {
                         this.notification = noti;
                         this.dismissNotification = 1000;
                     });
                 } else {
-                    if (noti.toId === this.myId) {
-                        this.createChatBox(noti.toId, noti.fromId);
-                    }
+                    this.createChatBox(this.myId, noti.toId);
                 }
             },
         },

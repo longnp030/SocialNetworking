@@ -1,10 +1,11 @@
 <template>
     <div class="form">
-        <input
+        <b-form-input
             class="form__input"
             type="text"
-            placeholder="메세지를 입력하세요."
+            placeholder="Enter message.."
             v-model.trim="msg.Text"
+            @focus="readMsg"
             @keyup.enter="sendMessage"/>
         <div @click="sendMessage" class="form__submit">
             <svg
@@ -44,6 +45,9 @@
             };
         },
         methods: {
+            readMsg() {
+                this.$bus.$emit("newMsg", false);
+            },
             sendMessage() {
                 if (this.msg) {
                     this.$emit("sendMessage", this.msg);
@@ -71,6 +75,7 @@
         font-size: 16px;
         width: calc(100% - 60px);
         background-color: #343a40;
+        color: var(--white);
     }
 
     .form__input:focus {

@@ -48,6 +48,9 @@
             if (this.msg.UserId !== this.myId) {
                 await this.getAvatarName();
             }
+            if (!this.msg.Read) {
+                this.$bus.$emit("newMsg", true);
+            }
         },
         methods: {
             async getAvatarName() {
@@ -60,6 +63,7 @@
                     console.log(err);
                 });
             },
+
             isSamePerson(msg, prev) {
                 if (prev === null) {
                     return false;

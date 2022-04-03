@@ -111,6 +111,8 @@
                 iFollowed: false,
                 followerCount: null,
                 followeeCount: null,
+
+                getChatIdUrl: "https://localhost:6868/Chat/fromId/toId",
             };
         },
         async created() {
@@ -191,8 +193,16 @@
                 })
             },
 
-            startChat() {
-                this.$bus.$emit('startChat', { myId: this.myId, userId: this.userId });
+            async startChat() {
+                let chatId = null;
+                await this.$http.get(
+                    this.getChatIdUrl.replace("fromId", this.myId).replace("toId", this.userId)
+                ).then(res => {
+                    chatId = res.data;
+                }).catch(err => {
+                    console.log(err);
+                });
+                this.$bus.$emit('startChat', { myId: this.myId, chatId: chatId });
             },
 
             showAvatarOrCoverChangeModal(e, type) {
