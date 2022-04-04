@@ -5,18 +5,16 @@
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-            <b-collapse id="nav-collapse" is-nav>
-                <b-navbar-nav>
-                    <b-nav-form>
-                        <b-button size="sm" class="w-10 ml-4 search-btn" type="submit"><b-icon icon="search"></b-icon></b-button>
-                        <b-form-input class="w-90 search-input" size="sm" placeholder="Search"></b-form-input>
-                    </b-nav-form>
-                </b-navbar-nav>
-
-                <!-- Right aligned nav items -->
+            <b-collapse id="nav-collapse" is-nav class="g-1">
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item-dropdown right>
-                        <!-- Using 'button-content' slot -->
+                    <chat-list 
+                        :start="startGetChat"
+                        :jwtToken="jwtToken"
+                        :myId="myId"
+                        @toggle="startGetChat=true"
+                        @hidden="startGetChat=false"/>
+
+                    <b-nav-item-dropdown right no-caret>
                         <template #button-content>
                             <em><b-icon icon="grid3x3-gap-fill"></b-icon></em>
                         </template>
@@ -56,6 +54,7 @@
 
                 audio: new Audio(require('@/assets/notification.ogg')),
                 chatBoxes: [],
+                startGetChat: false,
             };
         },
         async created() {

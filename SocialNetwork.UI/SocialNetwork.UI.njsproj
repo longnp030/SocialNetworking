@@ -37,10 +37,16 @@
     <Content Include="src\components\Chat.vue">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\components\ChatCard.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\components\ChatForm.vue">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\components\ChatHistory.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\components\ChatList.vue">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\components\ChatMessage.vue">

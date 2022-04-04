@@ -1,17 +1,7 @@
 <template>
     <div>
         <h1>Update profile</h1>
-        <b-form @submit="onSubmit" v-if="show">
-            <!--<b-form-group>
-                <b-form-file
-                    placeholder="Add avatar"
-                    @change="onFileChange"
-                ></b-form-file>
-                <div id="preview">
-                    <b-img thumbnail center v-if="avatarUrl" :src="avatarUrl" />
-                </div>
-            </b-form-group>-->
-
+        <b-form @submit="onSubmit">
             <b-form-group>
                 <b-form-input
                     id="input-name"
@@ -62,62 +52,49 @@
 </template>
 
 <script>
-    import axios from 'axios';
     export default {
         data() {
             return {
                 profileUrl: "https://localhost:6868/Users/userId/profile",
-                show: true,
                 form: {},
                 options: [
                     { value: 0, name: 'Male' },
                     { value: 1, name: 'Female' },
                     { value: null, name: 'Prefer not to share'},
                 ],
-                avatarUrl: "",
+                jwtToken: null,
+                myId: null,
             }
         },
         created() {
             this.originalform = this.$route.params.userProfile;
             this.form = this.$route.params.userProfile;
+            this.myId = this.$route.params.myId;
+            this.jwtToken = this.$route.params.jwtToken;
+            this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
         },
         methods: {
-            onSubmit(event) {
+            async onSubmit(event) {
                 event.preventDefault();
                 this.form.Timestamp = new Date();
-                axios.patch(
-                    this.profileUrl.replace("userId", this.$route.params.myId),
+                await this.$http.patch(
+                    this.profileUrl.replace("userId", this.myId),
                     JSON.parse(JSON.stringify(this.form)),
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.$route.params.jwtToken}`
-                        }
-                    }
                 ).then((res) => {
-                    console.log(res);
                     this.$router.push({
                         name: 'home',
                         params: {
-                            jwtToken: this.$route.params.jwtToken,
-                            myId: this.$route.params.myId,
+                            jwtToken: this.jwtToken,
+                            myId: this.myId,
                         }
                     });
                 }).catch((res) => {
                     console.log(res.response);
                 })
             },
-            onFileChange(e) {
-                const file = e.target.files[0];
-                this.avatarUrl = URL.createObjectURL(file);
-            }
         }
     }
 </script>
 
 <style scoped>
-    #preview img {
-        width: 200px;
-        height: 200px;
-        object-fit: cover;
-    }
 </style>

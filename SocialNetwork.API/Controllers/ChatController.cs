@@ -25,7 +25,7 @@ public class ChatController : ControllerBase
     #endregion Constructor
 
     #region Methods
-    [HttpGet("user/{userId}")]
+    [HttpGet("{userId}/list")]
     public IActionResult GetChatList(Guid userId)
     {
         var chatList = _chatService.GetChatList(userId);

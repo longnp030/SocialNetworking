@@ -138,10 +138,14 @@ import ChatMessage from "@/components/ChatMessage.vue";
 import ChatHistory from "@/components/ChatHistory.vue";
 import ChatForm from "@/components/ChatForm.vue";
 import Chat from "@/components/Chat.vue";
+import ChatList from "@/components/ChatList.vue";
+import ChatCard from "@/components/ChatCard.vue";
 Vue.component("chat-message", ChatMessage);
 Vue.component("chat-history", ChatHistory);
 Vue.component("chat-form", ChatForm);
 Vue.component("chat", Chat);
+Vue.component("chat-list", ChatList);
+Vue.component("chat-card", ChatCard);
 /** End global components **/
 
 new Vue({
