@@ -339,5 +339,18 @@ public class UsersController : ControllerBase
         var followerCount = _userService.GetFollowees(id).Count();
         return Ok(followerCount);
     }
+
+    /// <summary>
+    /// Get user's list of notifications
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of notifications</returns>
+    [HttpGet("{id}/notification/list")]
+    public IActionResult GetNotificationList(Guid id)
+    {
+        var notificationList = _userService.GetNotificationList(id);
+        return Ok(notificationList);
+    }
     #endregion Methods
 }
+ 

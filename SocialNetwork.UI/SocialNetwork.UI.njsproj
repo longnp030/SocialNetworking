@@ -64,6 +64,9 @@
     <Content Include="src\components\NotificationCard.vue">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\components\NotificationList.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\components\PostCard.vue">
       <SubType>Code</SubType>
     </Content>

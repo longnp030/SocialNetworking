@@ -1,45 +1,44 @@
 <template>
     <b-nav-item-dropdown right no-caret
-        menu-class="chat-list-container"
+        menu-class="notification-list-container"
         @toggle="$emit('toggle')"
         @hidden="$emit('hidden')"
     >
         <template #button-content>
-            <em><b-icon icon="chat-fill"></b-icon></em>
+            <em><b-icon icon="bell-fill"></b-icon></em>
         </template>
         <b-dropdown-item
             block
-            v-for="msg in msgs"
-            :key="msg.Id"
+            v-for="noti in notis"
+            :key="noti.Id"
         >
-            <chat-card 
+            <notification-card 
                 :jwtToken="jwtToken"
-                :myId="myId"
-                :msg="msg"/>
+                :notification="noti"/>
         </b-dropdown-item>
     </b-nav-item-dropdown>
 </template>
 
 <script>
     export default {
-        name: "ChatList",
+        name: "NotificationList",
         props: ["jwtToken", "myId", "start"],
         data() {
             return {
-                getChatListUrl: "https://localhost:6868/Chat/userId/list",
-                msgs: [],
+                getNotificationListUrl: "https://localhost:6868/Users/userId/notification/list",
+                notis: [],
             }
         },
         async created() {
             this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
         },
         methods: {
-            async getChatList() {
+            async getNotificationList() {
                 await this.$http.get(
-                    this.getChatListUrl.replace("userId", this.myId)
+                    this.getNotificationListUrl.replace("userId", this.myId)
                 ).then(res => {
                     console.log(res.data);
-                    this.msgs = res.data;
+                    this.notis = res.data;
                 }).catch(err => {
                     console.log(err.response);
                 });
@@ -51,7 +50,7 @@
                 immediate: true,
                 handler: async function () {
                     if (this.start) {
-                        await this.getChatList();
+                        await this.getNotificationList();
                     }
                 }
             }
@@ -60,7 +59,7 @@
 </script>
 
 <style>
-    .chat-list-container {
+    .notification-list-container {
         width: 360px !important;
         box-shadow: 0 0 6px #9ecaed;
     }

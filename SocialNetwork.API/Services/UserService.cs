@@ -155,6 +155,13 @@ public interface IUserService
     /// <param name="id">User's unique identifier</param>
     /// <returns>List of Guid</returns>
     IEnumerable<Guid> GetFollowees(Guid id);
+
+    /// <summary>
+    /// Get user's list of notifications
+    /// </summary>
+    /// <param name="id">User's unique identifier</param>
+    /// <returns>List of notifications</returns>
+    IEnumerable<Notification> GetNotificationList(Guid id);
 }
 
 /// <summary>
@@ -376,7 +383,7 @@ public class UserService : IUserService
             Read = false,
             Timestamp = DateTime.Now
         };
-        //_context.Notification.Add(likeNotification);
+        _context.Notification.Add(followNotification);
 
         //_notificationHubContext.Clients.All.Notify(likeNotification);
         _notificationHubContext.Clients.Group(toId.ToString()).Notify(followNotification);
@@ -419,6 +426,13 @@ public class UserService : IUserService
             .Where(f => f.FromId == id)     // id of follower is the user id
             .Select(f => f.ToId);           // select the id of who are being followed
         return followees;
+    }
+
+    public IEnumerable<Notification> GetNotificationList(Guid id)
+    {
+        return _context.Notification
+            .Where(n => n.ToId == id)
+            .ToList();
     }
     #endregion Methods
 }

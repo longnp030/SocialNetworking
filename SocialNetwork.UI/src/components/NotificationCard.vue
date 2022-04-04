@@ -1,13 +1,16 @@
 <template>
-    <b-media @click="notificationCardOnClick">
+    <b-media
+        :class="[unreadNoti ? 'new__noti' : '']"
+        @click="notificationCardOnClick">
         <template #aside>
-            <b-avatar variant="info" src="https://placekitten.com/300/300" size="4rem"></b-avatar>
+            <b-avatar :src="avatar" size="4rem"></b-avatar>
         </template>
         
         <div class="noti-body">
-            <p class="mb-0 text">{{notification.verb}}</p>
-            <p class="time">{{calcTimeTillNow(notification.timestamp)}}</p>
+            <p class="mb-0 text">{{notification.Verb}}</p>
+            <p class="time">{{calcTimeTillNow(notification.Timestamp)}}</p>
         </div>
+        <b-icon font-scale="0.8" icon="circle-fill" v-if="unreadNoti" class="unread-noti-icon"></b-icon>
     </b-media>
 </template>
 
@@ -17,23 +20,29 @@
         props: ["notification", "jwtToken"],
         data() {
             return {
-                getProfileUrl: "https://localhost:6868/Users/userId/profile",
+                getAvatarUrl: "https://localhost:6868/Users/userId/profile/avatar",
                 getEntityTypeUrl: "https://localhost:6868/Entity/entityId",
-                from: null,
+                avatar: null,
+                unreadNoti: true,
             };
         },
+        created() {
+            if (!this.notification.Read) {
+                this.unreadNoti = true;
+            }
+        },
         async mounted() {
-            await this.getProfile();
+            await this.getAvatar();
         },
         methods: {
             /**
              * get user to display (name, avatar, ...)
              * */
-            async getProfile() {
+            async getAvatar() {
                 await this.$http.get(
-                    this.getProfileUrl.replace("userId", this.notification.fromId)
+                    this.getAvatarUrl.replace("userId", this.notification.FromId)
                 ).then((res) => {
-                    this.from = res.data;
+                    this.avatar = require(`@/assets/${res.data}`);
                 }).catch((res) => {
                     console.log(res);
                 });
@@ -44,9 +53,9 @@
              * */
             async notificationCardOnClick() {
                 await this.$http.get(
-                    this.getEntityTypeUrl.replace("entityId", this.notification.entityId)
+                    this.getEntityTypeUrl.replace("entityId", this.notification.EntityId)
                 ).then(res => {
-                    this.$router.push(`/${res.data}/${this.notification.entityId}`);
+                    this.$router.push(`/${res.data}/${this.notification.EntityId}`);
                 }).catch(res => {
                     console.log(res.response);
                 })
@@ -58,5 +67,20 @@
 <style scoped>
     .noti-body .time {
         margin: 20px 0 0 0;
+        color: var(--white);
+    }
+
+    .media-body {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .unread-noti-icon {
+        margin-top: 24px;
+    }
+
+    .new__noti {
+        color: var(--primary);
     }
 </style>

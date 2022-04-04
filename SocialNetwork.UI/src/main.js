@@ -112,8 +112,10 @@ Vue.mixin({
 import Feed from "@/layouts/Feed.vue";
 Vue.component("feed", Feed);
 
+import NotificationList from "@/components/NotificationList.vue";
 import NotificationAlert from "@/components/NotificationAlert.vue";
 import NotificationCard from "@/components/NotificationCard.vue";
+Vue.component("notification-list", NotificationList);
 Vue.component("notification-alert", NotificationAlert);
 Vue.component("notification-card", NotificationCard);
 

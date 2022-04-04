@@ -14,6 +14,13 @@
                         @toggle="startGetChat=true"
                         @hidden="startGetChat=false"/>
 
+                    <notification-list 
+                        :start="startGetNotification"
+                        :jwtToken="jwtToken"
+                        :myId="myId"
+                        @toggle="startGetNotification=true"
+                        @hidden="startGetNotification=false"/>
+
                     <b-nav-item-dropdown right no-caret>
                         <template #button-content>
                             <em><b-icon icon="grid3x3-gap-fill"></b-icon></em>
@@ -42,6 +49,7 @@
 </template>
 
 <script>
+    import _ from 'lodash';
     export default {
         name: 'app',
         data() {
@@ -55,6 +63,7 @@
                 audio: new Audio(require('@/assets/notification.ogg')),
                 chatBoxes: [],
                 startGetChat: false,
+                startGetNotification: false,
             };
         },
         async created() {
@@ -128,11 +137,13 @@
 
             async notify(noti) {
                 this.notification = null;
-                console.log(noti);
+                noti = _.mapKeys(noti, function (v, k) {
+                    return _.upperFirst(k);
+                });
 
                 this.audio.play();
 
-                if (!noti.verb.includes("message")) {
+                if (!noti.Verb.includes("message")) {
                     this.$nextTick(() => {
                         this.notification = noti;
                         this.dismissNotification = 1000;

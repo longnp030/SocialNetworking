@@ -167,7 +167,7 @@ public class CommentService : ICommentService
             Read = false,
             Timestamp = DateTime.Now
         };
-        //_context.Notification.Add(likeNotification);
+        _context.Notification.Add(likeNotification);
 
         _notificationHubContext.Clients.Group(notifyToId.ToString()).Notify(likeNotification);
         _commentHubContext.Clients.All.Reaction(id, userId, true); // TODO: change send all
@@ -226,7 +226,7 @@ public class CommentService : ICommentService
             Read = false,
             Timestamp = DateTime.Now
         };
-        //_context.Notification.Add(likeNotification);
+        _context.Notification.Add(commentNotification);
 
         _notificationHubContext.Clients.Group(notifyToId.ToString()).Notify(commentNotification);
         _postHubContext.Clients.Group(model.PostId.ToString()).Comment(comment);

@@ -87,10 +87,14 @@
     }
 
     .msg,
-    .media-body,
-    .msg-card-body {
+    .media-body {
         display: flex;
         flex-direction: row;
+    }
+    .msg-card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
     }
 
     .new__msg {
