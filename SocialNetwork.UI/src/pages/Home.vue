@@ -44,16 +44,6 @@
             await this.getUserProfile();
         },
         methods: {
-            logout() {
-                this.jwtToken = this.$cookies.get('sn-auth-token');
-                if (this.jwtToken !== null) {
-                    this.$cookies.remove('sn-auth-token');
-                }
-                this.$nextTick(function () {
-                    this.$router.push('login');
-                });
-            },
-
             async getUser() {
                 if (this.myId !== null) {
                     await this.$http.get(
@@ -71,7 +61,6 @@
                 await this.$http.get(
                     this.getUserProfileUrl.replace("userId", this.myId)
                 ).then(res => {
-                    console.log(res.data);
                     if (!res.data.Timestamp) {
                         this.$router.push({
                             name: 'updateprofile',

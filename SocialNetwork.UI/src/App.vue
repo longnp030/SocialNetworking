@@ -18,10 +18,10 @@
                     <b-nav-item-dropdown right>
                         <!-- Using 'button-content' slot -->
                         <template #button-content>
-                            <em>Messages</em>
+                            <em><b-icon icon="grid3x3-gap-fill"></b-icon></em>
                         </template>
-                        <b-dropdown-item href="#">Profile</b-dropdown-item>
-                        <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+                        <b-dropdown-item @click="openUserProfile">Profile</b-dropdown-item>
+                        <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
             </b-collapse>
@@ -85,6 +85,33 @@
             this.$notificationHub.$off("notify", this.notify);
         },
         methods: {
+            openUserProfile(e) {
+                this.$router.push({
+                    name: 'user',
+                    params: {
+                        userId: this.myId,
+                        myId: this.myId,
+                        jwtToken: this.jwtToken
+                    }
+                }).catch(err => {
+                    this.$router.go();
+                });
+                e.stopPropagation();
+            },
+            async logout() {
+                this.jwtToken = this.$cookies.get('sn-auth-token');
+                if (this.jwtToken !== null) {
+                    await this.$cookies.remove('sn-auth-token');
+                }
+                this.myId = this.$cookies.get('sn-user-id');
+                if (this.myId !== null) {
+                    await this.$cookies.remove('sn-user-id');
+                }
+                await this.$nextTick(function () {
+                    this.$router.push('login');
+                });
+            },
+
             async createChatBox(myId, chatId) {
                 if (this.chatBoxes.length === 1) {
                     this.chatBoxes.splice(0);
