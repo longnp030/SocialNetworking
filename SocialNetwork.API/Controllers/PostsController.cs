@@ -215,13 +215,10 @@ public class PostsController : ControllerBase
     [HttpPost("upload")]
     public async Task<IActionResult> Upload()
     {
-
-        //var path = _postService.Upload(HttpContext.Request.Form.Files[0]);
-
         IFormFile file = HttpContext.Request.Form.Files[0];
         var path = "E:\\Code\\Web\\Backend\\SocialNetwork\\SocialNetwork.UI\\src\\assets\\";
         var fileExtension = "." + file.FileName.Split(".").Last();
-        Console.Write(fileExtension);
+
         if (!Directory.Exists(path))
         {
             Directory.CreateDirectory(path);

@@ -1,12 +1,12 @@
 <template>
-    <b-nav-item-dropdown right no-caret
+    <b-nav-item-dropdown right no-caret lazy
         menu-class="chat-list-container"
         @toggle="$emit('toggle')"
         @hidden="$emit('hidden')"
     >
         <template #button-content>
-            <em><b-icon icon="chat-fill"></b-icon>
-            <b-badge pill variant="danger">{{unreadCount}}</b-badge></em>
+            <em><b-icon icon="chat-fill" font-scale="1.5"></b-icon>
+            <b-badge pill variant="danger" badge-top>{{unreadCount}}</b-badge></em>
         </template>
         <b-dropdown-item
             block
@@ -77,5 +77,13 @@ import { forEach } from "lodash";
     .chat-list-container {
         width: 360px !important;
         box-shadow: 0 0 6px #9ecaed;
+    }
+    .b-icon {
+        opacity: 0.8;
+    }
+    .b-icon:focus,
+    .b-icon:active,
+    .b-icon:hover {
+        opacity: 1;
     }
 </style>

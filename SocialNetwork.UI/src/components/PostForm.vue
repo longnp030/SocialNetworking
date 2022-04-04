@@ -21,7 +21,6 @@
                         accept="image/*"
                         placeholder="Add an image..."
                         @change="addMedia"
-                        multiple
                     ></b-form-file>
 
                     <b-button v-if="isEditing" variant="secondary" @click="cancelEditing">Cancel</b-button>
@@ -30,11 +29,14 @@
                 
                 <div id="preview" v-if="mediaUrls.length > 0">
                     <img v-for="url in mediaUrls" :key="url" :src="url" @contextmenu="removeImg"/>
-                    <video controls v-for="url in mediaUrls" :key="url" >
+                    <!--<video controls v-for="url in mediaUrls" :key="url" >
                         <source :src="url" />
-                    </video>
+                    </video>-->
                 </div>
             </b-form>
+            <b-card class="mt-3" header="Form Data Result">
+                <pre class="m-0">{{ form }}</pre>
+            </b-card>
         </b-media>
     </b-card>
 </template>
@@ -81,8 +83,8 @@
                 });
             },
 
-            async onSubmit(event) {
-                event.preventDefault();
+            async onSubmit(e) {
+                e.preventDefault();
 
                 if (this.isEditing) {
                     this.$http.patch(
@@ -128,11 +130,10 @@
                         }
                     }
                 ).then(res => {
-                    console.log(res.data);
                     this.form.MediaPaths.push(res.data);
                 }).catch(res => {
                     console.log(res.response);
-                })
+                });
             },
 
             removeImg(e) {
@@ -164,6 +165,7 @@
                     if (this.post) {
                         this.isEditing = true;
                         this.form = this.post;
+                        this.form.MediaPaths = [];
                     }
                 }
             }

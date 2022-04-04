@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="opts">
-                    <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
+                    <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret right>
                         <template #button-content><b-icon icon="three-dots"></b-icon></template>
 
                         <div v-if="myId===post.AuthorId">
@@ -376,7 +376,7 @@
     }
 </script>
 
-<style scoped>
+<style>
     .card, .card-body {
         background-color: #111;
         border-radius: 10px;
@@ -431,8 +431,8 @@
         background-size: cover;
     }
 
-    .dropdown-toggle {
-        padding: 0;
+    .dropdown-menu {
+        box-shadow: 0 0 6px #9ecaed;
     }
 
     .wide-popover {

@@ -1,11 +1,11 @@
 <template>
-    <b-nav-item-dropdown right no-caret
+    <b-nav-item-dropdown right no-caret lazy
         menu-class="notification-list-container"
         @toggle="$emit('toggle')"
         @hidden="$emit('hidden')"
     >
         <template #button-content>
-            <em><b-icon icon="bell-fill"></b-icon>
+            <em><b-icon icon="bell-fill" font-scale="1.5"></b-icon>
             <b-badge pill variant="danger">{{unreadCount}}</b-badge></em>
         </template>
         <b-dropdown-item

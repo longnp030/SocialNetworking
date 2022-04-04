@@ -1,7 +1,9 @@
 <template>
     <b-container fluid id="personal-information" v-if="profile">
         <b-row class="my-4" id="edit-profile">
-            <b-button variant="outline-danger" @click="edit = !edit">Edit</b-button>
+            <b-button v-if="!edit" variant="outline-danger" @click="edit = !edit">Edit</b-button>
+            <b-button v-if="edit" variant="outline-secondary" @click="edit = !edit">Cancel</b-button>
+            <b-button v-if="edit" variant="outline-success" @click="saveChanges">Save</b-button>
         </b-row>
 
         <b-row class="my-4">
@@ -11,8 +13,8 @@
                     id="Name" 
                     type="text" 
                     v-model="profile.Name"
-                    :class="{'edit': !edit}"
-                    :readonly="edit"></b-form-input>
+                    :class="{'edit': edit}"
+                    :readonly="!edit"></b-form-input>
             </b-col>
         </b-row>
         
@@ -22,9 +24,9 @@
                 <b-form-input 
                     id="Address" 
                     type="text" 
-                    :class="{'edit': !edit}"
+                    :class="{'edit': edit}"
                     v-model="profile.CurrentLocation"
-                    :readonly="edit"></b-form-input>
+                    :readonly="!edit"></b-form-input>
             </b-col>
         </b-row>
         
@@ -34,9 +36,9 @@
                 <b-form-input 
                     id="SelfIntro" 
                     type="text" 
-                    :class="{'edit': !edit}"
+                    :class="{'edit': edit}"
                     v-model="profile.SelfIntroduction"
-                    :readonly="edit"></b-form-input>
+                    :readonly="!edit"></b-form-input>
             </b-col>
         </b-row>
 
@@ -47,7 +49,7 @@
                     id="DateOfBirth" 
                     v-model="profile.DateOfBirth" 
                     class="mb-2"
-                    :readonly="edit"></b-form-datepicker>
+                    :readonly="!edit"></b-form-datepicker>
             </b-col>
         </b-row>
         
@@ -59,7 +61,7 @@
                     v-model="profile.Gender"
                     :options="options"
                     name="DateOfBirth"
-                    :disabled="edit"></b-form-radio-group>
+                    :disabled="!edit"></b-form-radio-group>
             </b-col>
         </b-row>
 
@@ -79,7 +81,7 @@
                     { text: 'Female', value: 1 },
                     { text: 'Prefer not to share', value: 2 }
                 ],
-                edit: true,
+                edit: false,
             }
         },
         async mounted() {
@@ -89,13 +91,25 @@
             async getProfile() {
                 await this.$http.get(
                     this.getProfileUrl.replace("userId", this.userId)
-                ).then((res) => {
+                ).then(res => {
                     this.profile = res.data;
                     //console.log(this.userProfile);
-                }).catch((res) => {
-                    console.log(res.response);
+                }).catch(err => {
+                    console.log(err.response);
                 });
             },
+
+            async saveChanges() {
+                await this.$http.patch(
+                    this.getProfileUrl.replace("userId", this.userId),
+                    this.profile
+                ).then(res => {
+                    console.log(res);
+                    this.$router.go();
+                }).catch(err => {
+                    console.log(err.response);
+                });
+            }
         }
     }
 </script>

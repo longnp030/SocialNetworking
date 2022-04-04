@@ -7,7 +7,19 @@
 
             <b-collapse id="nav-collapse" is-nav class="g-1">
                 <b-navbar-nav class="ml-auto">
+                    <b-navbar-brand @click="openUserProfile" class="info">
+                        <b-avatar 
+                            :src="avatar" 
+                            size="2rem"
+                            button
+                            class="mr-2"
+                            @click="openUserProfile"
+                        ></b-avatar>
+                        <span class="text-primary text-truncate">{{name}}</span>
+                    </b-navbar-brand>
+
                     <chat-list 
+                        class="ml-2"
                         :jwtToken="jwtToken"
                         :myId="myId"
                         :start="startGetChat"/>
@@ -15,17 +27,17 @@
                         @hidden="startGetChat=false"/>-->
 
                     <notification-list 
+                        class="ml-2"
                         :jwtToken="jwtToken"
                         :myId="myId" 
                         :start="startGetNotification"/>
                         <!--@toggle="startGetNotification=true"
                         @hidden="startGetNotification=false"/>-->
 
-                    <b-nav-item-dropdown right no-caret>
+                    <b-nav-item-dropdown right no-caret class="ml-2">
                         <template #button-content>
-                            <em><b-icon icon="grid3x3-gap-fill"></b-icon></em>
+                            <em><b-icon icon="grid3x3-gap-fill" font-scale="1.5"></b-icon></em>
                         </template>
-                        <b-dropdown-item @click="openUserProfile">Profile</b-dropdown-item>
                         <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
@@ -56,6 +68,9 @@
             return {
                 jwtToken: null,
                 myId: null,
+                getUserInfoUrl: "https://localhost:6868/Users/userId/profile/avatarname",
+                avatar: null,
+                name: null,
 
                 notification: null,
                 dismissNotification: false,
@@ -82,6 +97,8 @@
                 this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
             });
 
+            await this.getUserInfo();
+
             // get chat and notification list after getting credentials
             this.startGetChat = true;
             this.startGetNotification = true;
@@ -99,6 +116,16 @@
             this.$notificationHub.$off("notify", this.notify);
         },
         methods: {
+            async getUserInfo() {
+                await this.$http.get(
+                    this.getUserInfoUrl.replace("userId", this.myId)
+                ).then(res => {
+                    this.avatar = require(`@/assets/${res.data.Avatar}`);
+                    this.name = res.data.Name;
+                }).catch(err => {
+                    console.log(err.response);
+                });
+            },
             openUserProfile(e) {
                 this.$router.push({
                     name: 'user',
@@ -135,7 +162,6 @@
                     chatId: chatId,
                 });
             },
-
             closeChat(toId) {
                 let thisChat = this.chatBoxes.find(c => c.ToId === toId);
                 this.chatBoxes.splice(this.chatBoxes.indexOf(thisChat), 1);
@@ -210,6 +236,18 @@
     }
     .dropdown-item:hover {
         background-color: #222 !important;
+    }
+
+    .info {
+        font-weight: bolder;
+        padding: 4px 8px;
+        background-color: #111;
+        border-radius: 24px;
+        opacity: 0.68;
+        cursor: pointer;
+    }
+    .info:hover {
+        opacity: 1;
     }
 </style>
 
