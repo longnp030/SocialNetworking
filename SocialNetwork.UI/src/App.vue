@@ -8,18 +8,18 @@
             <b-collapse id="nav-collapse" is-nav class="g-1">
                 <b-navbar-nav class="ml-auto">
                     <chat-list 
-                        :start="startGetChat"
                         :jwtToken="jwtToken"
                         :myId="myId"
-                        @toggle="startGetChat=true"
-                        @hidden="startGetChat=false"/>
+                        :start="startGetChat"/>
+                        <!--@toggle="startGetChat=true"
+                        @hidden="startGetChat=false"/>-->
 
                     <notification-list 
-                        :start="startGetNotification"
                         :jwtToken="jwtToken"
-                        :myId="myId"
-                        @toggle="startGetNotification=true"
-                        @hidden="startGetNotification=false"/>
+                        :myId="myId" 
+                        :start="startGetNotification"/>
+                        <!--@toggle="startGetNotification=true"
+                        @hidden="startGetNotification=false"/>-->
 
                     <b-nav-item-dropdown right no-caret>
                         <template #button-content>
@@ -75,12 +75,18 @@
                 });
             }
 
+            // get credentials
             await this.$bus.$on("getCreds", (creds) => {
                 this.jwtToken = creds.jwtToken;
                 this.myId = creds.myId;
                 this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
             });
 
+            // get chat and notification list after getting credentials
+            this.startGetChat = true;
+            this.startGetNotification = true;
+
+            // listen to notification hub
             await this.$notificationHub.online(this.myId);
             await this.$notificationHub.$on("notify", this.notify);
 

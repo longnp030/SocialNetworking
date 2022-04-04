@@ -5,7 +5,8 @@
         @hidden="$emit('hidden')"
     >
         <template #button-content>
-            <em><b-icon icon="bell-fill"></b-icon></em>
+            <em><b-icon icon="bell-fill"></b-icon>
+            <b-badge pill variant="danger">{{unreadCount}}</b-badge></em>
         </template>
         <b-dropdown-item
             block
@@ -53,6 +54,17 @@
                         await this.getNotificationList();
                     }
                 }
+            }
+        },
+        computed: {
+            unreadCount() {
+                let count = 0;
+                for (var noti in this.notis) {
+                    if (!noti.Read) {
+                        count++;
+                    }
+                }
+                return count;
             }
         }
     }

@@ -5,7 +5,8 @@
         @hidden="$emit('hidden')"
     >
         <template #button-content>
-            <em><b-icon icon="chat-fill"></b-icon></em>
+            <em><b-icon icon="chat-fill"></b-icon>
+            <b-badge pill variant="danger">{{unreadCount}}</b-badge></em>
         </template>
         <b-dropdown-item
             block
@@ -15,12 +16,14 @@
             <chat-card 
                 :jwtToken="jwtToken"
                 :myId="myId"
-                :msg="msg"/>
+                :msg="msg" />
         </b-dropdown-item>
     </b-nav-item-dropdown>
 </template>
 
 <script>
+import { forEach } from "lodash";
+
     export default {
         name: "ChatList",
         props: ["jwtToken", "myId", "start"],
@@ -54,6 +57,17 @@
                         await this.getChatList();
                     }
                 }
+            }
+        },
+        computed: {
+            unreadCount() {
+                let count = 0;
+                for (var msg in this.msgs) {
+                    if (msg.UserId === this.myId && !msg.Read) {
+                        count++;
+                    }
+                }
+                return count;
             }
         }
     }
