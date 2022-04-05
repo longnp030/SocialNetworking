@@ -108,29 +108,19 @@
                 getAvatarNameUrl: "https://localhost:6868/Users/userId/profile/avatarname",
                 avatar: null,
                 name: null,
+                userCardSize: 'M',
 
                 getPostUrl: "https://localhost:6868/Posts/postId",
-                getMediaUrl: "https://localhost:6868/Posts/postId/media",
                 post: {},
                 postMedia: [],
-
-                getLikesUrl: "https://localhost:6868/Posts/postId/likes",
-                checkLikedUrl: "https://localhost:6868/Posts/postId/likes/userId",
-                likePostUrl: "https://localhost:6868/Posts/postId/likes/userId/like",
-                unlikePostUrl: "https://localhost:6868/Posts/postId/likes/userId/unlike",
-
-                savePostUrl: "https://localhost:6868/Posts/postId/save/userId",
 
                 iLiked: false,
                 whoLiked: [],
                 likes: 0,
-
-                getCommentCountUrl: "https://localhost:6868/Posts/postId/comments/count",
                 comments: 0,
                 shares: 0,
 
                 isEditing: false,
-                userCardSize: 'M',
             }
         },
         async created() {
@@ -197,7 +187,7 @@
              * */
             async getMedia() {
                 await this.$http.get(
-                    this.getMediaUrl.replace("postId", this.postId)
+                    this.getPostUrl.replace("postId", this.postId) + "/media"
                 ).then(res => {
                     res.data.forEach((val, _) => {
                         var media = require(`@/assets/${val}`);
@@ -227,7 +217,7 @@
              * */
             async getWhoLiked() {
                 await this.$http.get(
-                    this.getLikesUrl.replace("postId", this.postId)
+                    this.getPostUrl.replace("postId", this.postId) + "/likes"
                 ).then((res) => {
                     this.likes = res.data.length;
                 }).catch((res) => {
@@ -240,7 +230,7 @@
              * */
             async haveILiked() {
                 await this.$http.get(
-                    this.checkLikedUrl.replace("postId", this.postId).replace("userId", this.myId)
+                    this.getPostUrl.replace("postId", this.postId) + "/likes/" + this.myId
                 ).then((res) => {
                     this.iLiked = res.data;
                     //console.log(this.liked);
@@ -256,7 +246,7 @@
             async likePost(e) {
                 e.stopPropagation();
                 await this.$http.post(
-                    this.likePostUrl.replace("postId", this.postId).replace("userId", this.myId),
+                    this.getPostUrl.replace("postId", this.postId) + "/likes/" + this.myId + "/like",
                     null
                 ).then((res) => {
                     console.log(res.data);
@@ -272,7 +262,7 @@
             async unlikePost(e) {
                 e.stopPropagation();
                 await this.$http.post(
-                    this.unlikePostUrl.replace("postId", this.postId).replace("userId", this.myId),
+                    this.getPostUrl.replace("postId", this.postId) + "/likes/" + this.myId + "/unlike",
                     null
                 ).then((res) => {
                     console.log(res.data);
@@ -307,7 +297,7 @@
              * */
             async getCommentCount() {
                 await this.$http.get(
-                    this.getCommentCountUrl.replace("postId", this.postId)
+                    this.getPostUrl.replace("postId", this.postId) + "/comments/count"
                 ).then(res => {
                     this.comments = res.data;
                 }).catch(res => {
@@ -355,7 +345,7 @@
             onSaveClick(e) {
                 e.stopPropagation();
                 this.$http.post(
-                    this.savePostUrl.replace("postId", this.postId).replace("userId", this.myId),
+                    this.savePostUrl.replace("postId", this.postId) + "/save/" + this.myId,
                     null
                 ).then((res) => {
                     console.log(res);

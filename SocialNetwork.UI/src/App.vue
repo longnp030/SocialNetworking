@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <b-navbar toggleable="lg" type="dark" id="navbar">
+        <b-navbar toggleable="lg" type="dark" id="navbar" v-if="jwtToken&&myId">
             <b-navbar-brand href="/home"><b-icon icon="twitter"></b-icon></b-navbar-brand>
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -96,7 +96,7 @@
                 this.myId = creds.myId;
                 this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
             });
-
+            console.log(this.jwtToken, this.myId);
             await this.getUserInfo();
 
             // get chat and notification list after getting credentials

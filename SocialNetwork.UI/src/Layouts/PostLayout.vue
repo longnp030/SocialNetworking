@@ -1,21 +1,21 @@
 <template>
-    <div>
+    <b-container id="post" class="w-50">
         <h1>Post</h1>
         <post-card :myId="myId" :jwtToken="jwtToken" :postId="postId"/>
         
         <b-container fluid id="comments">
             <h2>Comments</h2>
             <comment-form 
-                         :myId="myId" 
-                         :jwtToken="jwtToken" 
-                         :postId="postId"/>
+                :myId="myId" 
+                :jwtToken="jwtToken" 
+                :postId="postId"/>
             <comment-card 
-                         :myId="myId" :jwtToken="jwtToken"
-                         v-for="commentId in commentIds"
-                         :key="commentId"
-                         :commentId="commentId"/>
+                :myId="myId" :jwtToken="jwtToken"
+                v-for="commentId in commentIds"
+                :key="commentId"
+                :commentId="commentId"/>
         </b-container>
-    </div>
+    </b-container>
 </template>
 
 <script>
@@ -104,6 +104,9 @@
 </script>
 
 <style scoped>
+    #post {
+        width: 60%;
+    }
     #comments {
         display: flex;
         flex-direction: column;

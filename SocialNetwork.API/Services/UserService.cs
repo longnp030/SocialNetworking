@@ -432,6 +432,7 @@ public class UserService : IUserService
     {
         return _context.Notification
             .Where(n => n.ToId == id)
+            .OrderByDescending(n => n.Timestamp)
             .ToList();
     }
     #endregion Methods

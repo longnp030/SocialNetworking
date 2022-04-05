@@ -27,12 +27,12 @@
 
             <b-container class="d-inline-flex author-date-opts" fluid>
                 <div class="author-date">
-                    <b class="mt-0 author"><a :href="userProfileUrl" @click="$(this).stopPropagation();">{{ name }}</a></b>
+                    <b class="mt-0 author">{{ name }}</b>
                     <div>・</div>
                     <div class="date" :title="toReadableTime(comment.Timestamp)">{{ calcTimeTillNow(comment.Timestamp) }}</div>
                 </div>
                 <div class="opts" v-if="myId===comment.AuthorId">
-                    <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret>
+                    <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret right>
                         <template #button-content><b-icon icon="three-dots"></b-icon></template>
                         <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
                         <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
@@ -40,17 +40,12 @@
                 </div>
             </b-container>
             
-            <p class="mb-0 text">
-              {{ comment.Text }}
-            </p>
+            <p class="mb-0 text">{{ comment.Text }}</p>
 
             <b-carousel
                 id="carousel-comment"
-                :interval="4000"
                 controls
                 indicators
-                img-width="1024"
-                img-height="480"
                 v-if="commentMedia.length > 0"
             >
                 <b-carousel-slide 
@@ -59,19 +54,21 @@
                     :img-src="media">
                 </b-carousel-slide>
             </b-carousel>
+
+            <b-button-group class="d-flex like-cmt">
+                <div class="cmt">
+                    <b-button variant="outline"><b-icon icon="chat" variant="light"></b-icon></b-button>
+                    <div class="count">{{comments}}</div>
+                </div>
+                <div class="like">
+                    <b-button variant="outline" v-if="iLiked" @click="unlikeComment"><b-icon icon="heart-fill" variant="danger"></b-icon></b-button>
+                    <b-button variant="outline" v-else @click="likeComment"><b-icon icon="heart" variant="light"></b-icon></b-button>
+                    <div class="count" :class="{'liked': iLiked}">{{likes}}</div>
+                </div>
+            </b-button-group>
         </b-media>
 
-        <b-button-group class="d-flex like-cmt-share">
-            <div class="cmt">
-                <b-button variant="outline"><b-icon icon="chat" variant="light"></b-icon></b-button>
-                <div class="count">{{comments}}</div>
-            </div>
-            <div class="like">
-                <b-button variant="outline" v-if="iLiked" @click="unlikeComment"><b-icon icon="heart-fill" variant="danger"></b-icon></b-button>
-                <b-button variant="outline" v-else @click="likeComment"><b-icon icon="heart" variant="light"></b-icon></b-button>
-                <div class="count" :class="{'liked': iLiked}">{{likes}}</div>
-            </div>
-        </b-button-group>
+        
     </b-card>
 
     <comment-form 
@@ -91,27 +88,19 @@
                 getAvatarNameUrl: "https://localhost:6868/Users/userId/profile/avatarname",
                 avatar: null,
                 name: null,
+                userCardSize: 'M',
 
                 getCommentUrl: "https://localhost:6868/Comments/commentId",
-                getMediaUrl: "https://localhost:6868/Comments/commentId/media",
                 comment: {},
                 commentMedia: [],
-
-                getLikesUrl: "https://localhost:6868/Comments/commentId/likes",
-                checkLikedUrl: "https://localhost:6868/Comments/commentId/likes/userId",
-                likeCommentUrl: "https://localhost:6868/Comments/commentId/likes/userId/like",
-                unlikeCommentUrl: "https://localhost:6868/Comments/commentId/likes/userId/unlike",
 
                 iLiked: false,
                 whoLiked: [],
                 likes: 0,
-
-                getChildCountUrl: "https://localhost:6868/Comments/commentId/comments/count",
                 comments: 0,
                 shares: 0,
 
                 isEditing: false,
-                userCardSize: 'M',
             }
         },
         async created() {
@@ -121,7 +110,6 @@
              * run the method named "commentReacted"
              */
             await this.$commentHub.$on('comment-react', this.commentReacted);
-
             await this.$postHub.$on('comment-edited', this.commentEdited);
         },
         beforeDestroy() {
@@ -142,7 +130,6 @@
              */
             await this.getComment();
             await this.getMedia();
-
             await this.getAvatarName();
 
             await this.haveILiked();
@@ -181,7 +168,7 @@
              * */
             async getMedia() {
                 await this.$http.get(
-                    this.getMediaUrl.replace("commentId", this.commentId)
+                    this.getCommentUrl.replace("commentId", this.commentId) + "/media"
                 ).then(res => {
                     res.data.forEach((val, idx) => {
                         //console.log(idx);
@@ -212,7 +199,7 @@
              * */
             async getWhoLiked() {
                 await this.$http.get(
-                    this.getLikesUrl.replace("commentId", this.commentId)
+                    this.getCommentUrl.replace("commentId", this.commentId) + "/likes"
                 ).then((res) => {
                     this.likes = res.data.length;
                 }).catch((res) => {
@@ -225,7 +212,7 @@
              * */
             async haveILiked() {
                 await this.$http.get(
-                    this.checkLikedUrl.replace("commentId", this.commentId).replace("userId", this.myId)
+                    this.getCommentUrl.replace("commentId", this.commentId) + "/likes/" + this.myId
                 ).then((res) => {
                     this.iLiked = res.data;
                     //console.log(this.liked);
@@ -241,7 +228,7 @@
             async likeComment(e) {
                 //console.log("Like...");
                 await this.$http.post(
-                    this.likeCommentUrl.replace("commentId", this.commentId).replace("userId", this.myId),
+                    this.likeCommentUrl.replace("commentId", this.commentId) + "/likes/" + this.myId + "/like",
                     null
                 ).then((res) => {
                     console.log(res);
@@ -257,7 +244,7 @@
              */
             async unlikeComment(e) {
                 await this.$http.post(
-                    this.unlikeCommentUrl.replace("commentId", this.commentId).replace("userId", this.myId),
+                    this.likeCommentUrl.replace("commentId", this.commentId) + "/likes/" + this.myId + "/unlike",
                     null
                 ).then((res) => {
                     console.log(res);
@@ -294,7 +281,7 @@
              * */
             async getChildCount() {
                 await this.$http.get(
-                    this.getChildCountUrl.replace("commentId", this.commentId)
+                    this.getCommentUrl.replace("commentId", this.commentId) + "/comments/count"
                 ).then(res => {
                     this.comments = res.data;
                 }).catch(res => {
@@ -329,20 +316,6 @@
                 });
             }
         },
-        watch: {
-            //comment: {
-            //    immediate: true,
-            //    deep: true,
-            //    handler: function () {
-            //        console.log(this.comment);
-            //    }
-            //},
-        },
-        computed: {
-            userProfileUrl() {
-                return `http://localhost:8080/user/${this.comment.AuthorId}/profile`;
-            }
-        }
     }
 </script>
 
@@ -364,22 +337,22 @@
         align-items: center;
     }
 
-    .like-cmt-share {
-        margin-top: 8px;
-        justify-content: space-around;
+    .like-cmt {
+        max-width: 68%;
+        margin: 20px 0 0 -10px;
+        justify-content: space-between;
     }
 
-    .like-cmt-share .like,
-    .like-cmt-share .cmt,
-    .like-cmt-share .share {
+    .like-cmt .like,
+    .like-cmt .cmt {
         display: inline-flex;
     }
 
-    .like-cmt-share .btn {
+    .like-cmt .btn {
         padding-right: 6px;
     }
 
-    .like-cmt-share .count {
+    .like-cmt .count {
         line-height: 36px;
     }
 
