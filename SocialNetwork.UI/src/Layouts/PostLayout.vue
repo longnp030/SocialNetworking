@@ -4,12 +4,13 @@
         <post-card :myId="myId" :jwtToken="jwtToken" :postId="postId"/>
         
         <b-container fluid id="comments">
-            <h2>Comments</h2>
+            <h2 class="mt-4">Comments</h2>
             <comment-form 
                 :myId="myId" 
                 :jwtToken="jwtToken" 
                 :postId="postId"/>
             <comment-card 
+                :postId="postId"
                 :myId="myId" :jwtToken="jwtToken"
                 v-for="commentId in commentIds"
                 :key="commentId"
@@ -56,7 +57,7 @@
         },
         async mounted() {
             /**
-             * Get how many comments there are
+             * Get comments
              */
             await this.getComments();
         },
@@ -70,7 +71,7 @@
         },
         methods: {
             /**
-             * get how many comments there are
+             * get comments
              * */
             async getComments() {
                 this.$http.get(
@@ -89,15 +90,15 @@
              * run this
              * @param comment equivalent to parameter named "comment" sent from Backend in Class PostHub, Task Comment()
              */
-            async postCommentedOn(comment) {
-                console.log(comment);
-                this.commentIds.unshift(comment.id);
+            async postCommentedOn(commentId) {
+                //console.log(comment);
+                this.commentIds.unshift(commentId);
             },
 
             async commentDeleted(commentId) {
-                console.log(commentId)
+                //console.log(commentId)
                 this.commentIds.splice(this.commentIds.indexOf(commentId), 1);
-                console.log(this.commentIds)
+                //console.log(this.commentIds)
             },
         },
     }

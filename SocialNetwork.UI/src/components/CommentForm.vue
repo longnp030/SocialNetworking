@@ -1,5 +1,5 @@
 <template>
-    <b-card>
+    <b-card class="p-0">
         <b-media>
             <template #aside>
                 <b-avatar v-if="avatar" :src="avatar" size="4rem"></b-avatar>
@@ -8,7 +8,7 @@
             <b-form @submit="onSubmit" ref="form">
                 <b-form-group>
                     <b-form-textarea
-                        id="textarea"
+                        class="textarea"
                         v-model="form.Text"
                         placeholder="Enter something..."
                         rows="3"
@@ -19,8 +19,9 @@
                 <div id="media-submit">
                     <b-form-file
                         v-model="media"
-                        placeholder="Add an image..."
                         @change="addImg"
+                        placeholder=""
+                        plain
                         multiple
                     ></b-form-file>
 
@@ -39,7 +40,7 @@
 <script>
     export default {
         name: 'CommentForm',
-        props: ["postId", "myId", "jwtToken", "comment"],
+        props: ["postId", "myId", "jwtToken", "comment", "commentId"],
         data() {
             return {
                 getAvatarUrl: "https://localhost:6868/Users/userId/profile/avatar",
@@ -51,7 +52,7 @@
                 form: {
                     MediaPaths: [],
                 },
-                media: null,
+                media: [],
                 imgUrls: [],
 
                 isEditing: false,
@@ -85,7 +86,10 @@
                     });
                 } else {
                     this.form.AuthorId = this.myId;
-                    this.form.PostId = this.postId,
+                    this.form.PostId = this.postId;
+                    if (this.commentId) {
+                        this.form.ParentId = this.commentId;
+                    }
 
                     await this.$http.post(
                         this.commentUrl,
@@ -150,13 +154,14 @@
         border-radius: 10px;
     }
 
-    #textarea {
+    .textarea {
         background-color: #111;
         border: none;
         color: var(--white);
         overflow: hidden;
+        height: 36px !important;
     }
-    #textarea::-webkit-scrollbar {
+    .textarea::-webkit-scrollbar {
         display: none;
     }
 

@@ -21,9 +21,19 @@ export default {
             commentHub.$emit('comment-react', { commentId, userId, like })
         });
 
-        // handle users comment on comment
-        connection.on('Comment', (comment) => {
-            commentHub.$emit('comment-commented-on', comment)
+        // handle users reply to comment
+        connection.on('Reply', (replyId) => {
+            commentHub.$emit('comment-replied-to', replyId)
+        });
+
+        // handle users edit a reply
+        connection.on('Edit', (reply) => {
+            commentHub.$emit('reply-edited', reply)
+        });
+
+        // handle users edit a reply
+        connection.on('Delete', (replyId) => {
+            commentHub.$emit('reply-deleted', replyId)
         });
 
         // handle tracking users view comment

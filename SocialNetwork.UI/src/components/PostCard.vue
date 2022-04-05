@@ -1,6 +1,6 @@
 <template>
     <!--TODO: Add shared by wrapped by b-card-->
-    <b-card v-if="!isEditing" @click="postCardOnClick">
+    <b-card v-if="!isEditing">
         <b-media>
             <template #aside>
                 <b-avatar 
@@ -80,7 +80,7 @@
                 <div class="count">{{shares}}</div>
             </div>
             <div class="cmt">
-                <b-button variant="outline"><b-icon icon="chat" variant="light"></b-icon></b-button>
+                <b-button variant="outline" @click="showFullPost"><b-icon icon="chat" variant="light"></b-icon></b-button>
                 <div class="count">{{comments}}</div>
             </div>
             <div class="like">
@@ -308,7 +308,7 @@
             /**
              * Redirect to PostLayout single page -> Full view of the post
              * */
-            postCardOnClick() {
+            showFullPost() {
                 if (this.$route.path !== `/post/${this.postId}`) {
                     this.$router.push({
                         name: 'post',

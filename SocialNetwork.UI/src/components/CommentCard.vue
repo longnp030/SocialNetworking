@@ -1,76 +1,89 @@
 <template>
-    <b-card v-if="!isEditing">
-        <b-media>
-            <template #aside>
-                <b-avatar 
-                    v-if="avatar"
-                    :src="avatar" 
-                    size="4rem"
-                    button
-                    @click="openUserProfile"
-                    :id="commentId" 
-                ></b-avatar>
-            </template>
+    <div class="comment-wrapper" v-if="!isEditing">
+        <b-card class="w-100">
+            <b-media>
+                <template #aside>
+                    <b-avatar 
+                        v-if="avatar"
+                        :src="avatar" 
+                        size="4rem"
+                        button
+                        @click="openUserProfile"
+                        :id="commentId" 
+                    ></b-avatar>
+                </template>
 
-            <b-popover 
-                :target="commentId" 
-                triggers="hover" 
-                placement="top"
-                custom-class="wide-popover"
-            >
-                <user-card
-                    :jwtToken="jwtToken"
-                    :myId="myId"
-                    :userId="comment.AuthorId"
-                    :size="userCardSize"/>
-            </b-popover>
+                <b-popover 
+                    :target="commentId" 
+                    triggers="hover" 
+                    placement="top"
+                    custom-class="wide-popover"
+                >
+                    <user-card
+                        :jwtToken="jwtToken"
+                        :myId="myId"
+                        :userId="comment.AuthorId"
+                        :size="userCardSize"/>
+                </b-popover>
 
-            <b-container class="d-inline-flex author-date-opts" fluid>
-                <div class="author-date">
-                    <b class="mt-0 author">{{ name }}</b>
-                    <div>・</div>
-                    <div class="date" :title="toReadableTime(comment.Timestamp)">{{ calcTimeTillNow(comment.Timestamp) }}</div>
-                </div>
-                <div class="opts" v-if="myId===comment.AuthorId">
-                    <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret right>
-                        <template #button-content><b-icon icon="three-dots"></b-icon></template>
-                        <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
-                        <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
-                    </b-dropdown>
-                </div>
-            </b-container>
+                <b-container class="d-inline-flex author-date-opts" fluid>
+                    <div class="author-date">
+                        <b class="mt-0 author">{{ name }}</b>
+                        <div>・</div>
+                        <div class="date" :title="toReadableTime(comment.Timestamp)">{{ calcTimeTillNow(comment.Timestamp) }}</div>
+                    </div>
+                    <div class="opts" v-if="myId===comment.AuthorId">
+                        <b-dropdown size="md" variant="link" toggle-class="text-decoration-none" no-caret right>
+                            <template #button-content><b-icon icon="three-dots"></b-icon></template>
+                            <b-dropdown-item @click="onEditClick"><b-icon icon="pen-fill"></b-icon>&nbsp;Edit</b-dropdown-item>
+                            <b-dropdown-item @click="onDeleteClick"><b-icon icon="trash-fill"></b-icon>&nbsp;Delete</b-dropdown-item>
+                        </b-dropdown>
+                    </div>
+                </b-container>
             
-            <p class="mb-0 text">{{ comment.Text }}</p>
+                <p class="mb-0 text">{{ comment.Text }}</p>
 
-            <b-carousel
-                id="carousel-comment"
-                controls
-                indicators
-                v-if="commentMedia.length > 0"
-            >
-                <b-carousel-slide 
-                    v-for="media in commentMedia"
-                    :key="media"
-                    :img-src="media">
-                </b-carousel-slide>
-            </b-carousel>
+                <b-carousel
+                    id="carousel-comment"
+                    controls
+                    indicators
+                    v-if="commentMedia.length > 0"
+                >
+                    <b-carousel-slide 
+                        v-for="media in commentMedia"
+                        :key="media"
+                        :img-src="media">
+                    </b-carousel-slide>
+                </b-carousel>
 
-            <b-button-group class="d-flex like-cmt">
-                <div class="cmt">
-                    <b-button variant="outline"><b-icon icon="chat" variant="light"></b-icon></b-button>
-                    <div class="count">{{comments}}</div>
-                </div>
-                <div class="like">
-                    <b-button variant="outline" v-if="iLiked" @click="unlikeComment"><b-icon icon="heart-fill" variant="danger"></b-icon></b-button>
-                    <b-button variant="outline" v-else @click="likeComment"><b-icon icon="heart" variant="light"></b-icon></b-button>
-                    <div class="count" :class="{'liked': iLiked}">{{likes}}</div>
-                </div>
-            </b-button-group>
-        </b-media>
-
-        
-    </b-card>
-
+                <b-button-group class="d-flex like-cmt">
+                    <div class="cmt">
+                        <b-button variant="outline" @click="showChildren=!showChildren"><b-icon icon="chat" variant="light"></b-icon></b-button>
+                        <div class="count">{{children.length}}</div>
+                    </div>
+                    <div class="like">
+                        <b-button variant="outline" v-if="iLiked" @click="unlikeComment"><b-icon icon="heart-fill" variant="danger"></b-icon></b-button>
+                        <b-button variant="outline" v-else @click="likeComment"><b-icon icon="heart" variant="light"></b-icon></b-button>
+                        <div class="count" :class="{'liked': iLiked}">{{likes}}</div>
+                    </div>
+                </b-button-group>
+            </b-media>
+        </b-card>
+        <div class="mt-1 sub-comments" v-if="showChildren">
+            <h3>Replies</h3>
+            <comment-form 
+                :myId="myId" 
+                :jwtToken="jwtToken" 
+                :postId="postId"
+                :commentId="commentId"/>
+            <comment-card 
+                :postId="postId"
+                :myId="myId" :jwtToken="jwtToken"
+                v-for="childId in children"
+                :key="childId"
+                :commentId="childId"/>
+        </div>
+    </div>
     <comment-form 
         v-else
         :comment="comment"
@@ -82,7 +95,7 @@
     import _ from 'lodash';
     export default {
         name: 'CommentCard',
-        props: ["commentId", "myId", "jwtToken"],
+        props: ["commentId", "myId", "jwtToken", "postId"],
         data() {
             return {
                 getAvatarNameUrl: "https://localhost:6868/Users/userId/profile/avatarname",
@@ -97,9 +110,10 @@
                 iLiked: false,
                 whoLiked: [],
                 likes: 0,
-                comments: 0,
+                children: [],
                 shares: 0,
 
+                showChildren: false,
                 isEditing: false,
             }
         },
@@ -109,11 +123,17 @@
              * whenever an event named "comment-react" triggered
              * run the method named "commentReacted"
              */
+            await this.$commentHub.commentOpened(this.commentId);
             await this.$commentHub.$on('comment-react', this.commentReacted);
+            await this.$commentHub.$on('comment-replied-to', this.commentRepliedTo);
+            await this.$commentHub.$on('reply-deleted', this.replyDeleted);
             await this.$postHub.$on('comment-edited', this.commentEdited);
         },
         beforeDestroy() {
+            this.$commentHub.commentClosed(this.commentId);
             this.$commentHub.$off('comment-react', this.commentReacted);
+            this.$commentHub.$off('comment-replied-to', this.commentRepliedTo);
+            this.$commentHub.$off('reply-deleted', this.replyDeleted);
             this.$postHub.$off('comment-edited', this.commentEdited);
         },
         async mounted() {
@@ -135,20 +155,9 @@
             await this.haveILiked();
             await this.getWhoLiked();
 
-            await this.getChildCount();
+            await this.getChildren();
         },
         methods: {
-            async getAvatarName() {
-                await this.$http.get(
-                    this.getAvatarNameUrl.replace("userId", this.comment.AuthorId)
-                ).then(res => {
-                    this.avatar = require(`@/assets/${res.data.Avatar}`);
-                    this.name = res.data.Name
-                }).catch(err => {
-                    console.log(err.response);
-                });
-            },
-
             /**
              * get the comment to display (text, time, id, ...)
              * */
@@ -161,6 +170,30 @@
                 }).catch((res) => {
                     console.log(res);
                 });
+            },
+
+            async getAvatarName() {
+                await this.$http.get(
+                    this.getAvatarNameUrl.replace("userId", this.comment.AuthorId)
+                ).then(res => {
+                    this.avatar = require(`@/assets/${res.data.Avatar}`);
+                    this.name = res.data.Name
+                }).catch(err => {
+                    console.log(err.response);
+                });
+            },
+            openUserProfile(e) {
+                this.$router.push({
+                    name: 'user',
+                    params: {
+                        userId: this.comment.AuthorId,
+                        myId: this.myId,
+                        jwtToken: this.jwtToken
+                    }
+                }).catch(err => {
+                    this.$router.go();
+                });
+                e.stopPropagation();
             },
 
             /**
@@ -178,20 +211,6 @@
                 }).catch(res => {
                     console.log(res.response);
                 });
-            },
-
-            openUserProfile(e) {
-                this.$router.push({
-                    name: 'user',
-                    params: {
-                        userId: this.comment.AuthorId,
-                        myId: this.myId,
-                        jwtToken: this.jwtToken
-                    }
-                }).catch(err => {
-                    this.$router.go();
-                });
-                e.stopPropagation();
             },
 
             /**
@@ -228,7 +247,7 @@
             async likeComment(e) {
                 //console.log("Like...");
                 await this.$http.post(
-                    this.likeCommentUrl.replace("commentId", this.commentId) + "/likes/" + this.myId + "/like",
+                    this.getCommentUrl.replace("commentId", this.commentId) + "/likes/" + this.myId + "/like",
                     null
                 ).then((res) => {
                     console.log(res);
@@ -244,7 +263,7 @@
              */
             async unlikeComment(e) {
                 await this.$http.post(
-                    this.likeCommentUrl.replace("commentId", this.commentId) + "/likes/" + this.myId + "/unlike",
+                    this.getCommentUrl.replace("commentId", this.commentId) + "/likes/" + this.myId + "/unlike",
                     null
                 ).then((res) => {
                     console.log(res);
@@ -279,11 +298,12 @@
             /**
              * Count how many replies this comment has
              * */
-            async getChildCount() {
+            async getChildren() {
                 await this.$http.get(
-                    this.getCommentUrl.replace("commentId", this.commentId) + "/comments/count"
+                    this.getCommentUrl.replace("commentId", this.commentId) + "/comments"
                 ).then(res => {
-                    this.comments = res.data;
+                    this.children = res.data;
+                    console.log(this.children);
                 }).catch(res => {
                     console.log(res.response);
                 });
@@ -314,7 +334,15 @@
                 }).catch((res) => {
                     console.log(res.response);
                 });
-            }
+            },
+
+            async commentRepliedTo(replyId) {
+                this.children.unshift(replyId);
+            },
+
+            async replyDeleted(replyId) {
+                this.children.splice(this.children.indexOf(replyId), 1);
+            },
         },
     }
 </script>
@@ -368,5 +396,15 @@
         min-width: max-content;
         background-color: #111;
         box-shadow: 0 0 10px #9ecaed;
+    }
+
+    .comment-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sub-comments {
+        max-width: 86%;
     }
 </style>

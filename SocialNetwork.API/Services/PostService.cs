@@ -148,6 +148,7 @@ public class PostService : IPostService
     {
         var comments = _context.Comment
             .Where(c => c.PostId == id)
+            .Where(c => c.ParentId == Guid.Empty)
             .OrderBy(c => c.Timestamp)
             .Reverse()
             .Select(c => c.Id).ToList();

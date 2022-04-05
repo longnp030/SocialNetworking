@@ -24,7 +24,7 @@ public interface IPostHub
     /// </summary>
     /// <param name="comment">The commented comment</param>
     /// <returns></returns>
-    Task Comment(Comment comment);
+    Task Comment(Guid commentId);
     
     /// <summary>
     /// Send "Edit" event to Front-end whenever user edit a comment

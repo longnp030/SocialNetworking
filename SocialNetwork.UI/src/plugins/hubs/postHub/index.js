@@ -22,8 +22,8 @@ export default {
         });
 
         // handle users comment on post
-        connection.on('Comment', (comment) => {
-            postHub.$emit('post-commented-on', comment)
+        connection.on('Comment', (commentId) => {
+            postHub.$emit('post-commented-on', commentId)
         });
 
         // handle users edit a comment

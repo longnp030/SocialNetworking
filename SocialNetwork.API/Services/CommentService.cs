@@ -25,7 +25,7 @@ public interface ICommentService
     /// </summary>
     /// <param name="id">Comment's unique identifier</param>
     /// <returns>List of comments of this comment</returns>
-    IEnumerable<Comment> GetAllChildrenByCommentId(Guid id);
+    IEnumerable<Guid> GetAllChildrenByCommentId(Guid id);
 
     /// <summary>
     /// Get all likes for this comment
@@ -126,10 +126,13 @@ public class CommentService : ICommentService
         return comment;
     }
 
-    public IEnumerable<Comment> GetAllChildrenByCommentId(Guid id)
+    public IEnumerable<Guid> GetAllChildrenByCommentId(Guid id)
     {
         var comments = _context.Comment
-            .Where(c => c.ParentId == id).ToList();
+            .Where(c => c.ParentId == id)
+            .OrderByDescending(c => c.Timestamp)
+            .Select(c => c.Id)
+            .ToList();
         return comments;
     }
 
@@ -216,7 +219,15 @@ public class CommentService : ICommentService
             }
         }
 
-        var notifyToId = _context.Post.Find(comment.PostId).AuthorId;
+        var notifyToId = Guid.Empty;
+        if (comment.ParentId == Guid.Empty)
+        {
+            notifyToId = _context.Post.Find(comment.PostId).AuthorId;
+        }
+        else
+        {
+            notifyToId = _context.Comment.Find(comment.ParentId).AuthorId;
+        }
         var commentNotification = new Notification
         {
             FromId = comment.AuthorId,
@@ -229,7 +240,14 @@ public class CommentService : ICommentService
         _context.Notification.Add(commentNotification);
 
         _notificationHubContext.Clients.Group(notifyToId.ToString()).Notify(commentNotification);
-        _postHubContext.Clients.Group(model.PostId.ToString()).Comment(comment);
+        if (comment.ParentId == Guid.Empty)
+        {
+            _postHubContext.Clients.Group(model.PostId.ToString()).Comment(comment.Id);
+        }
+        else
+        {
+            _commentHubContext.Clients.Group(comment.ParentId.ToString()).Reply(comment.Id);
+        }
 
         _context.SaveChanges();
     }
@@ -248,7 +266,14 @@ public class CommentService : ICommentService
     public void Delete(Guid id)
     {
         var comment = _context.Comment.Find(id);
-        _postHubContext.Clients.Group(comment.PostId.ToString()).Delete(id);
+        if (comment.ParentId == Guid.Empty)
+        {
+            _postHubContext.Clients.Group(comment.PostId.ToString()).Delete(id);
+        }
+        else
+        {
+            _commentHubContext.Clients.Group(comment.ParentId.ToString()).Delete(comment.Id);
+        }
         _context.Comment.Remove(comment);
 
         _context.CommentMedia.RemoveRange(_context.CommentMedia.Where(m => m.CommentId == id).ToList());

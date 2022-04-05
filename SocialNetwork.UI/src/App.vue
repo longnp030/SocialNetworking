@@ -96,7 +96,7 @@
                 this.myId = creds.myId;
                 this.$http.defaults.headers.common["Authorization"] = this.jwtToken;
             });
-            console.log(this.jwtToken, this.myId);
+
             await this.getUserInfo();
 
             // get chat and notification list after getting credentials

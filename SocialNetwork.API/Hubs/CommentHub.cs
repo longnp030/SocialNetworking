@@ -23,9 +23,23 @@ public interface ICommentHub
     /// Send "Reply" event to Front-end whenever use replies on a comment
     /// <para>Not being implemented yet</para>
     /// </summary>
-    /// <param name="comment">The replied comment</param>
+    /// <param name="replyId">The replied comment unique identifier</param>
     /// <returns></returns>
-    Task Reply(Comment comment);
+    Task Reply(Guid replyId);
+
+    /// <summary>
+    /// Send "Edit" event to Front-end whenever user edit a reply
+    /// </summary>
+    /// <param name="comment">The edited reply</param>
+    /// <returns></returns>
+    Task Edit(Comment reply);
+
+    /// <summary>
+    /// Send "Delete" event to Front-end whenever user delete a reply
+    /// </summary>
+    /// <param name="comment">The deleted reply</param>
+    /// <returns></returns>
+    Task Delete(Guid id);
 
     /// <summary>
     /// Send "ViewingComment" event to Front-end whenever user click to view a comment
@@ -71,16 +85,6 @@ public class CommentHub : Hub<ICommentHub>
     #endregion Constructor
 
     #region Methods
-    public async Task Reaction(Guid commentId, Guid userId, bool like)
-    {
-        await Clients.Group(commentId.ToString()).Reaction(commentId, userId, like);
-    }
-
-    public async Task Reply(Comment comment)
-    {
-        await Clients.Group(comment.ParentId.ToString()).Reply(comment);
-    }
-
     public async Task ViewingComment(Guid commentId)
     {
         _logger.LogInformation($"Client {Context.ConnectionId} is viewing {commentId}");
